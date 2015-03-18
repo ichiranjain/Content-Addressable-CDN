@@ -1,7 +1,12 @@
 package overlay;
 
-import java.io.DataInputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -11,15 +16,29 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
-public class Peer {
+import overlayInterface.PeerInterface;
+
+/**
+ * Peer class to represent a node in the overlay network. Implements the
+ * PeerInterface interface.
+ * 
+ * @author Gaurav Komera
+ *
+ */
+public class Peer implements PeerInterface {
+	Socket peerSocket;
+
+	// serverSocket to listen on
 	static ServerSocket serverSocket;
-	static Socket peerSocket;
-	static HashMap<String, SocketContainer> peerSockets;
+	// socket to communicate with neighboring nodes
+	// map of neighboring sockets
+	static HashMap<String, SocketContainer> neighbors;
+	// map of vacancies with current and neighboring nodes
 	static HashMap<String, Integer> vacancies;
+	// set of all nodes in the connected network
 	static HashSet<String> allNodes;
 	static PrintStream os;
 	static Scanner s;
-	static int neighbors;
 	static int logN;
 
 	// static block for initializing static content
@@ -32,227 +51,188 @@ public class Peer {
 				e.printStackTrace();
 			}
 		}
-		peerSocket = null;
-		peerSockets = new HashMap<String, SocketContainer>();
+		neighbors = new HashMap<String, SocketContainer>();
 		allNodes = new HashSet<String>();
 		os = null;
 		s = null;
-		neighbors = 0;
 		logN = 0;
 	}
 
+	// Default constructor
 	public Peer() {
-
-	}
-
-	public static void updateLogN() {
-		logN = (int) Math.ceil(Math.log10(allNodes.size()) / Math.log10(2));
-	}
-
-	public static void main(String[] args) throws IOException {
-		System.out.println("1 - Start Node");
-		System.out.println("2 - Join Node");
-
-		s = new Scanner(System.in);
-		int x = Integer.parseInt(s.nextLine());
-		if (x == 1) {
-			System.out.println("Starting node...");
-			System.out.println("IP: "
-					+ InetAddress.getLocalHost().getHostAddress());
-			// creating peer
-			System.out.println("Waiting for client peer...");
-			peerSocket = serverSocket.accept();
-			addPeer(peerSocket);
-
-			System.out.println("Client peer now connected... IP: "
-					+ peerSocket.getRemoteSocketAddress());
-		} else if (x == 2) {
-			System.out.print("Please enter server address: ");
-			String server = s.nextLine();
-			peerSocket = new Socket(server, 43125);
-			addPeer(peerSocket);
-		}
-		new Receive(peerSocket.getRemoteSocketAddress() + "").start();
-
-		Listen listen = new Listen(serverSocket);
-		listen.start();
-
-		// send msgs to neighbors
-		while (true) {
-			try {
-				String line = s.nextLine();
-				String[] parts = line.split("=");
-				if (peerSockets.containsKey(parts[0])) {
-					System.out.println("Sending msg to " + parts[0] + "...");
-					os = peerSockets.get(parts[0]).os;
-					os.println(parts[1]);
-				} else {
-
-				}
-			} catch (Exception e) {
-			}
-		}
-	}
-
-	public static void addPeer(Socket peerSocket) throws IOException {
-		DataInputStream is = new DataInputStream(peerSocket.getInputStream());
-		PrintStream os = new PrintStream(peerSocket.getOutputStream());
-		peerSockets.put(peerSocket.getRemoteSocketAddress() + "",
-				new SocketContainer(peerSocket, is, os));
-		allNodes.add(peerSocket.getRemoteSocketAddress().toString());
-		neighbors = peerSockets.size();
-		updateNeighbors(peerSocket.getRemoteSocketAddress().toString());
-		updateLogN();
-	}
-
-	public static void updateNeighbors(String newPeer) {
-		// send neighbors with new peer info
-		StringBuilder sb = new StringBuilder();
-		sb.append("vacancies");
-		for (Entry<String, Integer> entry : vacancies.entrySet()) {
-			sb.append("#");
-			sb.append(entry.getKey());
-			sb.append("#");
-			sb.append(entry.getValue());
-		}
-		for (Entry<String, SocketContainer> entry : peerSockets.entrySet()) {
-			String key = entry.getKey();
-			SocketContainer sc = entry.getValue();
-			sc.os.println(sc.socket.getRemoteSocketAddress() + "="
-					+ sb.toString());
-		}
-
-		// send >new peer info about existing neighbors
-		sb = new StringBuilder();
-		sb.append("neighbors");
-		for (Entry<String, SocketContainer> entry : peerSockets.entrySet()) {
-			sb.append("#");
-			sb.append(entry.getKey());
-		}
-	}
-}
-
-/**
- * Container object for socket, input stream and output stream
- * 
- * @author Gaurav
- *
- */
-class SocketContainer {
-	Socket socket;
-	DataInputStream is;
-	PrintStream os;
-
-	public SocketContainer(Socket socket, DataInputStream is, PrintStream os) {
-		this.socket = socket;
-		this.is = is;
-		this.os = os;
-	}
-}
-
-/**
- * Read from command line and send to the connected peer using socket.
- * 
- * @author Gaurav
- *
- */
-class Send extends Thread {
-
-	PrintStream os;
-	String peerAddress;
-
-	public Send(String peerAddress) throws IOException {
-		this.peerAddress = peerAddress;
-		os = new PrintStream(Peer.peerSockets.get(peerAddress).os);
-	}
-
-	@Override
-	public void run() {
-		while (true) {
-			try {
-				String line = Peer.s.nextLine();
-				String[] parts = line.split("=");
-				if (Peer.peerSockets.containsKey(parts[0])) {
-					System.out.println("Sending msg to " + parts[0] + "...");
-					os = Peer.peerSockets.get(parts[0]).os;
-					os.println(parts[1]);
-				}
-			} catch (Exception e) {
-
-			}
-		}
-	}
-}
-
-/**
- * Receive from neighbor are print it out
- * 
- * @author Gaurav
- *
- */
-class Receive extends Thread {
-	DataInputStream is = null;
-
-	public Receive(String peerAddress) throws IOException {
-		is = new DataInputStream(Peer.peerSockets.get(peerAddress).is);
-	}
-
-	@Override
-	public void run() {
-		int attempt = 0;
-		System.out.println("Input Stream started...");
-		while (true) {
-			try {
-				String receivedContent = is.readLine();
-				String[] parts = receivedContent.split("#");
-				if (parts[0].equals("vacancies")) {
-
-				} else if (parts[0].equals("allNodes")) {
-					for (int i = 1; i < parts.length; i++) {
-						Peer.allNodes.add(parts[i]);
-					}
-				}
-				System.out.println(is.readLine());
-				attempt = 0;
-				// handle updates
-			} catch (IOException e) {
-				attempt++;
-				e.printStackTrace();
-				if (attempt == 3) {
-					try {
-						is.close();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				}
-			}
-		}
-	}
-}
-
-class Listen extends Thread {
-	ServerSocket serverSocket;
-
-	Socket peerSocket;
-
-	public Listen(ServerSocket serverSocket) {
-		this.serverSocket = serverSocket;
 		peerSocket = null;
 	}
 
-	@Override
-	public void run() {
-		while (true) {
-			try {
-				peerSocket = serverSocket.accept();
-				Peer.addPeer(peerSocket);
-				new Receive(peerSocket.getRemoteSocketAddress() + "").start();
-				System.out.println("Client peer now connected... IP: "
-						+ peerSocket.getRemoteSocketAddress());
-				System.out.println("New map: " + Peer.peerSockets);
-			} catch (IOException e) {
-				e.printStackTrace();
+	// update the number of required neighbors
+	public void updateLogN() {
+		logN = (int) Math.ceil(Math.log10(allNodes.size()) / Math.log10(2));
+	}
+
+	// Main thread
+	public static void main(String[] args) throws IOException,
+			ClassNotFoundException {
+		if (args.length < 2) {
+			if (args.length == 1 && args[0].equals("man")) {
+				System.out.println("To start a new network");
+				System.out.println("\n\tjava Peer start new\n");
+				System.out.println("To join an existing network");
+				System.out.println("\n\tjava Peer join <node address>");
+				System.out.println("\t <node address> is the IP address of a "
+						+ "node that is already part of the existing "
+						+ "network.\n");
+			} else {
+				System.out.println("Please pass command line arguments "
+						+ "suggesting the mode in which the node is to "
+						+ "be started.");
+				System.out.println("Suggestion:\n\n\t type 'java Peer man' on "
+						+ "the command line");
+			}
+			return;
+		}
+		Peer p = new Peer();
+
+		// static scanner object for the class
+		s = new Scanner(System.in);
+		if (args[0].toLowerCase().equals("start")) {
+			p.start();
+
+			// Start listening on server socket
+			p.listen();
+
+		} else if (args[0].toLowerCase().equals("join")) {
+			String server = args[1].toLowerCase();
+
+			p.join(server);
+
+			// Start listening on server socket
+			p.listen();
+			
+			// share general messages with neighbors
+			while (true) {
+				try {
+					// take input from command line
+					String line = s.nextLine();
+					Message<String> m = new Message<String>(99, line);
+
+					for (Entry<String, SocketContainer> entry : neighbors
+							.entrySet()) {
+						if (!entry.getKey().equals(
+								p.peerSocket.getRemoteSocketAddress())) {
+							System.out.print("Sending new neighbor info to: ");
+							System.out.println(entry.getValue().socket
+									.getRemoteSocketAddress());
+							entry.getValue().oos.writeObject(m);
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.out.println("");
+				}
 			}
 		}
+		p.peerSocket = null;
+	}
+
+	/**
+	 * This method updates meta data after adding new peer connection.
+	 */
+	@Override
+	public void addPeer(JoinPacket packet) throws IOException {
+
+		InputStream is = new BufferedInputStream(peerSocket.getInputStream());
+		ObjectInputStream ois = new ObjectInputStream(is);
+		OutputStream os = new BufferedOutputStream(peerSocket.getOutputStream());
+		ObjectOutputStream oos = new ObjectOutputStream(os);
+
+		neighbors.put(peerSocket.getRemoteSocketAddress() + "",
+				new SocketContainer(peerSocket, ois, oos));
+		// adding neighbor to set of all nodes in the network
+		allNodes.add(peerSocket.getRemoteSocketAddress().toString());
+		// update remaining neighbors with information about new neighbor
+		updateNeighbors(peerSocket, packet);
+		// update expected number of connections
+		updateLogN();
+	}
+
+	// send remaining neighbors information about new peer
+	@Override
+	public void updateNeighbors(Socket newPeer, JoinPacket packet) {
+		// **packet is null when the node starts**
+		// send neighbors with new peer info
+		
+
+		// send > new peer info about existing neighbors
+
+	}
+
+	@Override
+	public void listen() {
+		Listen listen = new Listen(this, serverSocket);
+		listen.start();
+	}
+
+	@Override
+	public void remove(Peer p) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void start() throws IOException {
+		System.out.println("Starting node...");
+		System.out
+				.println("IP: " + InetAddress.getLocalHost().getHostAddress());
+		// creating peer
+		System.out.println("Waiting for client peer...");
+		peerSocket = serverSocket.accept();
+		this.addPeer(null);
+
+		System.out.println("Client peer now connected... IP: "
+				+ peerSocket.getRemoteSocketAddress());
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public boolean join(String peer) throws IOException, ClassNotFoundException {
+		peerSocket = new Socket(peer, 43125);
+		Message<JoinPacket> joinMessage = new Message<JoinPacket>(1);
+		
+		InputStream is = new BufferedInputStream(peerSocket.getInputStream());
+		ObjectInputStream ois = new ObjectInputStream(is);
+		OutputStream os = new BufferedOutputStream(peerSocket.getOutputStream());
+		ObjectOutputStream oos = new ObjectOutputStream(os);
+		
+		oos.writeObject(joinMessage);
+
+		Message<JoinPacket> m = (Message) ois.readObject();
+
+		// update node's metadata using information from new node
+		updateMetaData(m);
+
+		// RECONNECT IF CONNECTION FAILS
+		// while (m.type == -1) {
+		// HashMap<String, Integer> vacancies = (HashMap<String, Integer>)
+		// m.packet.vacancies;
+		// if (vacancies.size() == 0) {
+		//
+		// } else {
+		//
+		// }
+		// }
+		// check if connection was accepted
+
+		this.addPeer(m.packet);
+		// start listening to connected peer for messages
+		new Receive(peerSocket.getRemoteSocketAddress() + "").start();
+
+		this.updateNeighbors(peerSocket, m.packet);
+
+		return true;
+	}
+
+	public void updateMetaData(Message<JoinPacket> m) {
+		JoinPacket packet = (JoinPacket) m.packet;
+		Peer.allNodes.addAll(packet.allNodes);
+		Peer.vacancies.putAll(packet.vacancies);
 	}
 }
