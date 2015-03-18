@@ -50,7 +50,7 @@ public class Listen extends Thread {
 							.readObject();
 
 					p.addPeer(m.packet);
-					new Receive(peerSocket.getRemoteSocketAddress() + "")
+					new Link(peerSocket.getRemoteSocketAddress() + "")
 							.start();
 					System.out.println("Client peer now connected... IP: "
 							+ peerSocket.getRemoteSocketAddress());

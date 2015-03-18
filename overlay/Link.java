@@ -9,11 +9,11 @@ import java.io.ObjectInputStream;
  * @author Gaurav Komera
  *
  */
-public class Receive extends Thread {
+public class Link extends Thread {
 	ObjectInputStream ois = null;
 	String connectedTo;
 
-	public Receive(String peerAddress) throws IOException {
+	public Link(String peerAddress) throws IOException {
 		connectedTo = peerAddress;
 		ois = Peer.neighbors.get(peerAddress).ois;
 	}
