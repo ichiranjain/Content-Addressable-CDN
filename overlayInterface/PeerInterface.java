@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import overlay.JoinPacket;
+import overlay.Message;
 import overlay.Peer;
 
 public interface PeerInterface {
@@ -19,4 +20,6 @@ public interface PeerInterface {
 	void listen();
 
 	void remove(Peer p);
+
+	boolean sendMessage(long neighbor, Message m);
 }

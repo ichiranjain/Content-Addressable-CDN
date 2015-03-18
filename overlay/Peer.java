@@ -11,8 +11,10 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
@@ -28,6 +30,8 @@ import overlayInterface.PeerInterface;
 public class Peer implements PeerInterface {
 	Socket peerSocket;
 
+	// ID of this node
+	long ID;
 	// serverSocket to listen on
 	static ServerSocket serverSocket;
 	// socket to communicate with neighboring nodes
@@ -51,11 +55,38 @@ public class Peer implements PeerInterface {
 				e.printStackTrace();
 			}
 		}
+
+		try {
+			ID = generateID(); // unique ID based on IP address
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+
 		neighbors = new HashMap<String, SocketContainer>();
 		allNodes = new HashSet<String>();
 		os = null;
 		s = null;
 		logN = 0;
+	}
+
+	/**
+	 * Node ID generator
+	 * 
+	 * @return
+	 * @throws UnknownHostException
+	 */
+	public static long generateID() throws UnknownHostException {
+		String hostAddress = InetAddress.getLocalHost().getHostAddress();
+		long prime1 = 105137;
+		long prime2 = 179422891;
+		long ID = 0;
+		for (int i = 0; i < hostAddress.length(); i++) {
+			char c = hostAddress.charAt(i);
+			if (c != '.') {
+				ID += (prime1 * hostAddress.charAt(i)) % prime2;
+			}
+		}
+		return ID;
 	}
 
 	// Default constructor
@@ -230,9 +261,54 @@ public class Peer implements PeerInterface {
 		return true;
 	}
 
+	/**
+	 * Update meta-data of node using received join packet.
+	 * 
+	 * @param m
+	 */
 	public void updateMetaData(Message<JoinPacket> m) {
 		JoinPacket packet = (JoinPacket) m.packet;
 		Peer.allNodes.addAll(packet.allNodes);
 		Peer.vacancies.putAll(packet.vacancies);
+	}
+	
+	/**
+	 * Method to be called by upper layers to send a message to a particular<br/>
+	 * neighbor.<br/>
+	 * 
+	 * Message type should be set to 7.
+	 * 
+	 * @param ID
+	 * @param m
+	 * @return
+	 */
+	public boolean sendMessage(long ID, Message m) {
+		try {
+			SocketContainer sc = neighbors.get(ID);
+			sc.oos.writeObject(m);			
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Method to be called by upper layers to send a message to a list of<br/>
+	 * neighbors.<br/>
+	 * 
+	 * Message type should be set to 7.
+	 * 
+	 * @param IDs
+	 * @param m
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean sendMessage(List<Long> IDs, Message m) throws IOException {
+		for (Long id : IDs) {
+			if (!sendMessage(id, m)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

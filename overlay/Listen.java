@@ -9,7 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * Listen for new connection requests from new peers on Server Socket <br/>
+ * Listen for connection requests from new peers on Server Socket <br/>
  * On receipt of new connection request check if peer can be added and <br/>
  * act accordingly.
  * 
@@ -23,6 +23,12 @@ public class Listen extends Thread {
 	ObjectOutputStream oos;
 	Socket peerSocket;
 
+	/**
+	 * Constructor to initialize serverSocket and peer variables.
+	 * 
+	 * @param p
+	 * @param serverSocket
+	 */
 	public Listen(Peer p, ServerSocket serverSocket) {
 		this.p = p;
 		this.serverSocket = serverSocket;
@@ -67,6 +73,11 @@ public class Listen extends Thread {
 		}
 	}
 
+	/**
+	 * Method that initializes the input and output object streams. <br/>
+	 * 
+	 * @throws IOException
+	 */
 	public void setUpObjectStreams() throws IOException {
 		ois = new ObjectInputStream(new BufferedInputStream(
 				peerSocket.getInputStream()));
@@ -74,6 +85,14 @@ public class Listen extends Thread {
 				peerSocket.getOutputStream()));
 	}
 
+	/**
+	 * Checks if new join request can be processed by current node.<br/>
+	 * Does this by checking if number of links after the node joins in are<br/>
+	 * within limits of log<i>n</i>.
+	 * 
+	 * @param peerSocket
+	 * @return
+	 */
 	public boolean nodeJoinPermitted(Socket peerSocket) {
 		int existingNetworkSize = Peer.allNodes.size();
 		int newNetworkSize = Peer.allNodes.size() + 1;
