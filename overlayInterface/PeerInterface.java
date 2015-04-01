@@ -22,4 +22,5 @@ public interface PeerInterface {
 	void remove(Peer p);
 
 	boolean sendMessage(long neighbor, Message m);
+
 }

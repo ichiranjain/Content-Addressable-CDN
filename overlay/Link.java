@@ -31,6 +31,8 @@ public class Link extends Thread {
 				System.out.println("request no: " + m.requestNo);
 				attempt = 0;
 				// handle updates
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
 			} catch (IOException e) {
 				attempt++;
 				e.printStackTrace();
@@ -41,8 +43,6 @@ public class Link extends Thread {
 						e1.printStackTrace();
 					}
 				}
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
 			}
 		}
 	}

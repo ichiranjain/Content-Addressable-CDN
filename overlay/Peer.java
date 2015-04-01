@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -282,6 +283,29 @@ public class Peer implements PeerInterface {
 		for (Long id : IDs) {
 			if (!sendMessage(id, m)) {
 				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Method to be called by upper layers to send a message to all<br/>
+	 * neighbors except ID.<br/>
+	 * 
+	 * Message type should be set to 7.
+	 * 
+	 * @param ID
+	 * @param m
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean sendMessageToAllBut(Long ID, Message m) throws IOException {
+		List<String> IDs = new ArrayList<String>(neighbors.keySet());
+		for (String id : IDs) {
+			if (!("" + ID).equals(id)) {
+				if (!sendMessage(Long.parseLong(id), m)) {
+					return false;
+				}
 			}
 		}
 		return true;
