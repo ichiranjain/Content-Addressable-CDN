@@ -1,0 +1,211 @@
+package topology;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+
+import packetObjects.AddNodeObj;
+import packetObjects.DataObj;
+import packetObjects.HelloObj;
+import packetObjects.IntrestObj;
+import packetObjects.ModifyNodeObj;
+import packetObjects.PrefixObj;
+import packetObjects.RemoveNodeObj;
+import packetObjects.TableObj;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
+
+public class Parse {
+
+	Gson gson = new Gson();
+
+	public Parse(){
+
+	}
+
+	public String parseType(String jsonString){
+
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonNameElement = jsonObject.get("type");
+		String typeInfo = jsonNameElement.getAsString();
+
+		return typeInfo;
+	}
+
+	public long parseMsgID(String jsonString){
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonNameElement = jsonObject.get("msgID");
+		long msgIDInfo = jsonNameElement.getAsLong();
+
+		return msgIDInfo;
+	}
+
+	public String parseAction(String jsonString){
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonNameElement = jsonObject.get("action");
+		String actionInfo = jsonNameElement.getAsString();
+
+		return actionInfo;
+	}
+
+
+	public AddNodeObj parseAddNodeJson(String jsonString){
+
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonNameElement = jsonObject.get("nodeName");
+		String nodeName = jsonNameElement.getAsString();
+
+
+		JsonElement jsonIDElement = jsonObject.get("msgID");
+		long msgID = jsonIDElement.getAsLong();
+
+
+		JsonElement jsonNeighborsElement = jsonObject.get("neighbors");
+		String neighborsString = jsonNeighborsElement.getAsString();
+		Type neighborsType = new TypeToken<ArrayList<NeighborAndCostStrings>>(){}.getType();
+		ArrayList<NeighborAndCostStrings> neighborsList = gson.fromJson(neighborsString, neighborsType);
+
+
+		AddNodeObj addNodeInfo = new AddNodeObj(nodeName, neighborsList, msgID, jsonString);
+
+		return addNodeInfo;
+	}
+
+	public ModifyNodeObj parseModifyNodeJson(String jsonString){
+
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonNameElement = jsonObject.get("nodeName");
+		String nodeName = jsonNameElement.getAsString();
+
+		JsonElement jsonIDElement = jsonObject.get("msgID");
+		long msgID = jsonIDElement.getAsLong();
+
+		JsonElement jsonNeighborsElement = jsonObject.get("neighbors");
+		String neighborsString = jsonNeighborsElement.getAsString();
+		Type neighborsType = new TypeToken<ArrayList<NeighborAndCostStrings>>(){}.getType();
+		ArrayList<NeighborAndCostStrings> neighborsList = gson.fromJson(neighborsString, neighborsType);
+
+
+		ModifyNodeObj modifyNodeInfo = new ModifyNodeObj(nodeName, neighborsList, msgID, jsonString);
+		return modifyNodeInfo;
+	}
+
+	public RemoveNodeObj parseRemoveNodeJson(String jsonString){
+
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonNameElement = jsonObject.get("removeNodeName");
+		String removeNodeName = jsonNameElement.getAsString();
+
+		JsonElement jsonIDElement = jsonObject.get("msgID");
+		long msgID = jsonIDElement.getAsLong();
+
+		RemoveNodeObj removeNodeInfo = new RemoveNodeObj(removeNodeName, msgID, jsonString);
+		return removeNodeInfo;
+	}
+
+	public PrefixObj parsePrefixJson(String jsonString){
+
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonContentNameElement = jsonObject.get("contentName");
+		String contentName = jsonContentNameElement.getAsString();
+
+		JsonElement jsonIDElement = jsonObject.get("msgID");
+		long msgID = jsonIDElement.getAsLong();
+
+		JsonElement jsonAddRemoveElement = jsonObject.get("addRemove");
+		boolean addRemove = jsonAddRemoveElement.getAsBoolean();
+
+		JsonElement jsonAdvertisersElement = jsonObject.get("advertisers");
+		String advertisersString = jsonAdvertisersElement.getAsString();
+		Type advertisersType = new TypeToken<ArrayList<String>>(){}.getType();
+		ArrayList<String> advertisersList = gson.fromJson(advertisersString, advertisersType);
+
+		PrefixObj prefixInfo = new PrefixObj(contentName, msgID, advertisersList, addRemove, jsonString);
+		return prefixInfo;
+	}
+
+	public boolean parsePrefixAddRemove(String jsonString){
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonAddRemoveElement = jsonObject.get("addRemove");
+		boolean addRemove = jsonAddRemoveElement.getAsBoolean();
+		return addRemove;
+	}
+
+	public IntrestObj parseIntrestJson(String jsonString){
+
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonContentNameElement = jsonObject.get("contentName");
+		String contentName = jsonContentNameElement.getAsString();
+
+		JsonElement jsonSenderNameElement = jsonObject.get("senderName");
+		String senderName = jsonSenderNameElement.getAsString();
+
+		JsonElement jsonNonceElement = jsonObject.get("nonce");
+		int nonce = jsonNonceElement.getAsInt();
+
+		IntrestObj intrestInfo = new IntrestObj(contentName, senderName, nonce, jsonString);
+		return intrestInfo;
+	}
+
+	public DataObj parseDataJson(String jsonString){
+
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonContentNameElement = jsonObject.get("contentName");
+		String contentName = jsonContentNameElement.getAsString();
+
+		JsonElement jsonSenderNameElement = jsonObject.get("senderName");
+		String senderName = jsonSenderNameElement.getAsString();
+
+		JsonElement jsonFlagElement = jsonObject.get("flag");
+		byte flag = jsonFlagElement.getAsByte();
+
+		JsonElement jsonDataElement = jsonObject.get("data");
+		String data = jsonDataElement.getAsString();
+
+		DataObj dataInfo = new DataObj(contentName, senderName, flag, data, jsonString);
+		return dataInfo; 
+	}
+
+	public void parseRouteDNEJson(String jsonString){
+
+	}
+
+	public HelloObj parseHelloJson(String jsonString){
+
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonFromNodeElement = jsonObject.get("fromNode");
+		String fromNode = jsonFromNodeElement.getAsString();
+
+		JsonElement jsonRequestTableElement = jsonObject.get("requestTable");
+		boolean requestTable = jsonRequestTableElement.getAsBoolean();
+
+		HelloObj helloObj = new HelloObj(fromNode, requestTable);
+		return helloObj;
+	}
+
+	public boolean parseRequestTable(String jsonString){
+
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonRequestTableElement = jsonObject.get("requestTable");
+		boolean requestTable = jsonRequestTableElement.getAsBoolean();
+		return requestTable;
+	}
+
+	public TableObj parseTableJson(String jsonString){
+
+		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+		JsonElement jsonFromNodeElement = jsonObject.get("fromNode");
+		String fromNode = jsonFromNodeElement.getAsString();
+
+		JsonElement jsonGraphElement = jsonObject.get("graph");
+		String graphString = jsonGraphElement.getAsString();
+		Type graphType = new TypeToken<ArrayList<Node>>(){}.getType();
+		ArrayList<Node> graph = gson.fromJson(graphString, graphType);
+
+		TableObj tableObj = new TableObj(fromNode, graph);
+		return tableObj;
+
+	}
+}
