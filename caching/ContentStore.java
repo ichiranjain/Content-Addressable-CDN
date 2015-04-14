@@ -9,30 +9,61 @@ public class ContentStore {
     private HashMap<String, Content> store;
     private long storeSize = 999999;
 
-    private void incomingRequest(String fileName, int interfaceId) throws Exception {
+    private Object packetHandler(ContentPacket packet, int interfaceId) {
+        try {
+            switch (packet.getIncomingPacketType()) {
+                case 0:
+                    return incomingContentRequest((String) packet.getData(), interfaceId);
+                case 1:
+                    return incomingReplyContent(packet);
+                case 2:
+                    return incomingContent(packet);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
+    private ContentPacket incomingContentRequest(String fileName, int interfaceId) throws Exception {
         if (store.containsKey(fileName)) {
-            reply(fileName);
-            requestProcessing(fileName, interfaceId);
+            updateScoreOnIterface(store.get(fileName), interfaceId);
+            return replyContentRequest(fileName);
         } else {
-            forwardRequest(fileName);
-//            return false;
+            return null;
         }
     }
 
-    private void incomingContent() {
+
+    private Content incomingReplyContent(ContentPacket packet) {
+        return (Content) packet.getData();
+    }
+
+    private boolean incomingContent(ContentPacket packet) {
+        Content receivedContent = (Content) packet.getData();
+        if (store.put(receivedContent.getContentName(), receivedContent) != null) {
+            return true;
+        } else {
+            return false;
+        }
 
     }
 
-    private Object reply(String fileName) {
-        return store.get(fileName).getContentCache();
+    /**
+     * Reply in form of ContentPacket to incoming request
+     *
+     * @param fileName - name of the content
+     * @return ContentPacket
+     */
+    private ContentPacket replyContentRequest(String fileName) {
+
+        return new ContentPacket(1, store.get(fileName));
     }
 
-    private void forwardRequest(String fileName) {
 
-    }
-
-    private void requestProcessing(String fileName, Integer interfaceId) throws Exception {
-        Content contentStoreCopy = store.get(fileName);
+    private ContentPacket updateScoreOnIterface(Content contentStoreCopy, Integer interfaceId) throws Exception {
         if (!contentStoreCopy.listofScoreOnInterfaces.containsKey(interfaceId)) {
             contentStoreCopy.listofScoreOnInterfaces.put(interfaceId, contentStoreCopy.getMaxNScore());
         } else {
@@ -51,17 +82,22 @@ public class ContentStore {
         }
 
         if (copyFlag) {
-            copyContent(interfaceId);
+            return copyContent(contentStoreCopy);
         }
         if (copyFlag && deleteFlag) {
-            if (!deleteContent(fileName)) {
+            if (!deleteContent(contentStoreCopy)) {
                 throw new Exception("unable to delete content");
             }
         }
+        return null;
     }
 
-    private boolean deleteContent(String fileName) {
-        if (store.remove(fileName) != null) {
+    private ContentPacket copyContent(Content content) {
+        return new ContentPacket(3,content);
+    }
+
+    private boolean deleteContent(Content content) {
+        if (store.remove(content.getContentName()) != null) {
             return true;
         } else {
             return false;
