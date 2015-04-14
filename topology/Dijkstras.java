@@ -17,6 +17,7 @@ public class Dijkstras {
 		//used to get the least cost node while running Dijkstra's algorithm
 		PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>();
 
+		//
 		HashMap<String, Boolean> visitedHM = new HashMap<String, Boolean>();
 
 		//process origin node first 
@@ -29,6 +30,8 @@ public class Dijkstras {
 
 		//the origin sets it self as the next hop 
 		currentNode.setOriginNextHop(currentNode.getName());
+
+		visitedHM.put(currentNode.getName(), true);
 
 		//the origin places its neighbors in the priority queue
 		for(int i = 0; i < currentNode.sizeOfNeighborList(); i++){
@@ -58,7 +61,7 @@ public class Dijkstras {
 		while(priorityQueue.isEmpty() == false){
 
 			//get the node with the lowest cost from the priority queue
-			currentNode = graph.get(priorityQueue.poll());
+			currentNode = priorityQueue.poll();
 
 			//place the current nodes neighbors in the priority queue
 			for(int i = 0; i < currentNode.sizeOfNeighborList(); i++){
@@ -68,7 +71,7 @@ public class Dijkstras {
 					//if the neighbor has been visited 
 
 					//check if the neighbor is in the priority queue
-					if(priorityQueue.contains(currentNode.getNeighbor(i).getNeighborName()) == true){
+					if(priorityQueue.contains(graph.get(currentNode.getNeighbor(i).getNeighborName())) == true){
 						//if the neighbor is still in the priority queue
 						//check if its best cost is greater then your best cost plus the cost of the link
 						//if the calculated best cost is better then the neighbors current best cost, replace it 

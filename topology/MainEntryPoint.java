@@ -1,11 +1,11 @@
 package topology;
 
-public class MainEntryPoint {
+public class MainEntryPoint implements Runnable{
 
-	public static void main(String[] args) {
+	@Override
+	public void run() {
 
-		//takes the current machines name as an argument
-		//NodeRepository nodeRepo = new NodeRepository();
+		//the main
 
 	}
 

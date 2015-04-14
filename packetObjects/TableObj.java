@@ -9,8 +9,13 @@ public class TableObj {
 	//HashMap<String, Node> graph;
 	String fromNode;
 	ArrayList<Node> graph;
+	String originalPacket;
 
 	public TableObj(String fromNode, ArrayList<Node> graph){
+		this.graph = graph;
+	}
+
+	public TableObj(ArrayList<Node> graph){
 		this.graph = graph;
 	}
 
@@ -32,6 +37,14 @@ public class TableObj {
 
 	public int sizeOfGraph(){
 		return graph.size();
+	}
+
+	public void setOriginalPacket(String originalPacket){
+		this.originalPacket = originalPacket;
+	}
+
+	public String getOriginalPacket(){
+		return originalPacket;
 	}
 
 

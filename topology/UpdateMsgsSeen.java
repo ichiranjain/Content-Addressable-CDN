@@ -1,30 +1,46 @@
 package topology;
 
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UpdateMsgsSeen {
 
-	ConcurrentHashMap<Long, Long> msgIDs;
+	ConcurrentHashMap<String, Long> msgIDHM;
 
 	public UpdateMsgsSeen(){
-		msgIDs = new ConcurrentHashMap<Long, Long>();
+		msgIDHM = new ConcurrentHashMap<String, Long>();
 	}
 
-	public void addMsgID(Long msgID, Long time){
-		msgIDs.put(msgID, time);
+	public void addMsgID(String msgID, Long time){
+		msgIDHM.put(msgID, time);
 	}
 
-	public void removeMsgID(Long msgID){
-		msgIDs.remove(msgID);
+	public void removeMsgID(String msgID){
+		msgIDHM.remove(msgID);
 	}
 
-	public boolean doesMsgIDExist(long msgID){
-		if(msgIDs.contains(msgID) == true){
+	public boolean doesMsgIDExist(String msgID){
+		if(msgIDHM.contains(msgID) == true){
 			return true;
 		}else{
 			return false;
 		}
 	}
+
+	public ArrayList<String> getListOfMsgIDs(){
+		Set<String> keys = msgIDHM.keySet();
+		ArrayList<String> msgIDs = new ArrayList<String>();
+		for(String key : keys){
+			msgIDs.add(key);
+		}
+		return msgIDs;
+	}
+
+	public long getMsgIDTime(String msgID){
+		return msgIDHM.get(msgID);
+	}
+
 
 	//	public static void main(String[] args) {
 	//		System.out.println("it works");

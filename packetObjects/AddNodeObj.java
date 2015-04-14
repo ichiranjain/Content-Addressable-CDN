@@ -8,17 +8,34 @@ public class AddNodeObj {
 
 	String name;
 	ArrayList<NeighborAndCostStrings> neighbors;
-	long msgID;
+	String msgID;
 	String originalPacket;
 
-	public AddNodeObj(String name, ArrayList<NeighborAndCostStrings> neighbors, long msgID, String originalPacket){
+	public AddNodeObj(String name, ArrayList<NeighborAndCostStrings> neighbors, String msgID){
+		this.name = name;
+		this.neighbors = neighbors;
+		this.msgID = msgID;
+	}
+
+	public AddNodeObj(String name, String msgID){
+		this.name = name;
+		this.msgID = msgID;
+		neighbors = new ArrayList<NeighborAndCostStrings>();
+	}
+
+	public AddNodeObj(String name){
+		this.name = name;
+		neighbors = new ArrayList<NeighborAndCostStrings>();
+	}
+
+	public AddNodeObj(String name, ArrayList<NeighborAndCostStrings> neighbors, String msgID, String originalPacket){
 		this.name = name;
 		this.neighbors = neighbors;
 		this.msgID = msgID;
 		this.originalPacket = originalPacket;
 	}
 
-	public long getMsgID() {
+	public String getMsgID() {
 		return msgID;
 	}
 
@@ -50,7 +67,7 @@ public class AddNodeObj {
 		return neighbors.size();
 	}
 
-	public void setMsgID(long msgID) {
+	public void setMsgID(String msgID) {
 		this.msgID = msgID;
 	}
 
@@ -64,6 +81,10 @@ public class AddNodeObj {
 
 	public String getOriginalPacket(){
 		return originalPacket;
+	}
+
+	public void setOriginalPacket(String originalPacket){
+		this.originalPacket = originalPacket;
 	}
 
 

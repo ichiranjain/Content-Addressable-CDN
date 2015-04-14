@@ -1,16 +1,21 @@
 package packetObjects;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+
 public class DataObj {
 
 	String contentName;
-	String senderName;
+	String originRouter;
 	byte flag;
 	String data;
 	String originalPacket;
 
-	public DataObj(String contentName, String senderName, byte flag, String data, String originalPacket){
+
+	//** have data object accept a byte array for data and convert it to a string
+	public DataObj(String contentName, String originRouter, byte flag, String data, String originalPacket){
 		this.contentName = contentName;
-		this.senderName = senderName;
+		this.originRouter = originRouter;
 		if(flag > 2){
 			flag = 2;
 		}
@@ -22,6 +27,19 @@ public class DataObj {
 		this.originalPacket = originalPacket;
 	}
 
+	public DataObj(String contentName, String originRouter, byte flag, byte[] data){
+		this.contentName = contentName;
+		this.originRouter = originRouter;
+		if(flag > 2){
+			flag = 2;
+		}
+		if(flag < 0){
+			flag = 0;
+		}
+		this.flag = flag;
+		this.data = convertToString(data);
+	}
+
 	public String getContentName() {
 		return contentName;
 	}
@@ -30,12 +48,12 @@ public class DataObj {
 		this.contentName = contentName;
 	}
 
-	public String getSenderName() {
-		return senderName;
+	public String getOriginRouterName() {
+		return originRouter;
 	}
 
-	public void setSenderName(String senderName) {
-		this.senderName = senderName;
+	public void setOriginRouterName(String senderName) {
+		this.originRouter = senderName;
 	}
 
 	public byte getFlag() {
@@ -66,6 +84,23 @@ public class DataObj {
 
 	public void setOriginalPacket(String originalPacket){
 		this.originalPacket = originalPacket;
+	}
+	public byte[] getDataBytes(){
+		return convertToByteArray(data);
+	}
+
+	private String convertToString(byte[] data){
+		return new String(data, Charset.forName("UTF-8"));
+	}
+
+	private byte[] convertToByteArray(String dataString){
+		try {
+			return dataString.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new byte[0];
 	}
 
 

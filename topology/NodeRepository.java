@@ -1,5 +1,6 @@
 package topology;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -72,6 +73,17 @@ public class NodeRepository {
 
 	public void setThisMachinesName(String thisMachinesName){
 		this.thisMachinesName = thisMachinesName;
+	}
+
+	public ArrayList<Node> getGraphList(){
+
+		ArrayList<Node> graphList = new ArrayList<Node>();
+		Set<String> keys = graph.keySet();
+		for(String key : keys){
+			graphList.add(graph.get(key));
+		}
+
+		return graphList;
 	}
 
 }

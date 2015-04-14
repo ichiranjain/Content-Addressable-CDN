@@ -1,38 +1,38 @@
 package topology;
 
-import packetObjects.AddNodeObj;
-import packetObjects.HelloObj;
+import packetObjects.LinkObj;
 import packetObjects.ModifyNodeObj;
+import packetObjects.NeighborRequestObj;
+import packetObjects.PacketObj;
+import packetObjects.PrefixListObj;
 import packetObjects.PrefixObj;
-import packetObjects.RemoveNodeObj;
-import packetObjects.TableObj;
 
 public class UpdateSwitch implements Runnable{
 
-	String packet;
+	PacketObj packetObj;
 	NodeRepository nodeRepo;
 	ProcessUpdates process;
 	UpdateMsgsSeen msgsSeen;
 	Parse parse;
 
-	public UpdateSwitch(String packet, 
+	public UpdateSwitch(PacketObj packetObj, 
 			NodeRepository nodeRepo,
-			ProcessUpdates process,
-			UpdateMsgsSeen msgsSeen,
-			Parse parse){
+			FIB fib,
+			DirectlyConnectedNodes directlyConnectedNodes,
+			UpdateMsgsSeen updateMsgsSeen){
 
-		this.packet = packet;
+		this.packetObj = packetObj;
 		this.nodeRepo = nodeRepo;
-		this.process = process;
-		this.msgsSeen = msgsSeen;
-		this.parse = parse;
+		this.msgsSeen = updateMsgsSeen;
+		this.process = new ProcessUpdates(nodeRepo, updateMsgsSeen, fib, directlyConnectedNodes);
+		this.parse = new Parse();
 
 	}
 
 	@Override
 	public void run() {
 
-		long msgID = parse.parseMsgID(packet);
+		String msgID = parse.parseMsgID(packetObj.getPacket());
 
 		//has the update been seen before
 		if(msgsSeen.doesMsgIDExist(msgID) == true){
@@ -47,56 +47,129 @@ public class UpdateSwitch implements Runnable{
 
 		//String type = parse.parseType(packet);
 
-		String action = parse.parseAction(packet);
+		String action = parse.parseAction(packetObj.getPacket());
+		LinkObj linkObj;
+		boolean addRemove;
+		PrefixListObj prefixListObj;
+		PrefixObj prefixObj;
 
 		switch(action){
-		case "addNode" :
+
+		case "addLink" :
 			//add the Node
-			AddNodeObj addNodeObj = parse.parseAddNodeJson(packet);
-			process.addNode(addNodeObj);
+			//AddNodeObj addNodeObj = parse.parseAddNodeJson(packet);
+			linkObj = parse.parseAddLink(packetObj.getPacket());
+			process.addLink(linkObj);
 			break;
 
-		case "removeNode" :
-			//remove a node
-			RemoveNodeObj removeNodeObj = parse.parseRemoveNodeJson(packet);
-			process.removeNode(removeNodeObj);
+		case "removeLink" :
+			linkObj = parse.parseRemoveLink(packetObj.getPacket());
+			process.removeLink(linkObj);
 			break;
 
-		case "modifyNode" :
-			//modify a node
-			ModifyNodeObj modifyNodeObj = parse.parseModifyNodeJson(packet);
-			process.modifyNode(modifyNodeObj);
+		case "modifyLink" :
+			linkObj = parse.parseModifyLink(packetObj.getPacket());
+			process.modifyLink(linkObj);
+			break;
+
+		case "modify" : 
+			ModifyNodeObj modifyNodeObj = parse.parseModifyNodeJson(packetObj.getPacket());
+			process.modifyNode(modifyNodeObj, packetObj.getRecievedFromNode());
 			break;
 
 		case "prefix" :
 			//do something
-			boolean addRemove = parse.parsePrefixAddRemove(packet);
+			addRemove = parse.parsePrefixAddRemove(packetObj.getPacket());
 			if(addRemove == true){
 				//add the packet
-				PrefixObj prefixObj = parse.parsePrefixJson(packet);
-				process.addPrefix(prefixObj);
+				prefixObj = parse.parsePrefixJson(packetObj.getPacket());
+				process.addPrefix(prefixObj, packetObj.getRecievedFromNode());
 			}else{
 				//remove the packet
-				PrefixObj prefixObj = parse.parsePrefixJson(packet);
-				process.removePrefix(prefixObj);
+				prefixObj = parse.parsePrefixJson(packetObj.getPacket());
+				process.removePrefix(prefixObj, packetObj.getRecievedFromNode());
 			}
 			break;
 
-		case "hello" :
-			boolean requestTable = parse.parseRequestTable(packet);
-			if(requestTable == true){
-				HelloObj helloObj = parse.parseHelloJson(packet);
-				process.processHelloTableRequest(helloObj);
+		case "prefixList" : 
+			addRemove = parse.parsePrefixAddRemove(packetObj.getPacket());
+			if(addRemove == true){
+				//add the packet
+				prefixListObj = parse.parsePrefixListJson(packetObj.getPacket());
+				process.addPrefixList(prefixListObj, packetObj.getRecievedFromNode());
 			}else{
-				HelloObj helloObj = parse.parseHelloJson(packet);
-				process.processHelloHeartBeat(helloObj);
+				//remove the packet
+				prefixListObj = parse.parsePrefixListJson(packetObj.getPacket());
+				process.removePrefixList(prefixListObj, packetObj.getRecievedFromNode());
 			}
 			break;
 
-		case "table" :
-			TableObj tableObj = parse.parseTableJson(packet);
-			process.processTable(tableObj);
+		case "addClient" : 
+			linkObj = parse.parseClientAddNodeJson(packetObj.getPacket());
+			process.addClientLink(linkObj);
 			break;
+
+		case "removeClient" : 
+			linkObj = parse.parseClientRemoveNodeJson(packetObj.getPacket());
+			process.removeClientLink(linkObj);
+			break;
+
+		case "clientPrefix" : 
+			addRemove = parse.parsePrefixAddRemove(packetObj.getPacket());
+			if(addRemove == true){
+				//add the packet
+				prefixObj = parse.parsePrefixJson(packetObj.getPacket());
+				process.addCLientPrefix(prefixObj, packetObj.getRecievedFromNode());
+			}else{
+				//remove the packet
+				prefixObj = parse.parsePrefixJson(packetObj.getPacket());
+				process.removeClientPrefix(prefixObj, packetObj.getRecievedFromNode());
+			}
+			break;
+
+		case "clientPrefixList" : 
+			addRemove = parse.parsePrefixAddRemove(packetObj.getPacket());
+			if(addRemove == true){
+				//add the packet
+				prefixListObj = parse.parsePrefixListJson(packetObj.getPacket());
+				process.addClientPrefixList(prefixListObj, packetObj.getRecievedFromNode());
+			}else{
+				//remove the packet
+				prefixListObj = parse.parsePrefixListJson(packetObj.getPacket());
+				process.removeClientPrefixList(prefixListObj, packetObj.getRecievedFromNode());
+			}
+			break;
+
+		case "neighborRequest" :
+			NeighborRequestObj neighborRequestObj = parse.parseRequestNeighbors(packetObj.getPacket());
+			process.requestNeighbors(neighborRequestObj.getFromName());
+			break;
+
+		case "prefixResponse" :
+			prefixListObj = parse.parsePrefixListJson(packetObj.getPacket());
+			process.processPrefixListResponse(prefixListObj);
+			break;
+
+		case "neighborResponse" :
+			modifyNodeObj = parse.parseModifyNodeJson(packetObj.getPacket());
+			process.processNeighborsResponse(modifyNodeObj);
+			break;
+
+			//		case "hello" :
+			//			boolean requestTable = parse.parseRequestTable(packet);
+			//			if(requestTable == true){
+			//				HelloObj helloObj = parse.parseHelloJson(packet);
+			//				process.processHelloTableRequest(helloObj);
+			//			}else{
+			//				HelloObj helloObj = parse.parseHelloJson(packet);
+			//				//process.processHelloHeartBeat(helloObj);
+			//			}
+			//			break;
+			//
+			//		case "table" :
+			//			TableObj tableObj = parse.parseTableJson(packet);
+			//			process.processTable(tableObj);
+			//			break;
 
 		default :
 			System.out.println("Error in UpdateSwitch - unrecognized packet: dropping packet");

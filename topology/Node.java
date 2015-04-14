@@ -80,7 +80,11 @@ public class Node implements Comparable<Node>{
 	}
 
 	public int sizeOfNeighborList(){
-		return neighbors.size();
+		if(neighbors.size() == 0){
+			return 0;			
+		}else{
+			return neighbors.size();
+		}
 	}
 
 	public ArrayList<NeighborAndCostStrings> getNeighbors(){

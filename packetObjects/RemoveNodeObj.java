@@ -3,21 +3,26 @@ package packetObjects;
 
 public class RemoveNodeObj {
 	String name;
-	long msgID;
+	String msgID;
 	String originalPacket;
 
-	public RemoveNodeObj(String name, long msgID, String originalPacket){
+	public RemoveNodeObj(String name, String msgID, String originalPacket){
 		this.name = name;
 		this.msgID = msgID;
 		this.originalPacket = originalPacket;
 	}
-	public long getMsgID() {
+
+	public RemoveNodeObj(String name, String msgID){
+		this.name = name;
+		this.msgID = msgID;
+	}
+	public String getMsgID() {
 		return msgID;
 	}
 	public String getName() {
 		return name;
 	}
-	public void setMsgID(long msgID) {
+	public void setMsgID(String msgID) {
 		this.msgID = msgID;
 	}
 	public void setName(String name) {
@@ -26,5 +31,9 @@ public class RemoveNodeObj {
 	public String getOriginalPacket(){
 		return originalPacket;
 	}
+	public void setOriginalPacket(String originalPacket){
+		this.originalPacket = originalPacket;
+	}
+
 
 }

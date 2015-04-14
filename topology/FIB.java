@@ -10,7 +10,7 @@ import orestes.bloomfilter.FilterBuilder;
 public class FIB{
 
 	//hash map mapping prefix a length to a hash map
-	//the hash map for a given prefix length maps prefixs to a list of advertisers
+	//the hash map for a given prefix length maps prefix's to a list of advertisers
 	ConcurrentHashMap<Integer, ConcurrentHashMap<String, ArrayList<String>>> hmOfPrefixLengths;
 
 	//filter builder gets passed the expected elements and the false positive rate
@@ -22,12 +22,15 @@ public class FIB{
 	//graph of all the nodes
 	NodeRepository nodeRepo;
 
+	PIT pit;
 
-	public FIB(NodeRepository nodeRepo){
+
+	public FIB(NodeRepository nodeRepo, PIT pit){
 		hmOfPrefixLengths = new ConcurrentHashMap<Integer, ConcurrentHashMap<String, ArrayList<String>>>();
 		hmOfBloomFilters = new ConcurrentHashMap<Integer, CountingBloomFilter<String>>();
 		longestPrefixLength = 0;
 		this.nodeRepo = nodeRepo; 
+		this.pit = pit;
 	}
 
 	public void addPrefixLengthHashMap(int prefixLength){
@@ -133,66 +136,82 @@ public class FIB{
 		return -1;
 	}
 
+	public int getSizeOfAdvertisersList(int prefixLength, String prefix){
+		return hmOfPrefixLengths.get(prefixLength).get(prefix).size();
+	}
+
 	public String getBestCostAdvertiser(int prefixLength, String prefix){
+		//this returns error if the advertiser does not exist
 
-		if(nodeRepo.HMdoesNodeExist(hmOfPrefixLengths.get(prefixLength).get(prefix).get(0)) == true){
-			return  hmOfPrefixLengths.get(prefixLength).get(prefix).get(0);
-		}else{
+		//check if there are any advertisers for the prefix
+		if(hmOfPrefixLengths.get(prefixLength).get(prefix).isEmpty() == false){
 
-			//check if all the advertiser nodes exist, if it doesn't exist not it
-			ArrayList<String> advertisers = hmOfPrefixLengths.get(prefixLength).get(prefix);
-			for(int j = 0; j < advertisers.size(); j++){
-				if(nodeRepo.HMdoesNodeExist(advertisers.get(j)) == false){
-					advertisers.remove(j);
-				}
-			}	
-
-			int arraySize = advertisers.size();
-
-			if(arraySize == 0){
-				//remove the prefix, from the hash map and bloom filter
-				removePrefixFromBloomFIlter(prefixLength, prefix);
-				removePrefixFromHashMap(prefixLength, prefix);
-
-				return "error";
-
-			}else if(arraySize == 1){
-				//over write the list with the new list
-				setAdvertisers(prefixLength, prefix, advertisers);
-				return hmOfPrefixLengths.get(prefixLength).get(prefix).get(0);
-
+			if(nodeRepo.HMdoesNodeExist(hmOfPrefixLengths.get(prefixLength).get(prefix).get(0)) == true){
+				return  hmOfPrefixLengths.get(prefixLength).get(prefix).get(0);
 			}else{
-				int index = 0;
-				int bestCost = 0;
-				String temp = "";
-				index = 0;
 
-				//find the best cost node in the list of advertisers
-				bestCost = nodeRepo.HMgetNode(advertisers.get(0)).getBestCost();
-				for(int i = 1; i < arraySize; i++){
-
-					if(nodeRepo.HMgetNode(advertisers.get(i)).getBestCost() > bestCost){
-						bestCost = nodeRepo.HMgetNode(advertisers.get(i)).getBestCost();
-						index = i;
+				//check if all the advertiser nodes exist, if it doesn't exist not it
+				ArrayList<String> advertisers = hmOfPrefixLengths.get(prefixLength).get(prefix);
+				for(int j = 0; j < advertisers.size(); j++){
+					if(nodeRepo.HMdoesNodeExist(advertisers.get(j)) == false){
+						advertisers.remove(j);
 					}
-				}
+				}	
 
-				//set the first element in the array to the best cost advertiser
-				if(index != 0){
+				int arraySize = advertisers.size();
 
-					temp = advertisers.get(0);
-					advertisers.set(0, advertisers.get(index));
-					advertisers.set(index, temp);
+				if(arraySize == 0){
+					//remove the prefix, from the hash map and bloom filter
+					removePrefixFromBloomFIlter(prefixLength, prefix);
+					removePrefixFromHashMap(prefixLength, prefix);
 
+					return "error";
+
+				}else if(arraySize == 1){
 					//over write the list with the new list
 					setAdvertisers(prefixLength, prefix, advertisers);
+					return hmOfPrefixLengths.get(prefixLength).get(prefix).get(0);
 
+				}else{
+					int index = 0;
+					int bestCost = 0;
+					String temp = "";
+					index = 0;
+
+					//find the best cost node in the list of advertisers
+					bestCost = nodeRepo.HMgetNode(advertisers.get(0)).getBestCost();
+					for(int i = 1; i < arraySize; i++){
+
+						if(nodeRepo.HMgetNode(advertisers.get(i)).getBestCost() > bestCost){
+							bestCost = nodeRepo.HMgetNode(advertisers.get(i)).getBestCost();
+							index = i;
+						}
+					}
+
+					//set the first element in the array to the best cost advertiser
+					if(index != 0){
+
+						temp = advertisers.get(0);
+						advertisers.set(0, advertisers.get(index));
+						advertisers.set(index, temp);
+
+						//over write the list with the new list
+						setAdvertisers(prefixLength, prefix, advertisers);
+
+					}
+
+					return hmOfPrefixLengths.get(prefixLength).get(prefix).get(0);
 				}
 
-				return hmOfPrefixLengths.get(prefixLength).get(prefix).get(0);
 			}
 
+		}else{
+			//remove the prefix, from the hash map and bloom filter
+			removePrefixFromBloomFIlter(prefixLength, prefix);
+			removePrefixFromHashMap(prefixLength, prefix);
+			return "error";
 		}
+
 
 
 	}
@@ -299,6 +318,177 @@ public class FIB{
 		return hmOfBloomFilters.get(prefixLength).contains(prefix);
 	}
 
+	public boolean addPrefixToFIB(String prefix, String advertiser){
+
+		boolean prefixAdded = false;
+		String[] contentNameSplit = prefix.split("/");
+		int prefixLength = contentNameSplit.length;
+		//does the fib contain a hashmap for the content length
+		//if not make one
+		if(doesPrefixLengthHashMapExist(prefixLength) == false){
+			addPrefixLengthHashMap(prefixLength);
+			addPrefixLengthBloomFilter(prefixLength);
+		}
+
+
+		//does the hash map contain the prefix 
+		if(doesHashMapContainPrefix(prefixLength, prefix) == false){
+
+			//does the advertiser node exist in the graph, if not skip this advertiser
+			if(nodeRepo.HMdoesNodeExist(advertiser) == true){
+
+				//add the content name and an empty list of advertisers 
+				addPrefixToHashMap(prefixLength, prefix);
+
+				//add the prefix to the Counting BLoom Filter 
+				addPrefixToBloomFilter(prefixLength, prefix);
+
+				addAdvertiserToHashMap(prefixLength, prefix, advertiser);
+
+				prefixAdded = true;
+			}
+
+
+		}else{
+			//if the content name DOES EXIST the just add the new advertisers 
+
+			//does the advertiser node exist in the graph 
+			if(nodeRepo.HMdoesNodeExist(advertiser) == true){
+
+				//is the advertiser listed under the given prefix, -1 is returned if the advertiser does not exist
+				if( doesHashMapContainAdvertiser(prefixLength, prefix, advertiser) == -1){
+
+					////add the prefix to the Counting BLoom Filter 
+					//addPrefixToBloomFilter(prefixLength, prefix);
+
+					//if the advertiser does not exist, add it
+					addAdvertiserToHashMap(prefixLength, prefix, advertiser);
+
+					prefixAdded = true;
+				}
+			}
+		}
+		return prefixAdded;
+	}
+
+	public boolean removePrefixFromFIB(String prefix, String advertiser){
+
+		boolean prefixRemoved = false;
+		String[] contentNameSplit = prefix.split("/");
+		int prefixLength = contentNameSplit.length;
+		if(doesPrefixLengthHashMapExist(prefixLength) == true){
+			if(doesHashMapContainPrefix(prefixLength, prefix) == true){
+
+				//if the advertiser list is of length 1... remove it ... else remove the advertiser
+				if(getSizeOfAdvertisersList(prefixLength, prefix) <= 1){
+
+					//remove the prefix 
+					removePrefixFromHashMap(prefixLength, prefix);
+					removePrefixFromBloomFIlter(prefixLength, prefix);
+					prefixRemoved = true;
+
+				}else{
+					//remove the advertiser from the prefix
+					removeAdvertiserFromHashMap(prefixLength, prefix, advertiser);
+					prefixRemoved = true;
+				}
+
+			}
+
+		}
+		return prefixRemoved;
+	}
+
+	public String searchFIB(String contentName){
+
+		//get the length of the prefix 
+		String[] prefixSplit = contentName.split("/");
+		String prefix = prefixSplit[0];
+		ArrayList<Integer> hashMapsToSearch = new ArrayList<Integer>();
+
+		//look up in the fib bloom filter, cant have a prefix of zero
+		//this can be searched in parallel
+		for(int i = 0; i < prefixSplit.length; i++){
+
+			if(doesPrefixLengthBloomFilterExist(i + 1) == true){				
+				if(doesBloomFilterConteinPrefix(i + 1, prefix) == true){
+					hashMapsToSearch.add(i + 1);
+				}
+			}
+			prefixSplit[i] = prefix;
+			prefix = prefix + "/" + prefixSplit[i];
+		}
+
+		//search the hash maps returned
+		String bestCostNode = "";
+		String nextHop = "";
+
+		//search through the longest matching prefix hash map first
+		for(int i = hashMapsToSearch.size() - 1; i >= 0; i--){
+
+			//does the hash map for "x" length exist
+			if(doesPrefixLengthHashMapExist(hashMapsToSearch.get(i)) == true){
+
+				//does the prefix in this hash map exist
+				if(doesHashMapContainPrefix(hashMapsToSearch.get(i), prefixSplit[hashMapsToSearch.get(i) - 1]) == true){
+
+					//** if there are multiple advertisers 
+					//** if the packet can't get to one advertiser... do not use the other advertiser
+					//** this is just kept if the advertiser dies.. not used in routing?
+
+					//try the next advertiser in the list 
+					bestCostNode = getBestCostAdvertiser(hashMapsToSearch.get(i), prefixSplit[hashMapsToSearch.get(i) - 1]);
+
+					//if best cost == error the node does not exist 
+					if(bestCostNode.equals("error") == false){
+
+						// there was no error
+						nextHop = nodeRepo.HMgetNode(bestCostNode).getOriginNextHop();
+
+						if(pit.doesEntryExist(contentName) == true){
+
+							//ensure the packet is not being forwarded to a node that sent the interest
+							//-1 means the requester does not exist 
+							if(pit.getRequesters(contentName).doesRequesterExist(nextHop) != -1){
+
+								//the interest was sent form the next hop ... the packet can not be forwarded
+								nextHop = "broadCast";	
+							}else{	
+								//the entry exists but the next hop was not a requester
+								//break cause the next hop is found
+								break;
+							}
+						}else{
+							//no pit entry exists for the content
+							//break cause the next hop is found
+							break;
+						}
+					}else{
+						//the next hop does not exist... broad cast 
+						nextHop = "broadCast";
+					}
+				}//if the prefix is not in the hash map ... it might have been a false positive
+
+
+			}//the hash map did not exist
+		}//end for loop
+
+		return nextHop;
+	}
+
+	public int getLongestPrefixLength(){
+		return hmOfPrefixLengths.size();
+	}
+
+	public ArrayList<String> getPrefixesForLength(int length){
+		Set<String> keys = hmOfPrefixLengths.get(length).keySet();
+		ArrayList<String> prefixList = new ArrayList<String>(keys.size());
+		for(String key : keys){
+			prefixList.add(key);
+		}
+
+		return prefixList;
+	}
 
 
 }

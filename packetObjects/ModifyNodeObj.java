@@ -7,17 +7,23 @@ import topology.NeighborAndCostStrings;
 public class ModifyNodeObj {
 	String name;
 	ArrayList<NeighborAndCostStrings> neighbors;
-	long msgID;
+	String msgID;
 	String originalPacket;
 
-	public ModifyNodeObj(String name, ArrayList<NeighborAndCostStrings> neighbors, long msgID, String originalPacket){
+	public ModifyNodeObj(String name, ArrayList<NeighborAndCostStrings> neighbors, String msgID){
+		this.name = name;
+		this.neighbors = neighbors;
+		this.msgID = msgID;
+	}
+
+	public ModifyNodeObj(String name, ArrayList<NeighborAndCostStrings> neighbors, String msgID, String originalPacket){
 		this.name = name;
 		this.neighbors = neighbors;
 		this.msgID = msgID;
 		this.originalPacket = originalPacket;
 	}
 
-	public long getMsgID() {
+	public String getMsgID() {
 		return msgID;
 	}
 
@@ -49,7 +55,7 @@ public class ModifyNodeObj {
 		neighbors.remove(index);
 	}
 
-	public void setMsgID(long msgID) {
+	public void setMsgID(String msgID) {
 		this.msgID = msgID;
 	}
 
@@ -63,6 +69,9 @@ public class ModifyNodeObj {
 
 	public String getOriginalPacket(){
 		return originalPacket;
+	}
+	public void setOriginalPacket(String originalPacket){
+		this.originalPacket = originalPacket;
 	}
 
 }

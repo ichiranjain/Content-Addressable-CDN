@@ -4,6 +4,7 @@ public class HelloObj {
 
 	String fromName;
 	boolean requestTable;
+	String originalPacket;
 
 	public HelloObj(String fromNode, boolean requestTable){
 		this.fromName = fromNode;
@@ -18,7 +19,7 @@ public class HelloObj {
 		this.fromName = fromName;
 	}
 
-	public boolean isRequestTable() {
+	public boolean getRequestTable() {
 		return requestTable;
 	}
 
@@ -26,4 +27,11 @@ public class HelloObj {
 		this.requestTable = requestTable;
 	}
 
+	public void setOriginalPacket(String originalPacket){
+		this.originalPacket = originalPacket;
+	}
+
+	public String getOriginalPacket(){
+		return originalPacket;
+	}
 }

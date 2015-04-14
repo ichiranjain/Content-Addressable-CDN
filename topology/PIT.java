@@ -1,5 +1,7 @@
 package topology;
 
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import packetObjects.PITEntry;
@@ -26,7 +28,7 @@ public class PIT {
 	}
 
 	public boolean doesEntryExist(String content){
-		if(pit.contains(content) == true){
+		if(pit.containsKey(content) == true){
 			return true;
 		}else{
 			return false;
@@ -65,5 +67,16 @@ public class PIT {
 
 	public void setTime(String content){
 		pit.get(content).setTime(System.nanoTime());
+	}
+
+	public ArrayList<String> getPitEntries(){
+
+		Set<String> keys = pit.keySet();
+		ArrayList<String> entries = new ArrayList<String>();
+		for(String key : keys){
+			entries.add(key);
+		}
+		return entries;
+
 	}
 }

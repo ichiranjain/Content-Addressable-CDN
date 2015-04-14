@@ -1,74 +1,77 @@
 package packetObjects;
-import java.util.ArrayList;
 
 
 public class PrefixObj {
 
-	String contentName;
-	ArrayList<String> advertisers;
+	String prefixName;
+	String advertiser;
 	//true == add
 	//false == remove
-	boolean addRemove;
+	boolean addRemoveFlag;
 	String originalPacket;
-	long msgID;
+	String msgID;
 
 
-	public PrefixObj(String contentName, long msgID, ArrayList<String> advertisers, boolean addRemove, String originalPacket){
-		this.contentName = contentName;
-		this.advertisers = advertisers;
-		this.addRemove = addRemove;
+	public PrefixObj(String prefixName, String msgID, String advertiser, boolean addRemove, String originalPacket){
+		this.prefixName = prefixName;
+		this.advertiser = advertiser;
+		this.addRemoveFlag = addRemove;
 		this.originalPacket = originalPacket;
 		this.msgID = msgID;
 	}
 
-
-	public String getContentName() {
-		return contentName;
+	public PrefixObj(String prefixName, String msgID, String advertiser, boolean addRemove){
+		this.prefixName = prefixName;
+		this.advertiser = advertiser;
+		this.addRemoveFlag = addRemove;
+		this.msgID = msgID;
 	}
 
 
-	public void setContentName(String contentName) {
-		this.contentName = contentName;
+	public String getPrefixName() {
+		return prefixName;
 	}
 
 
-	public ArrayList<String> getAdvertisers() {
-		return advertisers;
+	public void setPrefixName(String prefixName) {
+		this.prefixName = prefixName;
 	}
 
 
-	public void setAdvertisers(ArrayList<String> advertisers) {
-		this.advertisers = advertisers;
+	public String getAdvertiser() {
+		return advertiser;
 	}
 
-	public String getAdvertiser(int index){
-		return advertisers.get(index);
+
+	public void setAdvertiser(String advertiser) {
+		this.advertiser = advertiser;
 	}
 
-	public int indexOFAdvertiser(String name ){
-		if(advertisers.contains(name) == true){
-			return advertisers.indexOf(name);
-		}else{
-			return -1;
-		}
+	//
+	//	public int indexOFAdvertiser(String name ){
+	//		if(advertisers.contains(name) == true){
+	//			return advertisers.indexOf(name);
+	//		}else{
+	//			return -1;
+	//		}
+	//	}
+	//
+	//	public boolean doesAdvertiserExist(String name){
+	//		if(advertisers.contains(name) == true){
+	//			return true;
+	//		}else{
+	//			return false;
+	//		}
+	//	}
+	//
+	//	public int sizeOfAdvertisersList(){
+	//		return advertisers.size();
+	//	}
+	public void setAddRemoveFlag(boolean addRemove){
+		this.addRemoveFlag = addRemove;
 	}
-
-	public boolean doesAdvertiserExist(String name){
-		if(advertisers.contains(name) == true){
-			return true;
-		}else{
-			return false;
-		}
-	}
-
-	public int sizeOfAdvertisersList(){
-		return advertisers.size();
-	}
-	public void setAddRemove(boolean addRemove){
-		this.addRemove = addRemove;
-	}
-	public boolean getAddRemove(){
-		return addRemove;
+	public boolean getAddRemoveFlag(){
+		return addRemoveFlag;
 	}
 
 	public void setOriginalPacket(String originalPacket){
@@ -77,10 +80,10 @@ public class PrefixObj {
 	public String getOriginalPacket(){
 		return originalPacket;
 	}
-	public void setMsgID(long msgID){
+	public void setMsgID(String msgID){
 		this.msgID = msgID;
 	}
-	public long getMsgID(){
+	public String getMsgID(){
 		return msgID;
 	}
 
