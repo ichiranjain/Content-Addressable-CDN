@@ -1,5 +1,6 @@
 package caching;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,13 +16,14 @@ public class Content {
     private int timeToLive;
     private List<Integer> trail;
     private long sizeInBytes;
+    private Date lastUsed;
     private Object contentCache;
 
     // constructors start
     public Content(int contentId, String contentName, List<Integer> trail, long sizeInBytes, Object contentCache) {
         this.contentId = contentId;
-
         this.contentName = contentName;
+//        this.lastUsed = now;
         this.contentCache = contentCache;
         this.maxNScore = 100;
         this.timeToLive = 999999;
@@ -37,6 +39,7 @@ public class Content {
         this.timeToLive = timeToLive;
         this.trail = trail;
         this.sizeInBytes = sizeInBytes;
+//        this.lastUsed = lastUsed;
         this.contentCache = contentCache;
     }
     // constructors ends
@@ -105,6 +108,8 @@ public class Content {
     public void setContentCache(Object contentCache) {
         this.contentCache = contentCache;
     }
+
+
     //getter and setters ends
 
 }

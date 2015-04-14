@@ -5,7 +5,7 @@ package caching;
  */
 public class ContentPacket {
 
-    // incomingPacketType: 0=request,1=reply,2=incomingContent,3=copyContent
+    // incomingPacketType: 0=request,1=reply,2=incomingContent,
     private int incomingPacketType;
     private Object data;
 
