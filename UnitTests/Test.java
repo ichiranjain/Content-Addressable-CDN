@@ -18,8 +18,13 @@ public class Test {
 		//		fibTest.testFIB();
 
 		//test PIT
-		PITTest pitTest = new PITTest();
-		pitTest.testPIT();
+		//		PITTest pitTest = new PITTest();
+		//		pitTest.testPIT();
+
+		//test SendPacket
+		SendPacketTest sendPacketTest = new SendPacketTest();
+		sendPacketTest.testSendPacket();
+
 	}
 
 }

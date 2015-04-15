@@ -97,10 +97,11 @@ public class SendPacket {
 
 		packet.addProperty("type", "update");
 		packet.addProperty("action", "clientPrefixList");
-		packet.addProperty("flag", prefixListObj.getAddRemoveFlag());
+		packet.addProperty("addRemove", prefixListObj.getAddRemoveFlag());
 		String prefixArray = gson.toJson(prefixListObj.getPrefixList());
 		packet.addProperty("prefixList", prefixArray);
 		packet.addProperty("advertiser", prefixListObj.getAdvertiser());
+		packet.addProperty("msgID", prefixListObj.getMsgID());
 
 		prefixListObj.setOriginalPacket(packet.toString());
 	}
@@ -121,9 +122,10 @@ public class SendPacket {
 
 		packet.addProperty("type", "update");
 		packet.addProperty("action", "prefix");
-		packet.addProperty("flag", prefixObj.getAddRemoveFlag());
+		packet.addProperty("addRemove", prefixObj.getAddRemoveFlag());
 		packet.addProperty("prefix", prefixObj.getPrefixName());
 		packet.addProperty("advertiser", prefixObj.getAdvertiser());
+		packet.addProperty("msgID", prefixObj.getMsgID());
 
 		prefixObj.setOriginalPacket(packet.toString());
 	}
@@ -132,10 +134,11 @@ public class SendPacket {
 
 		packet.addProperty("type", "update");
 		packet.addProperty("action", "prefixList");
-		packet.addProperty("flag", prefixListObj.getAddRemoveFlag());
+		packet.addProperty("addRemove", prefixListObj.getAddRemoveFlag());
 		String prefixArray = gson.toJson(prefixListObj.getPrefixList());
 		packet.addProperty("prefixList", prefixArray);
 		packet.addProperty("advertiser", prefixListObj.getAdvertiser());
+		packet.addProperty("msgID", prefixListObj.getMsgID());
 
 		prefixListObj.setOriginalPacket(packet.toString());
 
@@ -241,10 +244,11 @@ public class SendPacket {
 
 		packet.addProperty("type", "update");
 		packet.addProperty("action", "prefixResponse");
-		packet.addProperty("flag", prefixListObj.getAddRemoveFlag());
+		packet.addProperty("addRemove", prefixListObj.getAddRemoveFlag());
 		String prefixArray = gson.toJson(prefixListObj.getPrefixList());
 		packet.addProperty("prefixList", prefixArray);
 		packet.addProperty("advertiser", prefixListObj.getAdvertiser());
+		packet.addProperty("msgID", prefixListObj.getMsgID());
 
 		prefixListObj.setOriginalPacket(packet.toString());
 	}

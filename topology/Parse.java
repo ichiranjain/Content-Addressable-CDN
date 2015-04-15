@@ -111,13 +111,13 @@ public class Parse {
 	public PrefixObj parsePrefixJson(String jsonString){
 
 		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-		JsonElement jsonContentNameElement = jsonObject.get("contentName");
+		JsonElement jsonContentNameElement = jsonObject.get("prefix");
 		String contentName = jsonContentNameElement.getAsString();
 
 		JsonElement jsonIDElement = jsonObject.get("msgID");
 		String msgID = jsonIDElement.getAsString();
 
-		JsonElement jsonAddRemoveElement = jsonObject.get("flag");
+		JsonElement jsonAddRemoveElement = jsonObject.get("addRemove");
 		boolean addRemove = jsonAddRemoveElement.getAsBoolean();
 
 		JsonElement jsonAdvertiserElement = jsonObject.get("advertiser");
@@ -129,7 +129,7 @@ public class Parse {
 
 	public boolean parsePrefixAddRemove(String jsonString){
 		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-		JsonElement jsonAddRemoveElement = jsonObject.get("flag");
+		JsonElement jsonAddRemoveElement = jsonObject.get("addRemove");
 		boolean addRemove = jsonAddRemoveElement.getAsBoolean();
 		return addRemove;
 	}
@@ -227,7 +227,7 @@ public class Parse {
 		JsonElement jsonIDElement = jsonObject.get("msgID");
 		String msgID = jsonIDElement.getAsString();
 
-		JsonElement jsonAddRemoveElement = jsonObject.get("flag");
+		JsonElement jsonAddRemoveElement = jsonObject.get("addRemove");
 		boolean addRemove = jsonAddRemoveElement.getAsBoolean();
 
 		JsonElement jsonAdvertiserElement = jsonObject.get("advertiser");
@@ -258,7 +258,7 @@ public class Parse {
 
 	public LinkObj parseClientRemoveNodeJson(String jsonString){
 		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-		JsonElement jsonNameElement = jsonObject.get("removeNodeName");
+		JsonElement jsonNameElement = jsonObject.get("nodeName");
 		String removeNodeName = jsonNameElement.getAsString();
 
 		JsonElement jsonCostElement = jsonObject.get("cost");
