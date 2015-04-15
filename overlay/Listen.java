@@ -1,7 +1,5 @@
 package overlay;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -44,12 +42,14 @@ public class Listen extends Thread {
 				peerSocket = serverSocket.accept();
 				System.out.println("Connection request received from "
 						+ peerSocket.getRemoteSocketAddress() + " ...");
+				setUpObjectStreams();
 				if (nodeJoinPermitted(peerSocket)) {
-
+					System.out
+							.println("waiting for message from peer that requested connection..");
 					Message<JoinPacket> m = (Message<JoinPacket>) ois
 							.readObject();
-
-					p.addPeer(m.packet);
+					System.out.println("message received..");
+					p.addPeer(m.packet, peerSocket);
 					new Link(peerSocket.getRemoteSocketAddress() + "")
 							.start();
 					System.out.println("Client peer now connected... IP: "
@@ -79,10 +79,20 @@ public class Listen extends Thread {
 	 * @throws IOException
 	 */
 	public void setUpObjectStreams() throws IOException {
-		ois = new ObjectInputStream(new BufferedInputStream(
-				peerSocket.getInputStream()));
-		oos = new ObjectOutputStream(new BufferedOutputStream(
-				peerSocket.getOutputStream()));
+		System.out
+				.println("** setting up object streams for listening - start**");
+		// oos = new ObjectOutputStream(new BufferedOutputStream(
+		// peerSocket.getOutputStream()));
+		oos = new ObjectOutputStream(peerSocket.getOutputStream());
+		System.out.println("received object output stream..	");
+		oos.flush();
+		// ois = new ObjectInputStream(new BufferedInputStream(
+		// peerSocket.getInputStream()));
+		ois = new ObjectInputStream(peerSocket.getInputStream());
+
+		System.out.println("received object input stream..");
+		System.out
+				.println("** setting up object streams for listening - finish");
 	}
 
 	/**
@@ -94,15 +104,20 @@ public class Listen extends Thread {
 	 * @return
 	 */
 	public boolean nodeJoinPermitted(Socket peerSocket) {
+		System.out.println("** node join permissing check - start **");
 		int existingNetworkSize = Peer.allNodes.size();
 		int newNetworkSize = Peer.allNodes.size() + 1;
 		if (Math.ceil(Math.log(existingNetworkSize)) == Math.ceil(Math
 				.log(newNetworkSize))) {
+			System.out.println("permission denied..");
+			System.out.println("** node join permission check - finish");
 			return false;
 		} else {
 			if (Peer.vacancies.size() == 0) {
 				//
 			}
+			System.out.println("permission granted..");
+			System.out.println("** node join permission check - finish");
 			return true;
 		}
 	}

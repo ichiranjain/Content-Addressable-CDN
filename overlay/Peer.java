@@ -107,10 +107,11 @@ public class Peer implements PeerInterface {
 		} else if (args[0].toLowerCase().equals("join")) {
 			String server = args[1].toLowerCase();
 
-			p.join(server);
-
 			// Start listening on server socket
 			p.listen();
+
+			p.join(server);
+
 			
 		}
 
@@ -142,23 +143,28 @@ public class Peer implements PeerInterface {
 	/**
 	 * This method updates meta data after adding new peer connection.
 	 */
-	@Override
-	public void addPeer(JoinPacket packet) throws IOException {
+	public void addPeer(JoinPacket packet, Socket peerSocket)
+			throws IOException {
+		System.out.println("** Adding peer - start**");
 
-		InputStream is = new BufferedInputStream(peerSocket.getInputStream());
-		ObjectInputStream ois = new ObjectInputStream(is);
 		OutputStream os = new BufferedOutputStream(peerSocket.getOutputStream());
 		ObjectOutputStream oos = new ObjectOutputStream(os);
+		InputStream is = new BufferedInputStream(peerSocket.getInputStream());
+		ObjectInputStream ois = new ObjectInputStream(is);
 
 		// adding peer to
 		neighbors.put(peerSocket.getRemoteSocketAddress() + "",
 				new SocketContainer(peerSocket, ois, oos));
+		System.out.println("neighbors updated..");
 		// adding neighbor to set of all nodes in the network
 		allNodes.add(peerSocket.getRemoteSocketAddress().toString());
+		System.out.println("all nodes updated..");
 		// update remaining neighbors with information about new neighbor
 		updateNeighbors(peerSocket, packet);
+		System.out.println("shared new info with neighbors..");
 		// update expected number of connections
 		updateLogN();
+		System.out.println("** Adding peer - finish **");
 	}
 
 	// send remaining neighbors information about new peer
@@ -202,19 +208,42 @@ public class Peer implements PeerInterface {
 	@Override
 	public boolean join(String peer) throws IOException, ClassNotFoundException {
 		peerSocket = new Socket(peer, 43125);
+		System.out.println("Sockect created..");
 		Message<JoinPacket> joinMessage = new Message<JoinPacket>(1);
 		
-		InputStream is = new BufferedInputStream(peerSocket.getInputStream());
-		ObjectInputStream ois = new ObjectInputStream(is);
-		OutputStream os = new BufferedOutputStream(peerSocket.getOutputStream());
-		ObjectOutputStream oos = new ObjectOutputStream(os);
-		
+		System.out.println("before oos peer");
+		// OutputStream os = new
+		// BufferedOutputStream(peerSocket.getOutputStream());
+		// ObjectOutputStream oos = new ObjectOutputStream(os);
+		ObjectOutputStream oos = new ObjectOutputStream(
+				peerSocket.getOutputStream());
+		System.out.println("after oos peer");
+		oos.flush();
+		System.out.println("after oos flush");
+		// InputStream is = new
+		// BufferedInputStream(peerSocket.getInputStream());
+		// ObjectInputStream ois = new ObjectInputStream(is);
+		ObjectInputStream ois = new ObjectInputStream(
+				peerSocket.getInputStream());
+		System.out.println("Streams created...");
+
 		oos.writeObject(joinMessage);
+
+		System.out.println("Sent join message to "
+				+ peerSocket.getRemoteSocketAddress().toString());
+
+		System.out.println("Waiting for reply from "
+				+ peerSocket.getRemoteSocketAddress().toString());
 
 		Message<JoinPacket> m = (Message) ois.readObject();
 
+		System.out.println("Message received from "
+				+ peerSocket.getRemoteSocketAddress().toString());
+
+		System.out.println("Updating metadata...");
 		// update node's metadata using information from new node
 		updateMetaData(m);
+		System.out.println("Metadata updation complete...");
 
 		// RECONNECT IF CONNECTION FAILS
 		// while (m.type == -1) {
@@ -228,7 +257,7 @@ public class Peer implements PeerInterface {
 		// }
 		// check if connection was accepted
 
-		this.addPeer(m.packet);
+		this.addPeer(m.packet, peerSocket);
 		// start listening to connected peer for messages
 		new Link(peerSocket.getRemoteSocketAddress() + "").start();
 
@@ -243,9 +272,11 @@ public class Peer implements PeerInterface {
 	 * @param m
 	 */
 	public void updateMetaData(Message<JoinPacket> m) {
+		System.out.println("** Updating meta data - start**");
 		JoinPacket packet = (JoinPacket) m.packet;
 		Peer.allNodes.addAll(packet.allNodes);
 		Peer.vacancies.putAll(packet.vacancies);
+		System.out.println("** Updating meta data - finish**");
 	}
 	
 	/**

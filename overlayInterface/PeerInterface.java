@@ -13,7 +13,7 @@ public interface PeerInterface {
 
 	boolean join(String peer) throws IOException, ClassNotFoundException;
 
-	void addPeer(JoinPacket packet) throws IOException;
+	// void addPeer(JoinPacket packet) throws IOException;
 
 	void updateNeighbors(Socket newPeer, JoinPacket packet);
 

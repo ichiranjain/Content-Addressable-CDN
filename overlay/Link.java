@@ -14,8 +14,10 @@ public class Link extends Thread {
 	String connectedTo;
 
 	public Link(String peerAddress) throws IOException {
+		System.out.println("Initializing link to " + peerAddress + " - start");
 		connectedTo = peerAddress;
 		ois = Peer.neighbors.get(peerAddress).ois;
+		System.out.println("Initializing link to " + peerAddress + " - finish");
 	}
 
 	@Override
