@@ -1,12 +1,8 @@
 package overlay;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -45,8 +41,10 @@ public class Peer implements PeerInterface {
 	static int logN;
 
 	// static block for initializing static content
+	// like serverSocket used for listening
 	{
 		while (true) {
+			System.out.println("Starting server socket...");
 			try {
 				serverSocket = new ServerSocket(43125);
 				break;
@@ -54,12 +52,7 @@ public class Peer implements PeerInterface {
 				e.printStackTrace();
 			}
 		}
-
-		try {
-			ID = generateID(); // unique ID based on IP address
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+		System.out.println("Server socket started at port 43125...");
 
 		neighbors = new HashMap<String, SocketContainer>();
 		vacancies = new HashMap<String, Integer>();
@@ -68,16 +61,26 @@ public class Peer implements PeerInterface {
 		logN = 0;
 	}
 
-	// Default constructor
+	/**
+	 * Constructor generates ID and initializes peerSocket to null
+	 * 
+	 * peerSocket - used to accept connections from neighbors
+	 */
 	public Peer() {
+		try {
+			ID = generateID(); // unique ID based on IP address
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 		peerSocket = null;
 	}
 
 	// Main thread
 	public static void main(String[] args) throws IOException,
-			ClassNotFoundException {
-		if (args.length < 2) {
-			if (args.length == 1 && args[0].equals("man")) {
+			ClassNotFoundException, InterruptedException {
+		Peer p = new Peer();
+		if (args.length == 1) {
+			if (args[0].equals("man")) {
 				System.out.println("To start a new network");
 				System.out.println("\n\tjava Peer start new\n");
 				System.out.println("To join an existing network");
@@ -85,6 +88,11 @@ public class Peer implements PeerInterface {
 				System.out.println("\t <node address> is the IP address of a "
 						+ "node that is already part of the existing "
 						+ "network.\n");
+			} else if (args[0].toLowerCase().equals("start")) {
+				p.start();
+
+				// Start listening on server socket for new connections
+				p.listen();
 			} else {
 				System.out.println("Please pass command line arguments "
 						+ "suggesting the mode in which the node is to "
@@ -93,27 +101,18 @@ public class Peer implements PeerInterface {
 						+ "the command line");
 			}
 			return;
+		} else if (args.length == 2) {
+			if (args[0].toLowerCase().equals("join")) {
+				String server = args[1].toLowerCase();
+				// Start listening on server socket
+				p.listen();
+
+				p.join(server);
+			}
 		}
-		Peer p = new Peer();
 
 		// static scanner object for the class
 		s = new Scanner(System.in);
-		if (args[0].toLowerCase().equals("start")) {
-			p.start();
-
-			// Start listening on server socket for new connections
-			p.listen();
-
-		} else if (args[0].toLowerCase().equals("join")) {
-			String server = args[1].toLowerCase();
-
-			// Start listening on server socket
-			p.listen();
-
-			p.join(server);
-
-			
-		}
 
 		// share general messages with neighbors
 		while (true) {
@@ -143,16 +142,12 @@ public class Peer implements PeerInterface {
 	/**
 	 * This method updates meta data after adding new peer connection.
 	 */
-	public void addPeer(JoinPacket packet, Socket peerSocket)
+	public void addPeer(JoinPacket packet, Socket peerSocket,
+			ObjectOutputStream oos, ObjectInputStream ois)
 			throws IOException {
 		System.out.println("** Adding peer - start**");
+		System.out.println("Streams received as parameters...");
 
-		OutputStream os = new BufferedOutputStream(peerSocket.getOutputStream());
-		ObjectOutputStream oos = new ObjectOutputStream(os);
-		InputStream is = new BufferedInputStream(peerSocket.getInputStream());
-		ObjectInputStream ois = new ObjectInputStream(is);
-
-		// adding peer to
 		neighbors.put(peerSocket.getRemoteSocketAddress() + "",
 				new SocketContainer(peerSocket, ois, oos));
 		System.out.println("neighbors updated..");
@@ -180,7 +175,7 @@ public class Peer implements PeerInterface {
 
 	@Override
 	public void listen() {
-		Listen listen = new Listen(this, serverSocket);
+		Listen listen = new Listen(this);
 		listen.start();
 	}
 
@@ -206,7 +201,8 @@ public class Peer implements PeerInterface {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public boolean join(String peer) throws IOException, ClassNotFoundException {
+	public boolean join(String peer) throws IOException,
+			ClassNotFoundException, InterruptedException {
 		peerSocket = new Socket(peer, 43125);
 		System.out.println("Sockect created..");
 		Message<JoinPacket> joinMessage = new Message<JoinPacket>(1);
@@ -217,27 +213,22 @@ public class Peer implements PeerInterface {
 		// ObjectOutputStream oos = new ObjectOutputStream(os);
 		ObjectOutputStream oos = new ObjectOutputStream(
 				peerSocket.getOutputStream());
-		System.out.println("after oos peer");
-		oos.flush();
-		System.out.println("after oos flush");
+		Thread.sleep(1000);
+		System.out.println("after oos now trying to get ois...");
+		// System.out.println("after oos flush");
 		// InputStream is = new
 		// BufferedInputStream(peerSocket.getInputStream());
 		// ObjectInputStream ois = new ObjectInputStream(is);
 		ObjectInputStream ois = new ObjectInputStream(
 				peerSocket.getInputStream());
-		System.out.println("Streams created...");
+		System.out.println("oos and ois both streams created...");
 
 		oos.writeObject(joinMessage);
-
-		System.out.println("Sent join message to "
-				+ peerSocket.getRemoteSocketAddress().toString());
-
-		System.out.println("Waiting for reply from "
-				+ peerSocket.getRemoteSocketAddress().toString());
+		oos.flush();
 
 		Message<JoinPacket> m = (Message) ois.readObject();
 
-		System.out.println("Message received from "
+		System.out.println("Message received from connected peer at "
 				+ peerSocket.getRemoteSocketAddress().toString());
 
 		System.out.println("Updating metadata...");
@@ -256,12 +247,15 @@ public class Peer implements PeerInterface {
 		// }
 		// }
 		// check if connection was accepted
+		System.out.println("Now storing oos and ois...");
+		// this.addPeer(m.packet, peerSocket);
+		this.addPeer(null, peerSocket, oos, ois);
 
-		this.addPeer(m.packet, peerSocket);
-		// start listening to connected peer for messages
-		new Link(peerSocket.getRemoteSocketAddress() + "").start();
+		// start listening to connected peer for additional messages
+		new Link(peerSocket.getRemoteSocketAddress() + "", ois).start();
 
-		this.updateNeighbors(peerSocket, m.packet);
+		// this.updateNeighbors(peerSocket, m.packet);
+		this.updateNeighbors(peerSocket, null);
 
 		return true;
 	}
@@ -355,7 +349,7 @@ public class Peer implements PeerInterface {
 	 */
 	public static long generateID() throws UnknownHostException {
 		String hostAddress = InetAddress.getLocalHost().getHostAddress();
-		System.out.println("Generating ID for node... (" + hostAddress + ")");
+		System.out.println("Generating ID... (" + hostAddress + ")");
 		long prime1 = 105137;
 		long prime2 = 179422891;
 		long ID = 0;

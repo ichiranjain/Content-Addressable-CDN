@@ -11,7 +11,8 @@ public interface PeerInterface {
 
 	void start() throws IOException;
 
-	boolean join(String peer) throws IOException, ClassNotFoundException;
+	boolean join(String peer) throws IOException, ClassNotFoundException,
+			InterruptedException;
 
 	// void addPeer(JoinPacket packet) throws IOException;
 

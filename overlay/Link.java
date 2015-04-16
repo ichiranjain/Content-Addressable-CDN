@@ -13,10 +13,10 @@ public class Link extends Thread {
 	ObjectInputStream ois = null;
 	String connectedTo;
 
-	public Link(String peerAddress) throws IOException {
+	public Link(String peerAddress, ObjectInputStream ois) throws IOException {
 		System.out.println("Initializing link to " + peerAddress + " - start");
 		connectedTo = peerAddress;
-		ois = Peer.neighbors.get(peerAddress).ois;
+		this.ois = ois;
 		System.out.println("Initializing link to " + peerAddress + " - finish");
 	}
 
@@ -27,24 +27,31 @@ public class Link extends Thread {
 		System.out.println("Input Stream started...");
 		while (true) {
 			try {
-				m = (Message) ois.readObject();
-				System.out.println("Message received from: " + connectedTo);
-				System.out.println("type: " + m.type);
-				System.out.println("request no: " + m.requestNo);
-				attempt = 0;
+				System.out.print(".");
+				this.sleep(1000);
+				// m = (Message) ois.readObject();
+				// System.out.println("Message received from: " + connectedTo);
+				// System.out.println("type: " + m.type);
+				// System.out.println("request no: " + m.requestNo);
+				// attempt = 0;
 				// handle updates
-			} catch (ClassNotFoundException e) {
+			}
+			// catch (ClassNotFoundException e) {
+			// e.printStackTrace();
+			// } catch (IOException e) {
+			// attempt++;
+			// e.printStackTrace();
+			// if (attempt == 3) {
+			// try {
+			// ois.close();
+			// } catch (IOException e1) {
+			// e1.printStackTrace();
+			// }
+			// }
+			// }
+			catch (InterruptedException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (IOException e) {
-				attempt++;
-				e.printStackTrace();
-				if (attempt == 3) {
-					try {
-						ois.close();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-				}
 			}
 		}
 	}
