@@ -1,7 +1,6 @@
 package topology;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import packetObjects.AddNodeObj;
 import packetObjects.IntrestObj;
@@ -83,6 +82,12 @@ public class ProcessUpdates {
 		if(directlyConnectedNodes.doesDirectlyConnectedRouterExist(linkObj.getNeighboringNode()) == true){
 			directlyConnectedNodes.removeDirectlyConnectedRouter(linkObj.getNeighboringNode());
 		}
+
+		//run Dijkstra
+		dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
+
+		//sort FIB entries
+		fib.findBestCostAdvertisers();
 
 		//send modify update to the rest of the graph ... telling them about the new connection
 		ModifyNodeObj modifyNodeObj = new ModifyNodeObj(nodeRepo.getThisMachinesName(), 
@@ -547,7 +552,10 @@ public class ProcessUpdates {
 
 	public ArrayList<String> getNeighbors(){
 		String[] neighboringRouters = directlyConnectedNodes.getDirectlyConnectedRoutersList();
-		ArrayList<String> neighbors = (ArrayList<String>) Arrays.asList(neighboringRouters);
+		ArrayList<String> neighbors = new ArrayList<String>();
+		for(int i = 0; i < neighboringRouters.length; i++){
+			neighbors.add(neighboringRouters[i]);
+		}
 		return neighbors;
 	}
 

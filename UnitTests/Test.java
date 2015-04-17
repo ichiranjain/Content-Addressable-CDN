@@ -22,8 +22,16 @@ public class Test {
 		//		pitTest.testPIT();
 
 		//test SendPacket
-		SendPacketTest sendPacketTest = new SendPacketTest();
-		sendPacketTest.testSendPacket();
+		//		SendPacketTest sendPacketTest = new SendPacketTest();
+		//		sendPacketTest.testSendPacket();
+
+		//test ProcessUpdates class
+		UpdateProcessTest updateProcessTest = new UpdateProcessTest();
+		updateProcessTest.testUpdateProcess();
+
+		//test Preocess Routing Packets
+		//		RoutingProcessTest routingProcessTest = new RoutingProcessTest();
+		//		routingProcessTest.testProcessRoutingPacets();
 
 	}
 

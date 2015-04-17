@@ -18,7 +18,8 @@ public class DirectlyConnectedObj {
 		this.clientName = clientName;
 
 		//the clients name is also a prefix
-		prefixList.put(clientName, true);
+		this.prefixList = new HashMap<String, Boolean>();
+		this.prefixList.put(clientName, true);
 	}
 
 	public DirectlyConnectedObj(String clientName, HashMap<String, Boolean> prefixList){
