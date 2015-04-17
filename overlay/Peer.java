@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
-import overlayInterface.PeerInterface;
-
 /**
  * Peer class to represent a node in the overlay network. Implements the
  * PeerInterface interface.
@@ -23,7 +21,7 @@ import overlayInterface.PeerInterface;
  * @author Gaurav Komera
  *
  */
-public class Peer implements PeerInterface {
+public class Peer { // implements PeerInterface
 	Socket peerSocket;
 
 	// ID of this node
@@ -125,10 +123,10 @@ public class Peer implements PeerInterface {
 						.entrySet()) {
 					if (!entry.getKey().equals(
 							p.peerSocket.getRemoteSocketAddress())) {
-						System.out.print("Sending new neighbor info to: ");
-						System.out.println(entry.getValue().socket
-								.getRemoteSocketAddress());
-						entry.getValue().oos.writeObject(m);
+//						System.out.print("Sending new neighbor info to: ");
+//						System.out.println(entry.getValue().socket
+						// .getRemoteSocketAddress());
+						// entry.getValue().oos.writeObject(m);
 					}
 				}
 			} catch (Exception e) {
@@ -155,7 +153,7 @@ public class Peer implements PeerInterface {
 		allNodes.add(getIP(peerSocket.getRemoteSocketAddress().toString()));
 		System.out.println("all nodes updated..");
 		// update remaining neighbors with information about new neighbor
-		updateNeighbors(peerSocket, packet);
+		updateNeighbors(getIP(peerSocket.getRemoteSocketAddress().toString()), packet);
 		System.out.println("shared new info with neighbors..");
 		// update expected number of connections
 		updateLogN();
@@ -178,29 +176,29 @@ public class Peer implements PeerInterface {
 	}
 
 	// send remaining neighbors information about new peer
-	@Override
-	public void updateNeighbors(Socket newPeer, JoinPacket packet) {
+	public void updateNeighbors(String except, JoinPacket packet)
+			throws IOException {
 		// **packet is null when the node starts**
 		// send neighbors with new peer info
-		
-
+		Message<JoinPacket> m = new Message<JoinPacket>(50, packet);
+		for (Entry<String, SocketContainer> e : neighbors.entrySet()) {
+			if (!e.getKey().equals(except)) {
+				System.out.println("Sending update to neighbor: " + e.getKey());
+				e.getValue().oos.writeObject(m);
+			}
+		}
 		// send > new peer info about existing neighbors
-
 	}
 
-	@Override
 	public void listen() {
 		Listen listen = new Listen(this);
 		listen.start();
 	}
 
-	@Override
 	public void remove(Peer p) {
 		// TODO Auto-generated method stub
-
 	}
 
-	@Override
 	public void start() throws IOException {
 		System.out.println("Starting node...");
 		System.out
@@ -216,10 +214,10 @@ public class Peer implements PeerInterface {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
 	public boolean join(String peer) throws IOException,
 			ClassNotFoundException, InterruptedException {
 		peerSocket = new Socket(peer, 43125);
+		allNodes.add(getIP(serverSocket.getInetAddress().getHostAddress()));
 		System.out.println("Sockect created..");
 
 		JoinPacket packet = new JoinPacket(this);
@@ -272,14 +270,16 @@ public class Peer implements PeerInterface {
 		// }
 		// check if connection was accepted
 		System.out.println("Now storing oos and ois...");
+
 		// this.addPeer(m.packet, peerSocket);
-		this.addPeer(null, peerSocket, oos, ois);
+		this.addPeer(m.packet, peerSocket, oos, ois);
 
 		// start listening to connected peer for additional messages
 		new Link(peerSocket.getRemoteSocketAddress() + "", ois).start();
 
 		// this.updateNeighbors(peerSocket, m.packet);
-		this.updateNeighbors(peerSocket, null);
+		this.updateNeighbors(getIP(peerSocket.getRemoteSocketAddress()
+				.toString()), m.packet);
 
 		return true;
 	}

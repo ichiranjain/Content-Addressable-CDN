@@ -57,9 +57,8 @@ public class Listen extends Thread {
 
 					System.out.println("message received.. type: " + m.type);
 					p.addPeer(m.packet, p.peerSocket, oos, ois);
+					p.updateMetaData(m);
 
-					// p.addPeer(null, p.peerSocket, oos, ois);
-					// start listening
 					new Link(p.peerSocket.getRemoteSocketAddress() + "", ois)
 							.start();
 					System.out
@@ -70,8 +69,14 @@ public class Listen extends Thread {
 					System.out
 							.println("Neighbor info sent... Client peer now connected... IP: "
 							+ p.peerSocket.getRemoteSocketAddress());
-					System.out.println("New map: " + Peer.neighbors);
+					System.out.println("New neighbors: " + Peer.neighbors);
+					System.out.println("New allNodes: " + Peer.allNodes);
 
+					System.out
+							.println("Letting all other neighbors know about new packet..");
+					p.updateNeighbors(Peer.getIP(p.peerSocket
+							.getRemoteSocketAddress().toString()),
+							m.packet);
 				} else {
 					System.out.println("Connection from "
 							+ p.peerSocket.getRemoteSocketAddress()

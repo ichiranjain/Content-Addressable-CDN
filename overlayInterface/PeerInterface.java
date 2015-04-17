@@ -1,7 +1,6 @@
 package overlayInterface;
 
 import java.io.IOException;
-import java.net.Socket;
 
 import overlay.JoinPacket;
 import overlay.Message;
@@ -16,7 +15,7 @@ public interface PeerInterface {
 
 	// void addPeer(JoinPacket packet) throws IOException;
 
-	void updateNeighbors(Socket newPeer, JoinPacket packet);
+	void updateNeighbors(JoinPacket packet) throws IOException;
 
 	void listen();
 

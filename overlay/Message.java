@@ -26,6 +26,7 @@ public class Message<K> implements Serializable {
 	// 6 - ping acknowledgement
 	// 7 - send packet
 	// 8 - packet acknowledgement
+	// 50 - sharing new neighbor info
 	// 99 - random message
 	//
 	int type;
