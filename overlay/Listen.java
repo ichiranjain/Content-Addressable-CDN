@@ -50,15 +50,28 @@ public class Listen extends Thread {
 							.println("waiting for message from peer that requested connection..");
 					Message<JoinPacket> m = (Message<JoinPacket>) ois
 							.readObject();
+
+					JoinPacket replyPacket = new JoinPacket(p);
+					Message<JoinPacket> mReply = new Message<JoinPacket>(2,
+							replyPacket);
+
 					System.out.println("message received.. type: " + m.type);
 					p.addPeer(m.packet, p.peerSocket, oos, ois);
+
 					// p.addPeer(null, p.peerSocket, oos, ois);
 					// start listening
 					new Link(p.peerSocket.getRemoteSocketAddress() + "", ois)
 							.start();
-					System.out.println("Client peer now connected... IP: "
+					System.out
+							.println("Reply to newly connected peer with current neighbor info..");
+					oos.writeObject(mReply);
+					oos.flush();
+
+					System.out
+							.println("Neighbor info sent... Client peer now connected... IP: "
 							+ p.peerSocket.getRemoteSocketAddress());
 					System.out.println("New map: " + Peer.neighbors);
+
 				} else {
 					System.out.println("Connection from "
 							+ p.peerSocket.getRemoteSocketAddress()

@@ -148,11 +148,11 @@ public class Peer implements PeerInterface {
 		System.out.println("** Adding peer - start**");
 		System.out.println("Streams received as parameters...");
 
-		neighbors.put(peerSocket.getRemoteSocketAddress() + "",
+		neighbors.put(getIP(peerSocket.getRemoteSocketAddress().toString()),
 				new SocketContainer(peerSocket, ois, oos));
 		System.out.println("neighbors updated..");
 		// adding neighbor to set of all nodes in the network
-		allNodes.add(peerSocket.getRemoteSocketAddress().toString());
+		allNodes.add(getIP(peerSocket.getRemoteSocketAddress().toString()));
 		System.out.println("all nodes updated..");
 		// update remaining neighbors with information about new neighbor
 		updateNeighbors(peerSocket, packet);
@@ -160,6 +160,21 @@ public class Peer implements PeerInterface {
 		// update expected number of connections
 		updateLogN();
 		System.out.println("** Adding peer - finish **");
+	}
+
+	public static String getIP(String port) {
+		int i = 0;
+		int slash = 0;
+		int end = port.length();
+		for (; i < port.length(); i++) {
+			if (port.charAt(i) == '/') {
+				slash = i + 1;
+			} else if (port.charAt(i) == ':') {
+				end = i;
+				break;
+			}
+		}
+		return port.substring(slash, end);
 	}
 
 	// send remaining neighbors information about new peer
@@ -192,6 +207,7 @@ public class Peer implements PeerInterface {
 				.println("IP: " + InetAddress.getLocalHost().getHostAddress());
 		// creating peer
 		System.out.println("Waiting for client peer...");
+		allNodes.add(getIP(serverSocket.getInetAddress().getHostAddress()));
 		// peerSocket = serverSocket.accept();
 		// this.addPeer(null);
 		//
@@ -205,8 +221,10 @@ public class Peer implements PeerInterface {
 			ClassNotFoundException, InterruptedException {
 		peerSocket = new Socket(peer, 43125);
 		System.out.println("Sockect created..");
-		Message<JoinPacket> joinMessage = new Message<JoinPacket>(1);
-		
+
+		JoinPacket packet = new JoinPacket(this);
+		Message<JoinPacket> joinMessage = new Message<JoinPacket>(1, packet);
+
 		System.out.println("before oos peer");
 		// OutputStream os = new
 		// BufferedOutputStream(peerSocket.getOutputStream());
@@ -225,11 +243,17 @@ public class Peer implements PeerInterface {
 
 		oos.writeObject(joinMessage);
 		oos.flush();
-
+		System.out.println("Join message sent...");
+		System.out.println("Waiting for acknowledgement...");
 		Message<JoinPacket> m = (Message) ois.readObject();
 
 		System.out.println("Message received from connected peer at "
 				+ peerSocket.getRemoteSocketAddress().toString());
+
+		System.out.println("Message received type: " + m.type);
+		System.out.println("allNodes: " + m.packet.allNodes);
+		System.out.println("neighbors: " + m.packet.neighbors);
+		System.out.println("vacancies: " + m.packet.vacancies);
 
 		System.out.println("Updating metadata...");
 		// update node's metadata using information from new node
@@ -268,8 +292,11 @@ public class Peer implements PeerInterface {
 	public void updateMetaData(Message<JoinPacket> m) {
 		System.out.println("** Updating meta data - start**");
 		JoinPacket packet = (JoinPacket) m.packet;
-		Peer.allNodes.addAll(packet.allNodes);
-		Peer.vacancies.putAll(packet.vacancies);
+		allNodes.addAll(packet.allNodes);
+		vacancies.putAll(packet.vacancies);
+		System.out.println("After update");
+		System.out.println("allNodes: " + allNodes);
+		System.out.println("vacancies: " + vacancies);
 		System.out.println("** Updating meta data - finish**");
 	}
 	
