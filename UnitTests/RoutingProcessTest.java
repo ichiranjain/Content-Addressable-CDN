@@ -75,7 +75,7 @@ public class RoutingProcessTest {
 		nodeRepo.HMgetNode("H").setOriginNextHop("B");
 
 		pit = new PIT();
-		fib = new FIB(nodeRepo, pit);
+		fib = new FIB(nodeRepo, pit, directlyConnectedNodes);
 		fib.addPrefixToFIB("prefix1", "A");
 		fib.addPrefixToFIB("prefix2", "B");
 
@@ -92,21 +92,21 @@ public class RoutingProcessTest {
 		process.processIntrest(intrestObj);
 
 		byte b = 0;
-		DataObj dataObj0 = new DataObj("prefix2", "D", b, "data here", "");
+		DataObj dataObj0 = new DataObj("prefix2", "D", b, "data here", "", b);
 		sendPacket.createDataPacket(dataObj0);
 		packet = new PacketObj(dataObj0.getOriginalPacket(), "G", false);
 		process = new ProcessRoutingPackets(packet.getPacket(), nodeRepo, fib, pit, directlyConnectedNodes);
 		process.processData0(dataObj0);
 
 		b = 1;
-		DataObj dataObj1 = new DataObj("prefix2", "D", b, "data here", "");
+		DataObj dataObj1 = new DataObj("prefix2", "D", b, "data here", "", b);
 		sendPacket.createDataPacket(dataObj0);
 		packet = new PacketObj(dataObj1.getOriginalPacket(), "G", false);
 		process = new ProcessRoutingPackets(packet.getPacket(), nodeRepo, fib, pit, directlyConnectedNodes);
 		process.processData1(dataObj1);
 
 		b = 2;
-		DataObj dataObj2 = new DataObj("prefix2", "D", b, "data here", "");
+		DataObj dataObj2 = new DataObj("prefix2", "D", b, "data here", "", b);
 		sendPacket.createDataPacket(dataObj0);
 		packet = new PacketObj(dataObj2.getOriginalPacket(), "G", false);
 		process = new ProcessRoutingPackets(packet.getPacket(), nodeRepo, fib, pit, directlyConnectedNodes);

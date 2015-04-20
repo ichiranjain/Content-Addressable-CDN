@@ -28,7 +28,7 @@ public class UpdateProcessTest {
 		upDatesSeen = new UpdateMsgsSeen();
 
 		nodeRepo = new NodeRepository("A");
-		fib = new FIB(nodeRepo, new PIT());
+		fib = new FIB(nodeRepo, new PIT(), directlyConnectedNodes);
 
 		nodeRepo.HMaddNode("A");
 		nodeRepo.HMaddNeighbor("A", "B", 20);
@@ -84,6 +84,7 @@ public class UpdateProcessTest {
 		String doNotSendToNode = "ZZ";
 
 		LinkObj linkObj = new LinkObj("Z", 12);
+		LinkObj linkObj2 = new LinkObj("Z", 11);
 		PrefixObj prefixObj = new PrefixObj("prefix1", "MSGID", "Z", true);
 
 		ArrayList<String> prefixList = new ArrayList<String>();
@@ -96,22 +97,23 @@ public class UpdateProcessTest {
 		neighbors.add(new NeighborAndCostStrings("B", 11));
 		neighbors.add(new NeighborAndCostStrings("D", 22));
 		neighbors.add(new NeighborAndCostStrings("G", 33));
-		ModifyNodeObj modifyNodeObj = new ModifyNodeObj("A", neighbors, "MSGID3" );
+		ModifyNodeObj modifyNodeObj = new ModifyNodeObj("Z", neighbors, "MSGID3" );
 
 		NeighborRequestObj neighborRequestObj = new NeighborRequestObj("F");
 
-		//works
-		//		process.addLink(linkObj);
-		//		ArrayList<NeighborAndCostStrings> neighbors1 = nodeRepo.HMgetNode("A").getNeighbors();
-		//		for(int i = 0; i < neighbors1.size(); i++){
-		//			System.out.println("A's neighbor: " + neighbors1.get(i).getNeighborName());
-		//		}
-		//		String[] routers = directlyConnectedNodes.getDirectlyConnectedRoutersList();
-		//		for(String router : routers){
-		//			System.out.println("directly connected router: " + router);
-		//		}
-		//		System.out.println("is 'Z' in the graph: " + nodeRepo.HMdoesNodeExist("Z"));
-		//		System.out.println("is 'Z' in the fib: " + fib.doesHashMapContainPrefix(1, "Z"));
+		//		//works
+		process.addLink(linkObj);
+		System.out.println("best cost to z: " + nodeRepo.HMgetNode("Z").getBestCost());
+		ArrayList<NeighborAndCostStrings> neighbors1 = nodeRepo.HMgetNode("A").getNeighbors();
+		for(int i = 0; i < neighbors1.size(); i++){
+			System.out.println("A's neighbor: " + neighbors1.get(i).getNeighborName());
+		}
+		String[] routers = directlyConnectedNodes.getDirectlyConnectedRoutersList();
+		for(String router : routers){
+			System.out.println("directly connected router: " + router);
+		}
+		System.out.println("is 'Z' in the graph: " + nodeRepo.HMdoesNodeExist("Z"));
+		System.out.println("is 'Z' in the fib: " + fib.doesHashMapContainPrefix(1, "Z"));
 		//
 		//needs dijkstras modified
 		//		process.removeLink(linkObj);
@@ -128,47 +130,175 @@ public class UpdateProcessTest {
 		//		System.out.println("is 'Z' in the graph: " + nodeRepo.HMdoesNodeExist("Z"));
 		//		System.out.println("is 'Z' in the fib: " + fib.doesHashMapContainPrefix(1, "Z"));
 
-		process.addClientLink(linkObj);
+		//		process.addClientLink(linkObj);
+		//		System.out.println("");
+		//		ArrayList<NeighborAndCostStrings> neighbors2 = nodeRepo.HMgetNode("A").getNeighbors();
+		//		for(int i = 0; i < neighbors2.size(); i++){
+		//			System.out.println("A's neighbor: " + neighbors2.get(i).getNeighborName());
+		//		}
+		//		System.out.println("does node 'z' exist: " + nodeRepo.HMdoesNodeExist("Z"));
+		//		String[] clients = directlyConnectedNodes.getDirectlyConnectedClientsList();
+		//		for(String client : clients){
+		//			System.out.println("directly connected client: " + client);
+		//		}
+		//		System.out.println("is 'Z' in the graph: " + nodeRepo.HMdoesNodeExist("Z"));
+		//		System.out.println("is 'Z' in the fib: " + fib.doesHashMapContainPrefix(1, "Z"));
+
+
+		//		process.modifyLink(linkObj2);
+		//		System.out.println("");
+		//		System.out.println("best cost to z: " + nodeRepo.HMgetNode("Z").getBestCost());
+		//		ArrayList<NeighborAndCostStrings> neighbors3 = nodeRepo.HMgetNode("A").getNeighbors();
+		//		for(int i = 0; i < neighbors3.size(); i++){
+		//			System.out.println("A's neighbor: " + neighbors3.get(i).getNeighborName());
+		//		}
+		//		System.out.println("does node 'z' exist: " + nodeRepo.HMdoesNodeExist("Z"));
+		//		String[] clients3 = directlyConnectedNodes.getDirectlyConnectedClientsList();
+		//		for(String client : clients3){
+		//			System.out.println("directly connected client: " + client);
+		//		}
+		//		System.out.println("is 'Z' in the graph: " + nodeRepo.HMdoesNodeExist("Z"));
+		//		System.out.println("is 'Z' in the fib: " + fib.doesHashMapContainPrefix(1, "Z"));
+
+		//		process.removeClientLink(linkObj);
+		//		System.out.println("");
+		//		ArrayList<NeighborAndCostStrings> neighbors3 = nodeRepo.HMgetNode("A").getNeighbors();
+		//		for(int i = 0; i < neighbors3.size(); i++){
+		//			System.out.println("A's neighbor: " + neighbors3.get(i).getNeighborName());
+		//		}
+		//		System.out.println("does node 'z' exist: " + nodeRepo.HMdoesNodeExist("Z"));
+		//		String[] clients3 = directlyConnectedNodes.getDirectlyConnectedClientsList();
+		//		for(String client : clients3){
+		//			System.out.println("directly connected client: " + client);
+		//		}
+		//		System.out.println("is 'Z' in the graph: " + nodeRepo.HMdoesNodeExist("Z"));
+		//		System.out.println("is 'Z' in the fib: " + fib.doesHashMapContainPrefix(1, "Z"));
+		//
+		//
+		//
+		//		process.addClientLink(linkObj);
+
+		//		process.addCLientPrefix(prefixObj, doNotSendToNode);
+		//		System.out.println("");
+		//		ArrayList<String> prefixes = directlyConnectedNodes.getDirectlyConnectedClient("Z").getPrefixArrayList();
+		//		for(String prefix : prefixes){			
+		//			System.out.println("prefix: " + prefix);
+		//		}
+		//		System.out.println("is 'prefix1' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix1"));
+		//
+		//		prefixObj = new PrefixObj("prefix1", "MSGID", "Z", true);
+		//		process.removeClientPrefix(prefixObj, doNotSendToNode);
+		//		System.out.println("");
+		//		ArrayList<String> prefixes2 = directlyConnectedNodes.getDirectlyConnectedClient("Z").getPrefixArrayList();
+		//		for(String prefix : prefixes2){			
+		//			System.out.println("prefix: " + prefix);
+		//		}
+		//		System.out.println("is 'prefix1' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix1"));
+
+
+
+
+
+		//		process.addClientPrefixList(prefixListObj, doNotSendToNode);
+		//		System.out.println("");
+		//		ArrayList<String> prefixes3 = directlyConnectedNodes.getDirectlyConnectedClient("Z").getPrefixArrayList();
+		//		for(String prefix : prefixes3){			
+		//			System.out.println("prefix: " + prefix);
+		//		}
+		//		System.out.println("is 'prefix1' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix1"));
+		//		System.out.println("is 'prefix2' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix2"));
+		//		System.out.println("is 'prefix3' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix3"));
+		//
+		//		prefixListObj = new PrefixListObj(prefixList, "Z", true, "D3408583940");
+		//		process.removeClientPrefixList(prefixListObj, doNotSendToNode);
+		//		System.out.println("");
+		//		prefixes3 = directlyConnectedNodes.getDirectlyConnectedClient("Z").getPrefixArrayList();
+		//		for(String prefix : prefixes3){			
+		//			System.out.println("prefix: " + prefix);
+		//		}
+		//		System.out.println("is 'prefix1' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix1"));
+		//		System.out.println("is 'prefix2' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix2"));
+		//		System.out.println("is 'prefix3' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix3"));
+
+
+
+		//process.requestNeighbors(doNotSendToNode);
+		process.processNeighborsResponse(modifyNodeObj);
 		System.out.println("");
-		ArrayList<NeighborAndCostStrings> neighbors2 = nodeRepo.HMgetNode("A").getNeighbors();
-		for(int i = 0; i < neighbors2.size(); i++){
-			System.out.println("A's neighbor: " + neighbors2.get(i).getNeighborName());
+		System.out.println("best cost to z: " + nodeRepo.HMgetNode("Z").getBestCost());
+		ArrayList<NeighborAndCostStrings> neighbors3 = nodeRepo.HMgetNode("Z").getNeighbors();
+		for(int i = 0; i < neighbors3.size(); i++){
+			System.out.println("Z's neighbor: " + neighbors3.get(i).getNeighborName() + neighbors3.get(i).getCost());
 		}
 		System.out.println("does node 'z' exist: " + nodeRepo.HMdoesNodeExist("Z"));
-		String[] clients = directlyConnectedNodes.getDirectlyConnectedClientsList();
-		for(String client : clients){
+		String[] clients3 = directlyConnectedNodes.getDirectlyConnectedClientsList();
+		for(String client : clients3){
 			System.out.println("directly connected client: " + client);
 		}
 		System.out.println("is 'Z' in the graph: " + nodeRepo.HMdoesNodeExist("Z"));
 		System.out.println("is 'Z' in the fib: " + fib.doesHashMapContainPrefix(1, "Z"));
-		process.removeClientLink(linkObj);
-		process.modifyLink(linkObj);
-
-		process.addClientLink(linkObj);
-
-		process.addCLientPrefix(prefixObj, doNotSendToNode);
-		prefixObj = new PrefixObj("prefix1", "MSGID", "Z", true);
-		process.removeClientPrefix(prefixObj, doNotSendToNode);
 
 
-		process.addClientPrefixList(prefixListObj, doNotSendToNode);
-		prefixListObj = new PrefixListObj(prefixList, "Z", true, "D3408583940");
-		process.removeClientPrefixList(prefixListObj, doNotSendToNode);
-
-		process.requestNeighbors(doNotSendToNode);
-		process.processNeighborsResponse(modifyNodeObj);
 		process.processPrefixListResponse(prefixListObj);
-		process.processIntrestRequestForNeighbors(neighborRequestObj);
+		System.out.println("");
+		System.out.println("is 'prefix1' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix1"));
+		System.out.println("is 'prefix2' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix2"));
+		System.out.println("is 'prefix3' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix3"));
+		System.out.println("prefix1 advertiser: " +fib.getBestCostAdvertiser(1, "prefix1"));
+		System.out.println("prefix2 advertiser: " +fib.getBestCostAdvertiser(1, "prefix2"));
+		System.out.println("prefix3 advertiser: " +fib.getBestCostAdvertiser(1, "prefix3"));
+		//process.processIntrestRequestForNeighbors(neighborRequestObj);
 
-		process.addPrefix(prefixObj, doNotSendToNode);
-		process.removePrefix(prefixObj, doNotSendToNode);
 
-		process.addPrefixList(prefixListObj, doNotSendToNode);
-		process.removePrefixList(prefixListObj, doNotSendToNode);
 
-		process.getNeighbors();
-		process.getMyNeighbors();
-		process.getMyDirectlyConnectedPrefixes();
+
+		//		process.addPrefix(prefixObj, doNotSendToNode);
+		//		System.out.println("");
+		//		prefixes = directlyConnectedNodes.getDirectlyConnectedClient("Z").getPrefixArrayList();
+		//		for(String prefix : prefixes){			
+		//			System.out.println("prefix: " + prefix);
+		//		}
+		//		System.out.println("is 'prefix1' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix1"));
+		//
+		//		process.removePrefix(prefixObj, doNotSendToNode);
+		//		System.out.println("");
+		//		prefixes = directlyConnectedNodes.getDirectlyConnectedClient("Z").getPrefixArrayList();
+		//		for(String prefix : prefixes){			
+		//			System.out.println("prefix: " + prefix);
+		//		}
+		//		System.out.println("is 'prefix1' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix1"));
+		//		process.addPrefixList(prefixListObj, doNotSendToNode);
+		//		System.out.println("");
+		//		prefixes3 = directlyConnectedNodes.getDirectlyConnectedClient("Z").getPrefixArrayList();
+		//		for(String prefix : prefixes3){			
+		//			System.out.println("prefix: " + prefix);
+		//		}
+		//		System.out.println("is 'prefix1' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix1"));
+		//		System.out.println("is 'prefix2' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix2"));
+		//		System.out.println("is 'prefix3' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix3"));
+		//		process.removePrefixList(prefixListObj, doNotSendToNode);
+		//		System.out.println("");
+		//		prefixes3 = directlyConnectedNodes.getDirectlyConnectedClient("Z").getPrefixArrayList();
+		//		for(String prefix : prefixes3){			
+		//			System.out.println("prefix: " + prefix);
+		//		}
+		//		System.out.println("is 'prefix1' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix1"));
+		//		System.out.println("is 'prefix2' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix2"));
+		//		System.out.println("is 'prefix3' in the fib: " + fib.doesHashMapContainPrefix(1, "prefix3"));
+
+		//		ArrayList<String> getNeighbors = process.getNeighbors();
+		//		for(int i = 0; i < getNeighbors.size(); i++){
+		//			System.out.println("neighbor of node A: " + getNeighbors.get(i));
+		//		}
+		ModifyNodeObj mno = process.getMyNeighbors();
+		for(int i = 0; i < mno.getNeighborsListSize(); i++){
+
+			System.out.println(mno.getNeighborAndCostString(i));
+		}
+		PrefixListObj pl = process.getMyDirectlyConnectedPrefixes();
+		for(int i = 0; i < pl.getPrefixListLength(); i++){
+			System.out.println(pl.getPrefix(i));
+		}
 	}
 
 }

@@ -3,6 +3,7 @@ package topology;
 import java.util.ArrayList;
 
 import packetObjects.AddNodeObj;
+import packetObjects.DataObj;
 import packetObjects.IntrestObj;
 import packetObjects.LinkObj;
 import packetObjects.ModifyNodeObj;
@@ -39,28 +40,34 @@ public class ProcessUpdates {
 			//add new node name to prefix hash map
 			fib.addPrefixToFIB(linkObj.getNeighboringNode(), linkObj.getNeighboringNode());
 
-			//send the packet asking for its neighbors
-			requestNeighbors(linkObj.getNeighboringNode());
-
 			//add the new node as a neighbor, the add neighbor does nothing if it already exists
 			nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).addNeighbor(linkObj.getNeighboringNode(), linkObj.getCost());
 
+			//add the link to my directly connected list, if it already exists the method does nothing
+			directlyConnectedNodes.addDirectlyConnectedRouter(linkObj.getNeighboringNode());
+
+			//run Dijkstra
+			dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
+
+			//sort FIB entries
+			fib.findBestCostAdvertisers();
+
+			//send the packet asking for its neighbors
+			requestNeighbors(linkObj.getNeighboringNode());
 		}else{
 
 			//the node exists already, just add as a neighbor, if the neighbor already exists, the method will do nothing
 			nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).addNeighbor(linkObj.getNeighboringNode(), linkObj.getCost());
+
+			//add the link to my directly connected list, if it already exists the method does nothing
+			directlyConnectedNodes.addDirectlyConnectedRouter(linkObj.getNeighboringNode());
+
+			//run Dijkstra
+			dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
+
+			//sort FIB entries
+			fib.findBestCostAdvertisers();
 		}
-
-		//add the link to my directly connected list, if it already exists the method does nothing
-		directlyConnectedNodes.addDirectlyConnectedRouter(linkObj.getNeighboringNode());
-
-		//run Dijkstra
-		dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
-
-		//sort FIB entries
-		fib.findBestCostAdvertisers();
-
-
 
 		//send modify update to the rest of the graph ... telling them about the new connection
 		ModifyNodeObj modifyNodeObj = new ModifyNodeObj(nodeRepo.getThisMachinesName(), 
@@ -163,6 +170,12 @@ public class ProcessUpdates {
 			//set the new cost 
 			nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).getNeighbor(index).setCost(linkObj.getCost());
 
+			//run Dijkstra
+			dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
+
+			//sort FIB entries
+			fib.findBestCostAdvertisers();
+
 			//send modify update to the rest of the graph ... telling them about the link change
 			ModifyNodeObj modifyNodeObj = new ModifyNodeObj(nodeRepo.getThisMachinesName(), 
 					nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).getNeighbors(), 
@@ -193,6 +206,7 @@ public class ProcessUpdates {
 		prefixObj.setAdvertiser(nodeRepo.getThisMachinesName());
 
 		//send the packet update to the rest of the graph 
+		sendPacket.createPrefixPacket(prefixObj);
 		sendPacket.forwardUpdate(prefixObj.getOriginalPacket(), doNotSendToNode);
 	}
 
@@ -216,6 +230,7 @@ public class ProcessUpdates {
 		prefixListObj.setAdvertiser(nodeRepo.getThisMachinesName());
 
 		//send the packet update to the rest of the graph 
+		sendPacket.createPrefixListPacket(prefixListObj);
 		sendPacket.forwardUpdate(prefixListObj.getOriginalPacket(), doNotSendToNode);
 	}
 
@@ -232,6 +247,7 @@ public class ProcessUpdates {
 		prefixObj.setAdvertiser(nodeRepo.getThisMachinesName());
 
 		//send the packet update to the rest of the graph 
+		sendPacket.createPrefixPacket(prefixObj);
 		sendPacket.forwardUpdate(prefixObj.getOriginalPacket(), doNotSendToNode);
 
 	}
@@ -256,6 +272,7 @@ public class ProcessUpdates {
 		prefixListObj.setAdvertiser(nodeRepo.getThisMachinesName());
 
 		//send the packet update to the rest of the graph 
+		sendPacket.createPrefixListPacket(prefixListObj);
 		sendPacket.forwardUpdate(prefixListObj.getOriginalPacket(), doNotSendToNode);
 
 	}
@@ -322,6 +339,7 @@ public class ProcessUpdates {
 
 			}
 			//send updates or forward updates
+			sendPacket.createModifyNodePacket(modifyNodeObj);
 			sendPacket.forwardUpdate(modifyNodeObj.getOriginalPacket(), doNotSendToNode);
 		}
 
@@ -456,10 +474,23 @@ public class ProcessUpdates {
 		//get the prefixes 
 		PrefixListObj prefixListObj = getMyDirectlyConnectedPrefixes();
 
+		byte b = 0;
+		DataObj dataObj = new DataObj(neighborRequestObj.getFromName(), 
+				neighborRequestObj.getFromName(), 
+				b, 
+				modifyNodeObj.getOriginalPacket(), 
+				"",
+				b);
+
+		sendPacket.createDataPacket(dataObj);
 		//send out 1 neighbors data packet
-		sendPacket.forwardPacket(modifyNodeObj.getOriginalPacket(), neighborRequestObj.getFromName());
+		sendPacket.forwardPacket(dataObj.getOriginalPacket(), neighborRequestObj.getFromName());
+
+
+		dataObj.setData(prefixListObj.getOriginalPacket());
+		sendPacket.createDataPacket(dataObj);
 		//send out 1 prefix data packet 
-		sendPacket.forwardPacket(prefixListObj.getOriginalPacket(), neighborRequestObj.getFromName());
+		sendPacket.forwardPacket(dataObj.getOriginalPacket(), neighborRequestObj.getFromName());
 	}
 
 	public void addPrefix(PrefixObj prefixObj, String doNotSendToNode){
@@ -474,6 +505,7 @@ public class ProcessUpdates {
 			fib.addPrefixToFIB(prefixObj.getPrefixName(), prefixObj.getAdvertiser());
 
 			//forward the pack to the rest of the graph
+			sendPacket.createPrefixPacket(prefixObj);
 			sendPacket.forwardUpdate(prefixObj.getOriginalPacket(), doNotSendToNode);
 		}
 
@@ -494,6 +526,7 @@ public class ProcessUpdates {
 			}
 
 			//forward the prefix update
+			sendPacket.createPrefixListPacket(prefixListObj);
 			sendPacket.forwardUpdate(prefixListObj.getOriginalPacket(), doNotSendToNode);
 		}
 	}
@@ -510,6 +543,7 @@ public class ProcessUpdates {
 			fib.removePrefixFromFIB(prefixObj.getPrefixName(), prefixObj.getAdvertiser());
 
 			//forward the update to the rest of the graph
+			sendPacket.createPrefixPacket(prefixObj);
 			sendPacket.forwardUpdate(prefixObj.getOriginalPacket(), doNotSendToNode);
 
 		}
@@ -529,6 +563,7 @@ public class ProcessUpdates {
 			}
 
 			//forward the update to the rest of the graph
+			sendPacket.createPrefixListPacket(prefixListObj);
 			sendPacket.forwardUpdate(prefixListObj.getOriginalPacket(), doNotSendToNode);
 
 		}
@@ -550,14 +585,14 @@ public class ProcessUpdates {
 	//		sendPacket.forwardPacket(helloObj.getOriginalPacket(), helloObj.getFromName());
 	//	}
 
-	public ArrayList<String> getNeighbors(){
-		String[] neighboringRouters = directlyConnectedNodes.getDirectlyConnectedRoutersList();
-		ArrayList<String> neighbors = new ArrayList<String>();
-		for(int i = 0; i < neighboringRouters.length; i++){
-			neighbors.add(neighboringRouters[i]);
-		}
-		return neighbors;
-	}
+	//	public ArrayList<String> getNeighbors(){
+	//		String[] neighboringRouters = directlyConnectedNodes.getDirectlyConnectedRoutersList();
+	//		ArrayList<String> neighbors = new ArrayList<String>();
+	//		for(int i = 0; i < neighboringRouters.length; i++){
+	//			neighbors.add(neighboringRouters[i]);
+	//		}
+	//		return neighbors;
+	//	}
 
 	public ModifyNodeObj getMyNeighbors(){
 		ModifyNodeObj modifyNodeObj = new ModifyNodeObj(nodeRepo.getThisMachinesName(),

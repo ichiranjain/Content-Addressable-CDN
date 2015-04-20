@@ -2,6 +2,7 @@ package topology;
 
 import java.util.HashMap;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -116,6 +117,16 @@ public class Dijkstras {
 					//add the neighbor to the queue 
 					priorityQueue.add(graph.get(currentNode.getNeighbor(i).getNeighborName()));
 				}
+			}
+		}//end while
+
+		//check if all nodes were visited 
+		Set<String> keys = graph.keySet();
+		for(String key : keys){
+			if(visitedHM.containsKey(key) == false){
+				//set the best cost to the node to infinity, because no links 
+				//go into the node ... there for it is unreachable
+				graph.get(key).setBestCost(Integer.MAX_VALUE);
 			}
 		}
 	}

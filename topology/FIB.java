@@ -24,13 +24,16 @@ public class FIB{
 
 	PIT pit;
 
+	DirectlyConnectedNodes directlyConnectedNodes;
 
-	public FIB(NodeRepository nodeRepo, PIT pit){
+
+	public FIB(NodeRepository nodeRepo, PIT pit, DirectlyConnectedNodes directlyConnectedNodes){
 		hmOfPrefixLengths = new ConcurrentHashMap<Integer, ConcurrentHashMap<String, ArrayList<String>>>();
 		hmOfBloomFilters = new ConcurrentHashMap<Integer, CountingBloomFilter<String>>();
 		longestPrefixLength = 0;
 		this.nodeRepo = nodeRepo; 
 		this.pit = pit;
+		this.directlyConnectedNodes = directlyConnectedNodes;
 	}
 
 	public void addPrefixLengthHashMap(int prefixLength){
@@ -335,7 +338,8 @@ public class FIB{
 		if(doesHashMapContainPrefix(prefixLength, prefix) == false){
 
 			//does the advertiser node exist in the graph, if not skip this advertiser
-			if(nodeRepo.HMdoesNodeExist(advertiser) == true){
+			if((nodeRepo.HMdoesNodeExist(advertiser) == true) || 
+					(directlyConnectedNodes.doesDirectlyConnectedClientExist(advertiser) ==true)){
 
 				//add the content name and an empty list of advertisers 
 				addPrefixToHashMap(prefixLength, prefix);
@@ -353,7 +357,8 @@ public class FIB{
 			//if the content name DOES EXIST the just add the new advertisers 
 
 			//does the advertiser node exist in the graph 
-			if(nodeRepo.HMdoesNodeExist(advertiser) == true){
+			if((nodeRepo.HMdoesNodeExist(advertiser) == true )|| 
+					(directlyConnectedNodes.doesDirectlyConnectedClientExist(advertiser) ==true)){
 
 				//is the advertiser listed under the given prefix, -1 is returned if the advertiser does not exist
 				if( doesHashMapContainAdvertiser(prefixLength, prefix, advertiser) == -1){

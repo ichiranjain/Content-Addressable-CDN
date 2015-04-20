@@ -118,7 +118,7 @@ public class SendPacketTest {
 		System.out.println("creat intrest packet: " + intrestObj2.getOriginalPacket() + "\n");
 
 		byte b = 0;
-		DataObj dataObj = new DataObj("prefix22", "B", b, "datadatadatadata", "");
+		DataObj dataObj = new DataObj("prefix22", "B", b, "datadatadatadata", "", b);
 		DataObj dataObj2;
 		sendPacket.createNeighborsDataPacket(dataObj);
 		System.out.println("creat neighbors data packet: " + dataObj.getOriginalPacket());

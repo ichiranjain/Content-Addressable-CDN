@@ -10,10 +10,11 @@ public class DataObj {
 	byte flag;
 	String data;
 	String originalPacket;
+	byte cacheFlag;
 
 
 	//** have data object accept a byte array for data and convert it to a string
-	public DataObj(String contentName, String originRouter, byte flag, String data, String originalPacket){
+	public DataObj(String contentName, String originRouter, byte flag, String data, String originalPacket, byte cacheFlag){
 		this.contentName = contentName;
 		this.originRouter = originRouter;
 		if(flag > 2){
@@ -25,9 +26,10 @@ public class DataObj {
 		this.flag = flag;
 		this.data = data;
 		this.originalPacket = originalPacket;
+		this.cacheFlag = cacheFlag;
 	}
 
-	public DataObj(String contentName, String originRouter, byte flag, byte[] data){
+	public DataObj(String contentName, String originRouter, byte flag, byte[] data, byte cacheFlag){
 		this.contentName = contentName;
 		this.originRouter = originRouter;
 		if(flag > 2){
@@ -38,6 +40,7 @@ public class DataObj {
 		}
 		this.flag = flag;
 		this.data = convertToString(data);
+		this.cacheFlag = cacheFlag;
 	}
 
 	public String getContentName() {
@@ -101,6 +104,14 @@ public class DataObj {
 			e.printStackTrace();
 		}
 		return new byte[0];
+	}
+
+	public void setCacheFlag(byte cacheFlag){
+		this.cacheFlag = cacheFlag;
+	}
+
+	public byte getCacheFlag(){
+		return cacheFlag;
 	}
 
 

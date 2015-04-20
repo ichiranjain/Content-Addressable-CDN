@@ -152,6 +152,8 @@ public class ProcessRoutingPackets {
 	public void processData0(DataObj dataObj){
 
 		//0
+		//check the cs
+
 		//check the pit
 		if(pit.doesEntryExist(dataObj.getContentName()) ==  true){
 			ArrayList<String> requesters = pit.getRequesters(dataObj.getContentName()).getRequesters();

@@ -224,6 +224,7 @@ public class SendPacket {
 		packet.addProperty("contentName", dataObj.getContentName());
 		packet.addProperty("originRouter", dataObj.getOriginRouterName());
 		packet.addProperty("data", dataObj.getData());
+		packet.addProperty("cacheFlag", dataObj.getCacheFlag());
 
 		//String pkt  = packet.toString();
 		dataObj.setOriginalPacket(packet.toString());
@@ -272,22 +273,44 @@ public class SendPacket {
 	 */
 	public void forwardPacket(String packet, String nextHop){
 		//call gaurav's function with packet
+		//create 
+		System.out.println("    -Forward packet next hop provided-");
+		System.out.println("packet: " + packet);
+		System.out.println("nextHop: " + nextHop);
+		System.out.println("-------------------------------------------");
+		System.out.println("");
 	}
 
 	public void broadcast(String packet){
-
+		System.out.println("    -Broadcast-");
+		System.out.println("packet: " + packet);
+		System.out.println("-------------------------------------------");
+		System.out.println("");
 	}
 
 	public void forwardUpdate(String packet, String doNotSendToNode){
-
+		System.out.println("    -ForwardUpdate do not send node provided-");
+		System.out.println("packet: " + packet);
+		System.out.println("doNotSendToNode: " + doNotSendToNode);
+		System.out.println("-------------------------------------------");
+		System.out.println("");
 	}
 
 	public void forwardToAllRouters(String packet, String[] routers ){
-
+		System.out.println("    -Forward to all routers[]-");
+		System.out.println("packet: " + packet);
+		for(int i = 0; i < routers.length; i++){
+			System.out.println("router: " + routers[i]);
+		}
+		System.out.println("-------------------------------------------");
+		System.out.println("");
 	}
 
 	public void forwardToAllRouters(String packet){
-
+		System.out.println("    -Forward to all routers no hops provided-");
+		System.out.println("packet: " + packet);
+		System.out.println("-------------------------------------------");
+		System.out.println("");
 	}
 
 }

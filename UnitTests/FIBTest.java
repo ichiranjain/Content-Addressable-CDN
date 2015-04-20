@@ -2,6 +2,7 @@ package UnitTests;
 
 import java.util.ArrayList;
 
+import topology.DirectlyConnectedNodes;
 import topology.FIB;
 import topology.NodeRepository;
 import topology.PIT;
@@ -13,7 +14,8 @@ public class FIBTest {
 
 	public FIBTest(){
 		nodeRepo = new NodeRepository("A");
-		fib = new FIB(nodeRepo, new PIT());
+		DirectlyConnectedNodes directlyConnectedNodes = new DirectlyConnectedNodes();
+		fib = new FIB(nodeRepo, new PIT(), directlyConnectedNodes);
 
 		nodeRepo.HMaddNode("A");
 		nodeRepo.HMaddNeighbor("A", "B", 20);

@@ -26,12 +26,26 @@ public class Test {
 		//		sendPacketTest.testSendPacket();
 
 		//test ProcessUpdates class
-		UpdateProcessTest updateProcessTest = new UpdateProcessTest();
-		updateProcessTest.testUpdateProcess();
+		//		UpdateProcessTest updateProcessTest = new UpdateProcessTest();
+		//		updateProcessTest.testUpdateProcess();
 
 		//test Preocess Routing Packets
 		//		RoutingProcessTest routingProcessTest = new RoutingProcessTest();
 		//		routingProcessTest.testProcessRoutingPacets();
+
+		//update simulation 
+		UpdateSimulation updateSim = new UpdateSimulation();
+		updateSim.startSimulation();
+		updateSim.addLinks();
+		updateSim.requestForNeighbors();
+		updateSim.neighborsAndPrefixResponse();
+		updateSim.modifyNode();
+		updateSim.modifyLink();
+		updateSim.removeLink();
+		updateSim.addClient();
+		updateSim.addPrefixesToClient();
+		updateSim.removeClient();
+		updateSim.prefixUpdate();
 
 	}
 

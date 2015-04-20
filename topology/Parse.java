@@ -165,7 +165,10 @@ public class Parse {
 		JsonElement jsonDataElement = jsonObject.get("data");
 		String data = jsonDataElement.getAsString();
 
-		DataObj dataInfo = new DataObj(contentName, originRouter, flag, data, jsonString);
+		JsonElement jsonCacheFlagElement = jsonObject.get("cacheFlag");
+		byte cacheFlag = jsonCacheFlagElement.getAsByte();
+
+		DataObj dataInfo = new DataObj(contentName, originRouter, flag, data, jsonString, cacheFlag);
 		return dataInfo; 
 	}
 
