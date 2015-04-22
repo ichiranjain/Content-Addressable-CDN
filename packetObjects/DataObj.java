@@ -11,10 +11,14 @@ public class DataObj {
 	String data;
 	String originalPacket;
 	byte cacheFlag;
+	boolean lastChunk;
 
 
 	//** have data object accept a byte array for data and convert it to a string
-	public DataObj(String contentName, String originRouter, byte flag, String data, String originalPacket, byte cacheFlag){
+	public DataObj(String contentName, String originRouter, 
+			byte flag, String data, String originalPacket, 
+			byte cacheFlag, boolean lastChunk){
+
 		this.contentName = contentName;
 		this.originRouter = originRouter;
 		if(flag > 2){
@@ -27,9 +31,26 @@ public class DataObj {
 		this.data = data;
 		this.originalPacket = originalPacket;
 		this.cacheFlag = cacheFlag;
+		this.lastChunk = lastChunk;
 	}
 
-	public DataObj(String contentName, String originRouter, byte flag, byte[] data, byte cacheFlag){
+	public DataObj(String contentName, String originRouter, byte flag, String data, byte cacheFlag, boolean lastChunk){
+		this.contentName = contentName;
+		this.originRouter = originRouter;
+		if(flag > 2){
+			flag = 2;
+		}
+		if(flag < 0){
+			flag = 0;
+		}
+		this.flag = flag;
+		this.data = data;
+		this.originalPacket = "";
+		this.cacheFlag = cacheFlag;
+		this.lastChunk = lastChunk;
+	}
+
+	public DataObj(String contentName, String originRouter, byte flag, byte[] data, byte cacheFlag, boolean lastChunk){
 		this.contentName = contentName;
 		this.originRouter = originRouter;
 		if(flag > 2){
@@ -41,6 +62,8 @@ public class DataObj {
 		this.flag = flag;
 		this.data = convertToString(data);
 		this.cacheFlag = cacheFlag;
+		this.lastChunk = lastChunk;
+
 	}
 
 	public String getContentName() {
@@ -112,6 +135,14 @@ public class DataObj {
 
 	public byte getCacheFlag(){
 		return cacheFlag;
+	}
+
+	public void setLastChunk(boolean lastChunk){
+		this.lastChunk = lastChunk;
+	}
+
+	public boolean getLastChunk(){
+		return lastChunk;
 	}
 
 

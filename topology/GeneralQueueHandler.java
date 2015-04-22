@@ -4,14 +4,16 @@ import packetObjects.PacketObj;
 
 public class GeneralQueueHandler implements Runnable{
 
-	Parse parse;
-	PacketQueue packetQueue;
+	//Parse parse;
+	PacketQueue2 packetQueue2;
 	volatile boolean running;
+	GenericParser genericParser;
 
-	public GeneralQueueHandler(PacketQueue packetQueue) {
-		parse = new Parse();
-		this.packetQueue = packetQueue;
-		running = true;
+	public GeneralQueueHandler(PacketQueue2 packetQueue2, boolean running) {
+		//parse = new Parse();
+		this.packetQueue2 = packetQueue2;
+		this.running = running;
+		genericParser = new GenericParser();
 	}
 
 	public void killGeneralHandler(){
@@ -27,24 +29,25 @@ public class GeneralQueueHandler implements Runnable{
 			//remove a packet from the queue
 			//because this is a blocking queue, this will block until 
 			//something is placed in the queue
-			PacketObj packetObj = packetQueue.removeFromGeneralQueue();
+			PacketObj packetObj = packetQueue2.removeFromGeneralQueue();
 			if(packetObj != null){
 
-				//parse the type field of the packet
-				String type = parse.parseType(packetObj.getPacket());
 
 				/*
 				 * could parse the whole json string here
 				 */
+				genericParser.parsePacket(packetObj);
 
-				//place in the corresponding queue
-				if(type.equals("update") == true){
-					//place in the update queue
-					packetQueue.addToUpdateQueue(packetObj);
-				}else{
-					//place in the routing queue
-					packetQueue.addToRoutingQueue(packetObj);
-				}
+
+
+				//				//place in the corresponding queue
+				//				if(type.equals("update") == true){
+				//					//place in the update queue
+				//					packetQueue2.addToUpdateQueue(packetObj);
+				//				}else{
+				//					//place in the routing queue
+				//					packetQueue2.addToRoutingQueue(packetObj);
+				//				}
 			}
 
 		}//end while loop

@@ -294,8 +294,10 @@ public class SendPacket {
 		System.out.println("doNotSendToNode: " + doNotSendToNode);
 		System.out.println("-------------------------------------------");
 		System.out.println("");
+		//boolean true, send to routers 
 	}
 
+	//dont use
 	public void forwardToAllRouters(String packet, String[] routers ){
 		System.out.println("    -Forward to all routers[]-");
 		System.out.println("packet: " + packet);
@@ -311,6 +313,7 @@ public class SendPacket {
 		System.out.println("packet: " + packet);
 		System.out.println("-------------------------------------------");
 		System.out.println("");
+		//boolean
 	}
 
 }

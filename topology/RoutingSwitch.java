@@ -1,117 +1,90 @@
 package topology;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+
 import packetObjects.DataObj;
+import packetObjects.GenericPacketObj;
 import packetObjects.IntrestObj;
 import packetObjects.ModifyNodeObj;
 import packetObjects.NeighborRequestObj;
-import packetObjects.PacketObj;
 import packetObjects.PrefixListObj;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 
 public class RoutingSwitch implements Runnable{
 
-	String packet;
+	//String packet;
+	@SuppressWarnings("rawtypes")
+	GenericPacketObj genericPacketObj;
 	FIB fib;
 	ProcessRoutingPackets process;
 	PIT pit;
-	Parse parse;
+	//Parse parse;
 	NodeRepository nodeRepo;
 	DirectlyConnectedNodes directlyConnectedNodes;
-	PacketQueue packetQueue;
+	PacketQueue2 packetQueue2;
+	String recievedFromNode;
 
 
-	public RoutingSwitch(String packet,
+	@SuppressWarnings("rawtypes")
+	public RoutingSwitch(GenericPacketObj genericPacketObj,
 			FIB fib,
 			PIT pit,
 			DirectlyConnectedNodes directlyConnectedNodes,
 			NodeRepository nodeRepo,
-			PacketQueue packetQueue){
+			PacketQueue2 packetQueue2){
 
-		this.packet = packet;
+		//this.packet = packet;
+		this.genericPacketObj = genericPacketObj;
 		this.fib = fib;
 		this.pit = pit;
 		this.directlyConnectedNodes = directlyConnectedNodes;
 		this.nodeRepo = nodeRepo;
-		this.packetQueue = packetQueue;
+		this.packetQueue2 = packetQueue2;
+		this.recievedFromNode = genericPacketObj.getRecievedFromNode();
 
-		parse = new Parse();
-		process = new ProcessRoutingPackets(packet, nodeRepo, fib, pit, directlyConnectedNodes);
+		//parse = new Parse();
+		process = new ProcessRoutingPackets(nodeRepo, fib, pit, directlyConnectedNodes, recievedFromNode);
 	}
 
 
 	@Override
 	public void run() {
-		String action = parse.parseAction(packet);
-		String contentName = parse.parseContentName(packet);
+		String action = genericPacketObj.getAction();
 
-		if(contentName.equals(nodeRepo.getThisMachinesName()) == true){
-			SendPacket sendPacket = new SendPacket();
-			PacketObj packetObj;
 
-			switch(action){
-			case "intrest" : 
-				//parse the interest packet to get the origin router name
-				IntrestObj intrestObj = parse.parseIntrestJson(packet);
-
+		switch(action){
+		case "intrest" :
+			IntrestObj intrestObj = (IntrestObj) genericPacketObj.getObj();
+			if(intrestObj.getContentName().equals(nodeRepo.getThisMachinesName()) == false){
+				process.processIntrest(intrestObj);
+			}else{
+				SendPacket sendPacket = new SendPacket();
+				//the packet is for this node
 				//parse the neighbor request 
-				NeighborRequestObj neighborRequestObj = new NeighborRequestObj(intrestObj.getContentName());
+				NeighborRequestObj neighborRequestObj = new NeighborRequestObj(genericPacketObj.getRecievedFromNode());
 
 				//create the packet
 				sendPacket.createNeighborRequestPacket(neighborRequestObj);
 
 				//add to the update queue
-				packetObj = new PacketObj(neighborRequestObj.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
-				packetQueue.addToUpdateQueue(packetObj);
-				break;
+				GenericPacketObj<NeighborRequestObj> genericPacketObjUpdate = 
+						new GenericPacketObj<NeighborRequestObj>("neighborRequest", 
+								genericPacketObj.getRecievedFromNode(), 
+								neighborRequestObj);
 
-			case "data" : 
-				//parse the data packet to get the data 
-				DataObj dataObj = parse.parseDataJson(packet);
-
-				action = parse.parseAction(dataObj.getData());
-				if(action.equals("prefix")){
-					//call prefix function
-					PrefixListObj prefixListObj = parse.parsePrefixListJson(dataObj.getData());
-
-					//create the update packet
-					sendPacket.createPrefixResponsePacket(prefixListObj);
-
-					//add to update queue
-					packetObj = new PacketObj(prefixListObj.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
-					packetQueue.addToUpdateQueue(packetObj);
-				}else{
-					//call neighbors function
-					ModifyNodeObj modifyNodeObj = parse.parseModifyNodeJson(dataObj.getData());
-
-					//create the update packet
-					sendPacket.createNeighborResponsePacket(modifyNodeObj);
-
-					//add to update queue
-					packetObj = new PacketObj(modifyNodeObj.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
-					packetQueue.addToUpdateQueue(packetObj);
-				}
-				break;
-
-			default : 
-				System.out.println("Error in RouteSwitch - unrecognized packet: dropping packet");
-				break;
+				packetQueue2.addToUpdateQueue(genericPacketObjUpdate);
 			}
+			break;
 
-		}else{
-
-			//the request is not for the router 
-
-			switch(action){
-			case "intrest" :
-
-				IntrestObj intrestObj = parse.parseIntrestJson(packet);
-				process.processIntrest(intrestObj);
-				break;
-
-			case "data" :
-
-				DataObj dataObj = parse.parseDataJson(packet);
-
+		case "data" :
+			DataObj dataObj = (DataObj) genericPacketObj.getObj();
+			if(dataObj.getContentName().equals(nodeRepo.getThisMachinesName()) == false){
 				switch(dataObj.getFlag()){
 				case 0 :
 					process.processData0(dataObj);
@@ -128,16 +101,75 @@ public class RoutingSwitch implements Runnable{
 					System.out.println("data flag set to an incorrect value");
 					break;
 				}
+			}else{
+				//the packet is for this node
+				Gson gson = new Gson();
+				JsonObject jsonObject = gson.fromJson(dataObj.getData(), JsonObject.class);
+				JsonElement jsonActionElement = jsonObject.get("action");
+				String nestedAction = jsonActionElement.getAsString();
+				SendPacket sendPacket = new SendPacket();
 
+				if(nestedAction.equals("prefixResponse")){
+					//call prefix function
+					JsonElement jsonIDElement = jsonObject.get("msgID");
+					String msgID = jsonIDElement.getAsString();
+
+
+					JsonElement jsonAdvertiserElement = jsonObject.get("advertiser");
+					String advertiser = jsonAdvertiserElement.getAsString();
+
+					JsonElement JE = jsonObject.get("prefixList");
+					Type TYPE = new TypeToken<ArrayList<String>>(){}.getType();
+					ArrayList<String> prefixList = new Gson().fromJson(JE.getAsString(), TYPE);
+
+					PrefixListObj prefixListObj = new PrefixListObj(prefixList, advertiser, true, msgID);
+
+
+					//create the update packet
+					sendPacket.createPrefixResponsePacket(prefixListObj);
+
+					//add to update queue
+					//packetObj = new PacketObj(prefixListObj.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
+					GenericPacketObj<PrefixListObj> genericPacketObjPrefix = 
+							new GenericPacketObj<PrefixListObj>("prefixResponse", 
+									genericPacketObj.getRecievedFromNode(), 
+									prefixListObj);
+
+					packetQueue2.addToUpdateQueue(genericPacketObjPrefix);
+				}else{
+					//call neighbors function
+					//ModifyNodeObj modifyNodeObj = parse.parseModifyNodeJson(dataObj.getData());
+
+					JsonElement jsonNameElement = jsonObject.get("nodeName");
+					String nodeName = jsonNameElement.getAsString();
+
+					JsonElement jsonIDElement = jsonObject.get("msgID");
+					String msgID = jsonIDElement.getAsString();
+
+					JsonElement jsonNeighborsElement = jsonObject.get("neighbors");
+					String neighborsString = jsonNeighborsElement.getAsString();
+					Type neighborsType = new TypeToken<ArrayList<NeighborAndCostStrings>>(){}.getType();
+					ArrayList<NeighborAndCostStrings> neighborsList = gson.fromJson(neighborsString, neighborsType);
+
+
+					ModifyNodeObj modifyNodeObj = new ModifyNodeObj(nodeName, neighborsList, msgID);
+					//create the update packet
+					sendPacket.createNeighborResponsePacket(modifyNodeObj);
+
+					//add to update queue
+					//packetObj = new PacketObj(modifyNodeObj.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
+					GenericPacketObj<ModifyNodeObj> genericPacketObjNeighbors = 
+							new GenericPacketObj<ModifyNodeObj>("neighborResponse", 
+									genericPacketObj.getRecievedFromNode(), modifyNodeObj);
+					packetQueue2.addToUpdateQueue(genericPacketObjNeighbors);
+
+				}
 				break;
-
-			default :
-				System.out.println("Error in RouteSwitch - unrecognized packet: dropping packet");
-				break;
-
 			}
+
+		default : 
+			System.out.println("Invalid route action");
+			break;
 		}
-
 	}
-
 }

@@ -413,15 +413,22 @@ public class FIB{
 
 		//look up in the fib bloom filter, cant have a prefix of zero
 		//this can be searched in parallel
-		for(int i = 0; i < prefixSplit.length; i++){
 
-			if(doesPrefixLengthBloomFilterExist(i + 1) == true){				
+		if(doesPrefixLengthBloomFilterExist(1) == true){	
+			if(doesBloomFilterConteinPrefix(1, prefix) == true){
+				hashMapsToSearch.add(1);
+			}
+		}
+
+		for(int i = 1; i < prefixSplit.length; i++){
+
+			prefix = prefix + "/" + prefixSplit[i];
+			if(doesPrefixLengthBloomFilterExist(i + 1) == true){	
 				if(doesBloomFilterConteinPrefix(i + 1, prefix) == true){
 					hashMapsToSearch.add(i + 1);
 				}
 			}
 			prefixSplit[i] = prefix;
-			prefix = prefix + "/" + prefixSplit[i];
 		}
 
 		//search the hash maps returned

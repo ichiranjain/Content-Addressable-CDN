@@ -3,21 +3,25 @@ package topology;
 import java.util.concurrent.ArrayBlockingQueue;
 //import java.util.concurrent.ConcurrentLinkedQueue;
 
+import packetObjects.GenericPacketObj;
 import packetObjects.PacketObj;
 
 
-public class PacketQueue {
+public class PacketQueue2 {
 	//ConcurrentLinkedQueue<PacketObj> clq = new ConcurrentLinkedQueue<PacketObj>();
 	ArrayBlockingQueue<PacketObj> generalQueue;
-	ArrayBlockingQueue<PacketObj> updateQueue;
-	ArrayBlockingQueue<PacketObj> routingQueue;
+	@SuppressWarnings("rawtypes")
+	ArrayBlockingQueue<GenericPacketObj> updateQueue;
+	@SuppressWarnings("rawtypes")
+	ArrayBlockingQueue<GenericPacketObj> routingQueue;
 
 
-	public PacketQueue(){
+	@SuppressWarnings("rawtypes")
+	public PacketQueue2(){
 
 		generalQueue  = new ArrayBlockingQueue<PacketObj>(100, true);
-		updateQueue = new ArrayBlockingQueue<PacketObj>(100, true);
-		routingQueue = new ArrayBlockingQueue<PacketObj>(100, true);
+		updateQueue = new ArrayBlockingQueue<GenericPacketObj>(100, true);
+		routingQueue = new ArrayBlockingQueue<GenericPacketObj>(100, true);
 
 	}
 
@@ -42,15 +46,17 @@ public class PacketQueue {
 		return generalQueue.isEmpty();
 	}
 
-	public void addToUpdateQueue(PacketObj packet){
+	@SuppressWarnings("rawtypes")
+	public void addToUpdateQueue(GenericPacketObj genericPacketObj){
 		try {
-			updateQueue.put(packet);
+			updateQueue.put(genericPacketObj);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public PacketObj removeFromUpdateQueue(){
+	@SuppressWarnings("rawtypes")
+	public GenericPacketObj removeFromUpdateQueue(){
 		try {
 			return updateQueue.take();
 		} catch (InterruptedException e) {
@@ -63,15 +69,17 @@ public class PacketQueue {
 		return updateQueue.isEmpty();
 	}
 
-	public void addToRoutingQueue(PacketObj packet){
+	@SuppressWarnings("rawtypes")
+	public void addToRoutingQueue(GenericPacketObj genericPacketObj){
 		try {
-			routingQueue.put(packet);
+			routingQueue.put(genericPacketObj);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public PacketObj removeFromRoutingQueue(){
+	@SuppressWarnings("rawtypes")
+	public GenericPacketObj removeFromRoutingQueue(){
 		try {
 			return routingQueue.take();
 		} catch (InterruptedException e) {

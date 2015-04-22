@@ -1,181 +1,187 @@
 package topology;
 
+import packetObjects.GenericPacketObj;
 import packetObjects.LinkObj;
 import packetObjects.ModifyNodeObj;
 import packetObjects.NeighborRequestObj;
-import packetObjects.PacketObj;
 import packetObjects.PrefixListObj;
 import packetObjects.PrefixObj;
 
 public class UpdateSwitch implements Runnable{
 
-	PacketObj packetObj;
+	//PacketObj packetObj;
 	NodeRepository nodeRepo;
 	ProcessUpdates process;
 	UpdateMsgsSeen msgsSeen;
-	Parse parse;
+	Parse2 parse2;
+	@SuppressWarnings("rawtypes")
+	GenericPacketObj genericPacketObj;
 
-	public UpdateSwitch(PacketObj packetObj, 
+	@SuppressWarnings("rawtypes")
+	public UpdateSwitch(GenericPacketObj genericPacketObj, 
 			NodeRepository nodeRepo,
 			FIB fib,
 			DirectlyConnectedNodes directlyConnectedNodes,
 			UpdateMsgsSeen updateMsgsSeen){
 
-		this.packetObj = packetObj;
+		this.genericPacketObj = genericPacketObj;
 		this.nodeRepo = nodeRepo;
 		this.msgsSeen = updateMsgsSeen;
 		this.process = new ProcessUpdates(nodeRepo, updateMsgsSeen, fib, directlyConnectedNodes);
-		this.parse = new Parse();
+		this.parse2 = new Parse2();
 
 	}
 
 	@Override
 	public void run() {
 
-		String msgID = parse.parseMsgID(packetObj.getPacket());
+		//String msgID = parse.parseMsgID(packetObj.getPacket());
 
-		//has the update been seen before
-		if(msgsSeen.doesMsgIDExist(msgID) == true){
-			//if so do not process the update, drop the packet
-			//this update has looped around
-			return;
-		}else{
-			//this is a new msg ... so add it to the msgs seen 
-			msgsSeen.addMsgID(msgID, System.nanoTime());
-		}
+		//		//has the update been seen before
+		//		if(msgsSeen.doesMsgIDExist(msgID) == true){
+		//			//if so do not process the update, drop the packet
+		//			//this update has looped around
+		//			return;
+		//		}else{
+		//			//this is a new msg ... so add it to the msgs seen 
+		//			msgsSeen.addMsgID(msgID, System.nanoTime());
+		//		}
 
 
 		//String type = parse.parseType(packet);
 
-		String action = parse.parseAction(packetObj.getPacket());
-		LinkObj linkObj;
-		boolean addRemove;
-		PrefixListObj prefixListObj;
-		PrefixObj prefixObj;
+		//String action = parse.parseAction(packetObj.getPacket());
+		String action = genericPacketObj.getAction();
+		//		LinkObj linkObj;
+		//		boolean addRemove;
+		//		PrefixListObj prefixListObj;
+		//		PrefixObj prefixObj;
 
 		switch(action){
 
 		case "addLink" :
-			//add the Node
-			//AddNodeObj addNodeObj = parse.parseAddNodeJson(packet);
-			linkObj = parse.parseAddLink(packetObj.getPacket());
-			process.addLink(linkObj);
+			LinkObj addLinkObj = (LinkObj) genericPacketObj.getObj();
+			process.addLink(addLinkObj);
 			break;
 
 		case "removeLink" :
-			linkObj = parse.parseRemoveLink(packetObj.getPacket());
-			process.removeLink(linkObj);
+			LinkObj removeLinkObj = (LinkObj) genericPacketObj.getObj();
+			process.removeLink(removeLinkObj);
 			break;
 
 		case "modifyLink" :
-			linkObj = parse.parseModifyLink(packetObj.getPacket());
-			process.modifyLink(linkObj);
+			LinkObj modifyLinkObj = (LinkObj) genericPacketObj.getObj();
+			process.modifyLink(modifyLinkObj);
 			break;
 
 		case "modify" : 
-			ModifyNodeObj modifyNodeObj = parse.parseModifyNodeJson(packetObj.getPacket());
-			process.modifyNode(modifyNodeObj, packetObj.getRecievedFromNode());
+			ModifyNodeObj modifyNodeObj = (ModifyNodeObj) genericPacketObj.getObj();
+			if(doesMsgIDExist(modifyNodeObj.getMsgID()) == false){				
+				process.modifyNode(modifyNodeObj, genericPacketObj.getRecievedFromNode());
+			}
 			break;
 
 		case "prefix" :
 			//do something
-			addRemove = parse.parsePrefixAddRemove(packetObj.getPacket());
-			if(addRemove == true){
-				//add the packet
-				prefixObj = parse.parsePrefixJson(packetObj.getPacket());
-				process.addPrefix(prefixObj, packetObj.getRecievedFromNode());
-			}else{
-				//remove the packet
-				prefixObj = parse.parsePrefixJson(packetObj.getPacket());
-				process.removePrefix(prefixObj, packetObj.getRecievedFromNode());
+			PrefixObj prefixObj = (PrefixObj) genericPacketObj.getObj();
+			if(doesMsgIDExist(prefixObj.getMsgID()) == false){				
+				boolean addRemovePrefix = prefixObj.getAddRemoveFlag();
+				if(addRemovePrefix == true){
+					//add the packet
+					process.addPrefix(prefixObj, genericPacketObj.getRecievedFromNode());
+				}else{
+					//remove the packet
+					process.removePrefix(prefixObj, genericPacketObj.getRecievedFromNode());
+				}
 			}
 			break;
 
 		case "prefixList" : 
-			addRemove = parse.parsePrefixAddRemove(packetObj.getPacket());
-			if(addRemove == true){
-				//add the packet
-				prefixListObj = parse.parsePrefixListJson(packetObj.getPacket());
-				process.addPrefixList(prefixListObj, packetObj.getRecievedFromNode());
-			}else{
-				//remove the packet
-				prefixListObj = parse.parsePrefixListJson(packetObj.getPacket());
-				process.removePrefixList(prefixListObj, packetObj.getRecievedFromNode());
+			PrefixListObj prefixListObj = (PrefixListObj) genericPacketObj.getObj();
+			if(doesMsgIDExist(prefixListObj.getMsgID()) == false){				
+				boolean addRemovePrefixList = prefixListObj.getAddRemoveFlag();
+				if(addRemovePrefixList == true){
+					//add the packet
+					process.addPrefixList(prefixListObj, genericPacketObj.getRecievedFromNode());
+				}else{
+					//remove the packet
+					process.removePrefixList(prefixListObj, genericPacketObj.getRecievedFromNode());
+				}
 			}
 			break;
 
 		case "addClient" : 
-			linkObj = parse.parseClientAddNodeJson(packetObj.getPacket());
-			process.addClientLink(linkObj);
+			LinkObj addClienLlinkObj = (LinkObj) genericPacketObj.getObj();
+			process.addClientLink(addClienLlinkObj);
 			break;
 
 		case "removeClient" : 
-			linkObj = parse.parseClientRemoveNodeJson(packetObj.getPacket());
-			process.removeClientLink(linkObj);
+			LinkObj removeClientLinkObj = (LinkObj) genericPacketObj.getObj();
+			process.removeClientLink(removeClientLinkObj);
 			break;
 
 		case "clientPrefix" : 
-			addRemove = parse.parsePrefixAddRemove(packetObj.getPacket());
-			if(addRemove == true){
+			PrefixObj clientPrefixObj = (PrefixObj) genericPacketObj.getObj();
+			boolean addRemoveClientPrefix = clientPrefixObj.getAddRemoveFlag();
+			if(addRemoveClientPrefix == true){
 				//add the packet
-				prefixObj = parse.parsePrefixJson(packetObj.getPacket());
-				process.addCLientPrefix(prefixObj, packetObj.getRecievedFromNode());
+				process.addCLientPrefix(clientPrefixObj, genericPacketObj.getRecievedFromNode());
 			}else{
 				//remove the packet
-				prefixObj = parse.parsePrefixJson(packetObj.getPacket());
-				process.removeClientPrefix(prefixObj, packetObj.getRecievedFromNode());
+				process.removeClientPrefix(clientPrefixObj, genericPacketObj.getRecievedFromNode());
 			}
 			break;
 
 		case "clientPrefixList" : 
-			addRemove = parse.parsePrefixAddRemove(packetObj.getPacket());
-			if(addRemove == true){
+			PrefixListObj clientPrefixListObj = (PrefixListObj) genericPacketObj.getObj();
+			boolean addRemoveClientPrefixList = clientPrefixListObj.getAddRemoveFlag();
+			if(addRemoveClientPrefixList == true){
 				//add the packet
-				prefixListObj = parse.parsePrefixListJson(packetObj.getPacket());
-				process.addClientPrefixList(prefixListObj, packetObj.getRecievedFromNode());
+				process.addClientPrefixList(clientPrefixListObj, genericPacketObj.getRecievedFromNode());
 			}else{
 				//remove the packet
-				prefixListObj = parse.parsePrefixListJson(packetObj.getPacket());
-				process.removeClientPrefixList(prefixListObj, packetObj.getRecievedFromNode());
+				process.removeClientPrefixList(clientPrefixListObj, genericPacketObj.getRecievedFromNode());
 			}
 			break;
 
 		case "neighborRequest" :
-			NeighborRequestObj neighborRequestObj = parse.parseRequestNeighbors(packetObj.getPacket());
+			NeighborRequestObj neighborRequestObj = (NeighborRequestObj) genericPacketObj.getObj();
 			process.requestNeighbors(neighborRequestObj.getFromName());
 			break;
 
 		case "prefixResponse" :
-			prefixListObj = parse.parsePrefixListJson(packetObj.getPacket());
-			process.processPrefixListResponse(prefixListObj);
+			PrefixListObj prefixListObjResponse = (PrefixListObj) genericPacketObj.getObj();
+			//if(doesMsgIDExist(prefixListObjResponse.getMsgID()) == false){				
+			process.processPrefixListResponse(prefixListObjResponse);
+			//}
 			break;
 
 		case "neighborResponse" :
-			modifyNodeObj = parse.parseModifyNodeJson(packetObj.getPacket());
-			process.processNeighborsResponse(modifyNodeObj);
-			break;
 
-			//		case "hello" :
-			//			boolean requestTable = parse.parseRequestTable(packet);
-			//			if(requestTable == true){
-			//				HelloObj helloObj = parse.parseHelloJson(packet);
-			//				process.processHelloTableRequest(helloObj);
-			//			}else{
-			//				HelloObj helloObj = parse.parseHelloJson(packet);
-			//				//process.processHelloHeartBeat(helloObj);
-			//			}
-			//			break;
-			//
-			//		case "table" :
-			//			TableObj tableObj = parse.parseTableJson(packet);
-			//			process.processTable(tableObj);
-			//			break;
+			ModifyNodeObj modifyNodeObjResponse = (ModifyNodeObj) genericPacketObj.getObj();
+			//if(doesMsgIDExist(modifyNodeObjResponse.getMsgID()) == false){
+			process.processNeighborsResponse(modifyNodeObjResponse);
+			//}
+			break;
 
 		default :
 			System.out.println("Error in UpdateSwitch - unrecognized packet: dropping packet");
 			break;
 		}
 
+	}
+
+	public boolean doesMsgIDExist(String msgID){
+		//has the update been seen before
+		if(msgsSeen.doesMsgIDExist(msgID) == true){
+			//if so do not process the update, drop the packet
+			//this update has looped around
+			return true;
+		}else{
+			//this is a new msg ... so add it to the msgs seen 
+			msgsSeen.addMsgID(msgID, System.nanoTime());
+			return false;
+		}
 	}
 
 

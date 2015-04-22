@@ -3,37 +3,39 @@ package topology;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import packetObjects.PacketObj;
+import packetObjects.GenericPacketObj;
 
 public class RoutingQueueHandler implements Runnable{
 
-	PacketQueue packetQueue;
+	PacketQueue2 packetQueue2;
 	NodeRepository nodeRepo;
 	FIB fib;
 	PIT pit;
 	DirectlyConnectedNodes directlyConnectedNodes;
-	Parse parse;
+	//Parse parse;
 	volatile boolean running;
 
-	public RoutingQueueHandler(PacketQueue packetQueue, 
+	public RoutingQueueHandler(PacketQueue2 packetQueue2, 
 			NodeRepository nodeRepo, 
 			FIB fib, 
 			PIT pit, 
-			DirectlyConnectedNodes directlyConnectedNodes) {
+			DirectlyConnectedNodes directlyConnectedNodes,
+			boolean running) {
 
-		this.packetQueue = packetQueue;
+		this.packetQueue2 = packetQueue2;
 		this.nodeRepo = nodeRepo;
 		this.fib = fib;
 		this.pit = pit;
 		this.directlyConnectedNodes = directlyConnectedNodes;
-		parse = new Parse();
-		running = true;
+		//parse = new Parse();
+		this.running = running;
 	}
 
 	public void killRoutingHandler(){
 		running = false;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void run() {
 
@@ -45,19 +47,19 @@ public class RoutingQueueHandler implements Runnable{
 			//remove a packet from the queue
 			//because this is a blocking queue, this will block until 
 			//something is placed in the queue
-			PacketObj packetObj = packetQueue.removeFromRoutingQueue();
-			if(packetObj != null){
+			GenericPacketObj genericPacketObj = packetQueue2.removeFromRoutingQueue();
+			if(genericPacketObj != null){
 				//give to the thread pool for processing 
 				//executer service == java's thread pool
 
 				//Runnable worker = new WorkerThread(i);
 				//WorkerThread worker = new WorkerThread(i);
-				RoutingSwitch routingSwitch = new RoutingSwitch(packetObj.getPacket(), 
+				RoutingSwitch routingSwitch = new RoutingSwitch(genericPacketObj, 
 						fib,  
 						pit, 
 						directlyConnectedNodes,
 						nodeRepo,
-						packetQueue);
+						packetQueue2);
 				executor.execute(routingSwitch);
 
 			}//if the packet was null, drop it 

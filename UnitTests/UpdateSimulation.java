@@ -2,6 +2,8 @@ package UnitTests;
 
 import java.util.ArrayList;
 
+import packetObjects.DataObj;
+import packetObjects.IntrestObj;
 import packetObjects.LinkObj;
 import packetObjects.ModifyNodeObj;
 import packetObjects.NeighborRequestObj;
@@ -12,25 +14,31 @@ import topology.FIB;
 import topology.NeighborAndCostStrings;
 import topology.NodeRepository;
 import topology.PIT;
+import topology.ProcessRoutingPackets;
 import topology.ProcessUpdates;
+import topology.SendPacket;
 import topology.UpdateMsgsSeen;
 
 public class UpdateSimulation {
 
 	NodeRepository nodeRepo;
 	FIB fib;
+	PIT pit;
 	ProcessUpdates process;
+	ProcessRoutingPackets processRouting;
 	DirectlyConnectedNodes directlyConnectedNodes;
 	UpdateMsgsSeen upDatesSeen;
+	SendPacket sendPacket;
 
 	public UpdateSimulation(){
 		directlyConnectedNodes = new DirectlyConnectedNodes();
 		upDatesSeen = new UpdateMsgsSeen();
 
 		nodeRepo = new NodeRepository("A");
-		fib = new FIB(nodeRepo, new PIT(), directlyConnectedNodes);
+		pit = new PIT();
+		fib = new FIB(nodeRepo, pit, directlyConnectedNodes);
 		process = new ProcessUpdates(nodeRepo, upDatesSeen, fib, directlyConnectedNodes);
-
+		sendPacket = new SendPacket();
 	}
 
 
@@ -266,6 +274,7 @@ public class UpdateSimulation {
 		PrefixListObj prefixListObj3 = new PrefixListObj(prefixes5, "B", true, "B7891");
 		process.addPrefixList(prefixListObj3, "B");
 		System.out.println("does prefix5B/video exist in fib: " + fib.doesHashMapContainPrefix(2, "prefix5B/video"));
+		System.out.println("Best cost advertiser for prefix5B/video: " + fib.getBestCostAdvertiser(2, "prefix5B/video"));
 		System.out.println("does prefix6B/games exist in fib: " + fib.doesHashMapContainPrefix(2, "prefix6B/games"));
 
 	}
@@ -274,6 +283,115 @@ public class UpdateSimulation {
 	 * removing a node does not require an update be sent
 	 */
 
+	public void intrestPacket(){
+		System.out.println("-IntrestPacket-");
+		//forward interest packet
+		System.out.println("does bloom filter contain prefix5B/video: " + fib.doesBloomFilterConteinPrefix(2, "prefix5B/video"));
+		System.out.println("B's next hop node: " + nodeRepo.HMgetNode("B").getOriginNextHop());
+		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video", "D", 1234);
+		sendPacket.createIntrestPacket(intrestObj1);
+		processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
+		processRouting.processIntrest(intrestObj1);
+
+	}
+
+	public void intrestPacketNoPrefix(){
+		System.out.println("-IntrestPacketNoPrefix-");
+		//forward interest packet with no prefix
+		IntrestObj intrestObj1 = new IntrestObj("noPrefix", "D", 1234);
+		sendPacket.createIntrestPacket(intrestObj1);
+		processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
+		processRouting.processIntrest(intrestObj1);
+		System.out.println("no prefix packet dropped");
+
+	}
+
+	public void intrestPacketPITentry(){
+		System.out.println("-IntrestPacketPITEntry-");
+		//receive interest packet with pit entry already in pit table
+		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video", "D", 1234);
+		sendPacket.createIntrestPacket(intrestObj1);
+		processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
+		processRouting.processIntrest(intrestObj1);
+		System.out.println("PIT entry already exists packet dropped");
+
+	}
+
+	public void intrestLongPrefix(){
+		System.out.println("-IntrestPacketPrefix-");
+		//longer prefix being looked for, should match a smaller prefix in fib
+		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video/one", "D", 1234);
+		sendPacket.createIntrestPacket(intrestObj1);
+		processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "D");
+		processRouting.processIntrest(intrestObj1);
+	}
+
+	public void dataPacket(){
+		System.out.println("-DataPacket-");
+		System.out.println("The pit entry for this packet has D as a requester");
+		//forward data packet
+		byte b = 0;
+		DataObj dataObj = new DataObj("prefix5B/video/one", "D", b, "some data", b, true);
+		sendPacket.createDataPacket(dataObj);
+		processRouting.processData0(dataObj);
+
+	}
+
+	//	public void dataPacketNoNextHop(){
+	//		System.out.println("-dataPacketNoNextHop-");
+	//		//forward data packet with next hop down 
+	//		byte b = 0;
+	//		DataObj dataObj = new DataObj("prefix5B/video", "F", b, "some data", b, true);
+	//		sendPacket.createDataPacket(dataObj);
+	//		processRouting.processData0(dataObj);
+	//
+	//	}
+
+	public void dataPacketPassTowardServer(){
+		System.out.println("-dataPacketPassTowardServer-");
+		//forward data packet passing it towards the server 
+		byte b = 1;
+		byte bb = 0;
+		DataObj dataObj = new DataObj("prefix5B/video", "A", b, "some data", bb, true);
+		processRouting.processData1(dataObj);
+
+	}
+
+	public void dataPacketForwardToServer(){
+		System.out.println("-dataPacketForwardToServer-");
+		//forward data packet passing it towards the server 
+		byte b = 2;
+		byte bb = 0;
+		DataObj dataObj = new DataObj("prefix5B/video", "A", b, "some data", bb, true);
+		processRouting.processData2(dataObj);
+	}
+
+	public void dataPacketNoPITEntry(){
+		System.out.println("-dataPacketNoPITEntry-");
+		//receive data packet with no PIT entry 
+		byte b = 0;
+		DataObj dataObj = new DataObj("prefix5B/video", "F", b, "some data", b, true);
+		processRouting.processData0(dataObj);
+
+	}
+
+	//	public void intrestPacketRequestForNeighbors(){
+	//		//Receive interest packet request for neighbors
+	//		NeighborRequestObj neighborRequestObj = new NeighborRequestObj("B");
+	//		sendPacket.createNeighborRequestPacket(neighborRequestObj);
+	//
+	//	}
+	//
+	//	public void dataPacketNeighborResponse(){
+	//		//Receive data packet with neighbors info
+	//		//ModifyNodeObj modifyNodeObj = new ModifyNodeObj("B", neighbors, msgID)
+	//
+	//	}
+	//
+	//	public void dataPacketPrefixResponse(){
+	//		//Receive data packet with prefix info 
+	//
+	//	}
 
 
 

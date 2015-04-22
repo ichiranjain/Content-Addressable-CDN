@@ -480,7 +480,8 @@ public class ProcessUpdates {
 				b, 
 				modifyNodeObj.getOriginalPacket(), 
 				"",
-				b);
+				b,
+				true);
 
 		sendPacket.createDataPacket(dataObj);
 		//send out 1 neighbors data packet

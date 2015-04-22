@@ -1,32 +1,36 @@
 package topology;
 
+import packetObjects.GenericPacketObj;
 import packetObjects.PacketObj;
 
 public class UpdateQueueHandler implements Runnable {
-	PacketQueue packetQueue;
+	PacketQueue2 packetQueue2;
 	NodeRepository nodeRepo;
 	FIB fib;
 	DirectlyConnectedNodes directlyConnectedNodes;
 	UpdateMsgsSeen updateMsgsSeen;
 
-	Parse parse;
+	//Parse parse;
 	volatile boolean running;
 	PacketObj packetObj;
+	@SuppressWarnings("rawtypes")
+	GenericPacketObj genericPacketObj;
 
-	public UpdateQueueHandler(PacketQueue packetQueue, 
+	public UpdateQueueHandler(PacketQueue2 packetQueue2, 
 			NodeRepository nodeRepo, 
 			FIB fib, 
 			DirectlyConnectedNodes directlyConnectedNodes,
-			UpdateMsgsSeen updateMsgsSeen) {
+			UpdateMsgsSeen updateMsgsSeen,
+			boolean running) {
 
-		this.packetQueue = packetQueue;
+		this.packetQueue2 = packetQueue2;
 		this.nodeRepo = nodeRepo;
 		this.fib = fib;
 		this.directlyConnectedNodes = directlyConnectedNodes;
 		this.updateMsgsSeen = updateMsgsSeen;
 
-		parse = new Parse();
-		running = true;
+		//parse = new Parse();
+		this.running = running;
 	}
 
 	public void killUpdateHandler(){
@@ -42,12 +46,12 @@ public class UpdateQueueHandler implements Runnable {
 			//remove a packet from the queue
 			//because this is a blocking queue, this will block until 
 			//something is placed in the queue
-			packetObj = packetQueue.removeFromUpdateQueue();
+			genericPacketObj = packetQueue2.removeFromUpdateQueue();
 			if(packetObj != null){
 				//give to the thread pool for processing 
 				//executer service == java's thread pool
 
-				Thread thread = new Thread(new UpdateSwitch(packetObj, 
+				Thread thread = new Thread(new UpdateSwitch(genericPacketObj, 
 						nodeRepo, 
 						fib, 
 						directlyConnectedNodes, 

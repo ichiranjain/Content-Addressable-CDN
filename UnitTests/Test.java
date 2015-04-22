@@ -47,6 +47,16 @@ public class Test {
 		updateSim.removeClient();
 		updateSim.prefixUpdate();
 
+		updateSim.intrestPacket();
+		updateSim.intrestPacketNoPrefix();
+		updateSim.intrestPacketPITentry();
+		updateSim.intrestLongPrefix();
+		updateSim.dataPacket();
+		//updateSim.dataPacketNoNextHop();
+		updateSim.dataPacketPassTowardServer();
+		updateSim.dataPacketForwardToServer();
+		updateSim.dataPacketNoPITEntry();
+
 	}
 
 }
