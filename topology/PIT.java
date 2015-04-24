@@ -79,4 +79,13 @@ public class PIT {
 		return entries;
 
 	}
+
+	public ArrayList<String> getPitNamesAndEntries(){
+		ArrayList<String> entries = new ArrayList<String>();
+		Set<String> keys = pit.keySet();
+		for(String key : keys){
+			entries.add(key + ": " + pit.get(key).toString());
+		}
+		return entries;
+	}
 }

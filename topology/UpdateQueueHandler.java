@@ -46,11 +46,14 @@ public class UpdateQueueHandler implements Runnable {
 			//remove a packet from the queue
 			//because this is a blocking queue, this will block until 
 			//something is placed in the queue
+			//System.out.println("update thread blocking");
 			genericPacketObj = packetQueue2.removeFromUpdateQueue();
-			if(packetObj != null){
+
+			//System.out.println("removed packet from update queue");
+			if(genericPacketObj != null){
 				//give to the thread pool for processing 
 				//executer service == java's thread pool
-
+				System.out.println("packet recieved in update handler");
 				Thread thread = new Thread(new UpdateSwitch(genericPacketObj, 
 						nodeRepo, 
 						fib, 

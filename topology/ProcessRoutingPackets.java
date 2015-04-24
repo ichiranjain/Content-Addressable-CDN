@@ -45,6 +45,8 @@ public class ProcessRoutingPackets {
 		//		}
 
 		//check the pit
+		//System.out.println(intrestObj.getContentName());
+		//System.out.println("does entry exist: " + pit.doesEntryExist(intrestObj.getContentName()));
 		if(pit.doesEntryExist(intrestObj.getContentName()) == true){
 			//add info to the pit entry if it is new... if it is in the pit already
 			//resend the packet

@@ -6,15 +6,14 @@ public class FIBEntryDiscard implements Runnable{
 
 	FIB fib;
 	int sleepTime;
-	long keepMsgTime;
 	volatile boolean keepRunning;
 	NodeRepository nodeRepo;
 
-	public FIBEntryDiscard(FIB fib, NodeRepository nodeRepo, int sleepTime, long keepMsgTime) {
+	public FIBEntryDiscard(FIB fib, NodeRepository nodeRepo, int sleepTime, boolean keepRunning) {
 		this.fib = fib;
 		this.sleepTime = sleepTime;
-		this.keepMsgTime = keepMsgTime;	
 		this.nodeRepo = nodeRepo;
+		this.keepRunning = keepRunning;
 
 	}
 

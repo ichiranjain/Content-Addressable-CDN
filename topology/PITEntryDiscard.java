@@ -10,10 +10,11 @@ public class PITEntryDiscard implements Runnable{
 	volatile boolean keepRunning;
 
 
-	public PITEntryDiscard(PIT pit, int sleepTime, long keepMsgTime) {
+	public PITEntryDiscard(PIT pit, int sleepTime, long keepMsgTime, boolean keepRunning) {
 		this.pit = pit;
 		this.sleepTime = sleepTime;
 		this.keepMsgTime = keepMsgTime;
+		this.keepRunning = keepRunning;
 	}
 
 	@Override

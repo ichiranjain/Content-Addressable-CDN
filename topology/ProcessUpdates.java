@@ -77,7 +77,7 @@ public class ProcessUpdates {
 
 		//forward to all routers
 		sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket());
-		sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
+		//sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
 
 	}
 
@@ -104,7 +104,7 @@ public class ProcessUpdates {
 
 		//forward to all routers
 		sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket());
-		sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
+		//sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
 	}
 
 	public void addClientLink(LinkObj linkObj){
@@ -127,7 +127,7 @@ public class ProcessUpdates {
 
 			//sendPacket
 			sendPacket.forwardToAllRouters(prefixObj.getOriginalPacket());
-			sendPacket.forwardToAllRouters(prefixObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
+			//sendPacket.forwardToAllRouters(prefixObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
 		}
 	}
 
@@ -155,7 +155,7 @@ public class ProcessUpdates {
 
 			//sendPacket
 			sendPacket.forwardToAllRouters(prefixListObj.getOriginalPacket());
-			sendPacket.forwardToAllRouters(prefixListObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
+			//sendPacket.forwardToAllRouters(prefixListObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
 		}
 	}
 
@@ -185,7 +185,7 @@ public class ProcessUpdates {
 
 			//sendPacket
 			sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket());
-			sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
+			//sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
 
 		}//if the neighbor does no exist... this packet was sent by mistake
 

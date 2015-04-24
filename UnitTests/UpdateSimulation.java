@@ -290,7 +290,7 @@ public class UpdateSimulation {
 		System.out.println("B's next hop node: " + nodeRepo.HMgetNode("B").getOriginNextHop());
 		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video", "D", 1234);
 		sendPacket.createIntrestPacket(intrestObj1);
-		processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
+		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
 		processRouting.processIntrest(intrestObj1);
 
 	}
@@ -300,7 +300,7 @@ public class UpdateSimulation {
 		//forward interest packet with no prefix
 		IntrestObj intrestObj1 = new IntrestObj("noPrefix", "D", 1234);
 		sendPacket.createIntrestPacket(intrestObj1);
-		processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
+		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
 		processRouting.processIntrest(intrestObj1);
 		System.out.println("no prefix packet dropped");
 
@@ -311,7 +311,7 @@ public class UpdateSimulation {
 		//receive interest packet with pit entry already in pit table
 		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video", "D", 1234);
 		sendPacket.createIntrestPacket(intrestObj1);
-		processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
+		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
 		processRouting.processIntrest(intrestObj1);
 		System.out.println("PIT entry already exists packet dropped");
 
@@ -322,7 +322,7 @@ public class UpdateSimulation {
 		//longer prefix being looked for, should match a smaller prefix in fib
 		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video/one", "D", 1234);
 		sendPacket.createIntrestPacket(intrestObj1);
-		processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "D");
+		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "D");
 		processRouting.processIntrest(intrestObj1);
 	}
 

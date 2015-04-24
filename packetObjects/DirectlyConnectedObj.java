@@ -70,5 +70,15 @@ public class DirectlyConnectedObj {
 		this.clientName = clientName;
 	}
 
+	@Override
+	public String toString(){
+		Set<String> keys = prefixList.keySet();
+		String entry = "";
+		for(String key : keys){
+			entry = entry + " " +  key;
+		}
+		return entry;
+	}
+
 
 }

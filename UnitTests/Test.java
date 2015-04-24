@@ -34,28 +34,31 @@ public class Test {
 		//		routingProcessTest.testProcessRoutingPacets();
 
 		//update simulation 
-		UpdateSimulation updateSim = new UpdateSimulation();
-		updateSim.startSimulation();
-		updateSim.addLinks();
-		updateSim.requestForNeighbors();
-		updateSim.neighborsAndPrefixResponse();
-		updateSim.modifyNode();
-		updateSim.modifyLink();
-		updateSim.removeLink();
-		updateSim.addClient();
-		updateSim.addPrefixesToClient();
-		updateSim.removeClient();
-		updateSim.prefixUpdate();
+		//		UpdateSimulation updateSim = new UpdateSimulation();
+		//		updateSim.startSimulation();
+		//		updateSim.addLinks();
+		//		updateSim.requestForNeighbors();
+		//		updateSim.neighborsAndPrefixResponse();
+		//		updateSim.modifyNode();
+		//		updateSim.modifyLink();
+		//		updateSim.removeLink();
+		//		updateSim.addClient();
+		//		updateSim.addPrefixesToClient();
+		//		updateSim.removeClient();
+		//		updateSim.prefixUpdate();
+		//
+		//		updateSim.intrestPacket();
+		//		updateSim.intrestPacketNoPrefix();
+		//		updateSim.intrestPacketPITentry();
+		//		updateSim.intrestLongPrefix();
+		//		updateSim.dataPacket();
+		//		//updateSim.dataPacketNoNextHop();
+		//		updateSim.dataPacketPassTowardServer();
+		//		updateSim.dataPacketForwardToServer();
+		//		updateSim.dataPacketNoPITEntry();
+		Thread thread = new Thread(new RouterTest("A", 9999999, 999999999L));
+		thread.start();
 
-		updateSim.intrestPacket();
-		updateSim.intrestPacketNoPrefix();
-		updateSim.intrestPacketPITentry();
-		updateSim.intrestLongPrefix();
-		updateSim.dataPacket();
-		//updateSim.dataPacketNoNextHop();
-		updateSim.dataPacketPassTowardServer();
-		updateSim.dataPacketForwardToServer();
-		updateSim.dataPacketNoPITEntry();
 
 	}
 

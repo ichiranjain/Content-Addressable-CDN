@@ -58,7 +58,12 @@ public class PacketQueue2 {
 	@SuppressWarnings("rawtypes")
 	public GenericPacketObj removeFromUpdateQueue(){
 		try {
-			return updateQueue.take();
+			//System.out.println("trying to remove from update queue");
+			//System.out.println(updateQueue.size());
+			GenericPacketObj gpo = updateQueue.take();
+			//System.out.println("packet taken from update queue");
+
+			return gpo;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

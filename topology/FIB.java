@@ -502,5 +502,19 @@ public class FIB{
 		return prefixList;
 	}
 
+	public ArrayList<String> getFIBEntries(){
+		Set<Integer> lengths = hmOfPrefixLengths.keySet();
+		ArrayList<String> entries = new ArrayList<String>();
+		for(Integer length : lengths){
+			Set<String> prefixes = hmOfPrefixLengths.get(length).keySet();
+
+			for(String prefix : prefixes){
+				entries.add("Prefix: " + length + ": " + prefix + " |Advertisers|: " + hmOfPrefixLengths.get(length).get(prefix).toString());
+			}
+		}
+
+		return entries;
+	}
+
 
 }

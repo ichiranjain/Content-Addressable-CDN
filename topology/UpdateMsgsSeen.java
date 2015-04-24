@@ -41,6 +41,20 @@ public class UpdateMsgsSeen {
 		return msgIDHM.get(msgID);
 	}
 
+	public void setMsgIDTime(String msgID, long time){
+		msgIDHM.put(msgID, time);
+	}
+
+	public ArrayList<String> getMsgIDsAndTimes(){
+		Set<String> keys = msgIDHM.keySet();
+		ArrayList<String> entries = new ArrayList<String>();
+		for(String key : keys){
+			entries.add("MsgID: " + key + " " + msgIDHM.get(key));
+		}
+		return entries;
+	}
+
+
 
 	//	public static void main(String[] args) {
 	//		System.out.println("it works");

@@ -97,6 +97,7 @@ public class RoutingSwitch implements Runnable{
 				case 2 :
 					process.processData2(dataObj);
 					break;
+
 				default : 
 					System.out.println("data flag set to an incorrect value");
 					break;
@@ -109,7 +110,7 @@ public class RoutingSwitch implements Runnable{
 				String nestedAction = jsonActionElement.getAsString();
 				SendPacket sendPacket = new SendPacket();
 
-				if(nestedAction.equals("prefixResponse")){
+				if(nestedAction.equals("prefixResponse") == true){
 					//call prefix function
 					JsonElement jsonIDElement = jsonObject.get("msgID");
 					String msgID = jsonIDElement.getAsString();
@@ -166,7 +167,7 @@ public class RoutingSwitch implements Runnable{
 				}
 				break;
 			}
-
+			break;
 		default : 
 			System.out.println("Invalid route action");
 			break;

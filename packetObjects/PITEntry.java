@@ -48,4 +48,15 @@ public class PITEntry {
 		return requesters.size();
 	}
 
+	@Override
+	public String toString(){
+		String string = "";
+		string  = string + " time: " + time + " ";
+		for(String requester : requesters){
+			string = string + requester + " ";
+		}
+		return string;
+
+	}
+
 }

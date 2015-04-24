@@ -1,5 +1,6 @@
 package topology;
 
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -82,6 +83,14 @@ public class DirectlyConnectedNodes {
 		return keys.toArray(new String[keys.size()]);
 	}
 
+	public ArrayList<String> getClientEntries(){
+		Set<String> clients = directlyConnectedClients.keySet();
+		ArrayList<String> entries = new ArrayList<String>();
+		for(String client : clients){
+			entries.add("Client: " + client + " " + directlyConnectedClients.get(client).toString());
+		}
+		return entries;
+	}
 
 
 }

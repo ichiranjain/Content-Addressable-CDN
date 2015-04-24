@@ -4,9 +4,7 @@ import java.util.ArrayList;
 
 import packetObjects.LinkObj;
 import packetObjects.ModifyNodeObj;
-import packetObjects.NeighborRequestObj;
 import packetObjects.PrefixListObj;
-import packetObjects.PrefixObj;
 import topology.DirectlyConnectedNodes;
 import topology.FIB;
 import topology.NeighborAndCostStrings;
@@ -81,11 +79,11 @@ public class UpdateProcessTest {
 
 	public void testUpdateProcess(){
 
-		String doNotSendToNode = "ZZ";
+		//String doNotSendToNode = "ZZ";
 
 		LinkObj linkObj = new LinkObj("Z", 12);
-		LinkObj linkObj2 = new LinkObj("Z", 11);
-		PrefixObj prefixObj = new PrefixObj("prefix1", "MSGID", "Z", true);
+		//LinkObj linkObj2 = new LinkObj("Z", 11);
+		//PrefixObj prefixObj = new PrefixObj("prefix1", "MSGID", "Z", true);
 
 		ArrayList<String> prefixList = new ArrayList<String>();
 		prefixList.add("prefix1");
@@ -99,7 +97,7 @@ public class UpdateProcessTest {
 		neighbors.add(new NeighborAndCostStrings("G", 33));
 		ModifyNodeObj modifyNodeObj = new ModifyNodeObj("Z", neighbors, "MSGID3" );
 
-		NeighborRequestObj neighborRequestObj = new NeighborRequestObj("F");
+		//NeighborRequestObj neighborRequestObj = new NeighborRequestObj("F");
 
 		//		//works
 		process.addLink(linkObj);

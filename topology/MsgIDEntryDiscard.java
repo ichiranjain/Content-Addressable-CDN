@@ -11,10 +11,11 @@ public class MsgIDEntryDiscard implements Runnable{
 	int sleepTime;
 	long keepMsgTime;
 
-	public MsgIDEntryDiscard(UpdateMsgsSeen updateMsgsSeen, int sleepTime, long keepMsgTime){
+	public MsgIDEntryDiscard(UpdateMsgsSeen updateMsgsSeen, int sleepTime, long keepMsgTime, boolean keepRunning){
 		this.updateMsgsSeen = updateMsgsSeen;
 		this.sleepTime = sleepTime;
 		this.keepMsgTime = keepMsgTime;
+		this.keepSmiling = keepRunning;
 	}
 
 	@Override

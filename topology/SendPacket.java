@@ -225,6 +225,7 @@ public class SendPacket {
 		packet.addProperty("originRouter", dataObj.getOriginRouterName());
 		packet.addProperty("data", dataObj.getData());
 		packet.addProperty("cacheFlag", dataObj.getCacheFlag());
+		packet.addProperty("lastChunk", dataObj.getLastChunk());
 
 		//String pkt  = packet.toString();
 		dataObj.setOriginalPacket(packet.toString());

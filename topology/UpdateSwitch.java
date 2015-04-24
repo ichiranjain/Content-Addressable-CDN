@@ -52,6 +52,7 @@ public class UpdateSwitch implements Runnable{
 
 		//String action = parse.parseAction(packetObj.getPacket());
 		String action = genericPacketObj.getAction();
+		System.out.println("update switch action recieved: " + action);
 		//		LinkObj linkObj;
 		//		boolean addRemove;
 		//		PrefixListObj prefixListObj;
@@ -146,7 +147,8 @@ public class UpdateSwitch implements Runnable{
 
 		case "neighborRequest" :
 			NeighborRequestObj neighborRequestObj = (NeighborRequestObj) genericPacketObj.getObj();
-			process.requestNeighbors(neighborRequestObj.getFromName());
+			process.processIntrestRequestForNeighbors(neighborRequestObj);
+			//process.requestNeighbors(neighborRequestObj.getFromName());
 			break;
 
 		case "prefixResponse" :

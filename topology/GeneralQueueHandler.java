@@ -13,7 +13,7 @@ public class GeneralQueueHandler implements Runnable{
 		//parse = new Parse();
 		this.packetQueue2 = packetQueue2;
 		this.running = running;
-		genericParser = new GenericParser();
+		genericParser = new GenericParser(packetQueue2);
 	}
 
 	public void killGeneralHandler(){
@@ -36,6 +36,7 @@ public class GeneralQueueHandler implements Runnable{
 				/*
 				 * could parse the whole json string here
 				 */
+				System.out.println("generic queue handler called parse");
 				genericParser.parsePacket(packetObj);
 
 
