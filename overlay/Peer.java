@@ -241,7 +241,7 @@ public class Peer { // implements PeerInterface
 
 		Message<String> newNodeMsg = new Message<String>(102, peer);
 		sendMessageToAllBut("", newNodeMsg);
-
+		
 		// connectedTo.add(getIP(peer));
 		//
 		JoinPacket packet = new JoinPacket();
