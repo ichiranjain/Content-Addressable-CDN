@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
-import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Listen for connection requests from new peers on Server Socket <br/>
@@ -19,6 +21,7 @@ public class Listen extends Thread {
 	ServerSocket serverSocket;
 	ObjectInputStream ois;
 	ObjectOutputStream oos;
+	boolean running;
 
 	// Socket peerSocket;
 
@@ -33,73 +36,101 @@ public class Listen extends Thread {
 		// this.serverSocket = serverSocket;
 		//
 		// p.peerSocket = null;
+		running = true;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
-		while (true) {
+		while (running) {
 			try {
-				p.peerSocket = Peer.serverSocket.accept();
-				System.out.println("Connection request received from "
-						+ p.peerSocket.getRemoteSocketAddress() + " ...");
+				// wait for new peer
+				Peer.peerSocket = Peer.serverSocket.accept();
+				System.out.println("Connection request from "
+						+ Peer.peerSocket.getRemoteSocketAddress());
 				setUpObjectStreams();
-				if (nodeJoinPermitted(p.peerSocket)) {
-					// read initial message from neighbor
-					System.out
-							.println("waiting for message from peer that requested connection..");
-					Message<JoinPacket> m = (Message<JoinPacket>) ois
-							.readObject();
+				System.out.println("Waiting for join packet");
+				Message<JoinPacket> m = (Message<JoinPacket>) ois.readObject();
+				JoinPacket replyPacket = new JoinPacket();
+				System.out.println("Join packet type " + m.type);
+				System.out.println("Sending acknowledgement");
+				Message<JoinPacket> mReply = new Message<JoinPacket>(2,
+						replyPacket);
 
-					JoinPacket replyPacket = new JoinPacket(p);
-					Message<JoinPacket> mReply = new Message<JoinPacket>(2,
-							replyPacket);
+				// start listening on new link with new joinee
+				Link link = new Link(Peer.peerSocket.getRemoteSocketAddress()
+						+ "", ois);
+				link.start();
 
-					System.out.println("message received.. type: " + m.type);
-					p.addPeer(m.packet, p.peerSocket, oos, ois);
-					p.updateMetaData(m);
-
-					new Link(p.peerSocket.getRemoteSocketAddress() + "", ois)
-							.start();
-					System.out
-							.println("Reply to newly connected peer with current neighbor info..");
+				Peer.addPeer(m.packet, Peer.peerSocket, oos, ois, link);
+				if (Peer.nodeDropRequired(Peer.peerSocket)) {
+					mReply.type = -2;
+					System.out.println("Neighbor drop required");
+					String dropped = dropNeighbor(Peer.getIP(Peer.peerSocket
+							.getRemoteSocketAddress().toString()));
+					mReply.packet.dropped = dropped;
 					oos.writeObject(mReply);
 					oos.flush();
-
-					System.out
-							.println("Neighbor info sent... Client peer now connected... IP: "
-							+ p.peerSocket.getRemoteSocketAddress());
-					System.out.println("New neighbors: " + Peer.neighbors);
-					System.out.println("New allNodes: " + Peer.allNodes);
-
-					System.out
-							.println("Letting all other neighbors know about new packet..");
-					p.updateNeighbors(Peer.getIP(p.peerSocket
-							.getRemoteSocketAddress().toString()),
-							m.packet);
+					System.out.println("Node dropped" + dropped);
 				} else {
-					System.out.println("Connection from "
-							+ p.peerSocket.getRemoteSocketAddress()
-							+ " was dropped bacause all neighbors "
-							+ "positions are busy.");
-					System.out
-							.println("Potential peer has been informed about "
-									+ "other nodes in the network.");
+					// read initial message from neighbor
+					System.out.println("No drops needed");
+					oos.writeObject(mReply);
+					oos.flush();
 				}
+				// adding new peer and updating meta-data
+				System.out.println("Peer now coonnected");
+				System.out.println("New neighbors " + Peer.neighbors);
+				System.out.println("New allNodes " + Peer.allNodes);
+				// if (!Peer.linksSatisfied()) {
+				// for (String neighbor : m.packet.neighbors) {
+				// if (!neighbor.equals(m.packet.doNotConnect)) {
+				// Peer.join(neighbor, false);
+				// break;
+				// }
+				// }
+				// }
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally {
-				p.peerSocket = null;
+				Peer.peerSocket = null;
 				oos = null;
 				ois = null;
 			}
 		}
+	}
+
+	public String dropNeighbor(String except) throws IOException {
+		// randomly select neighbor to be dropped
+		Random r = new Random();
+		int d = r.nextInt(Peer.neighbors.size());
+		String dropped = null;
+		List<String> neighbors = new ArrayList<String>(Peer.neighbors.keySet());
+		while (neighbors.get(d).equals(except)) {
+			d = r.nextInt(Peer.neighbors.size());
+		}
+		dropped = neighbors.get(d);
+
+		// notify neighbor of link drop using message of type 3
+		SocketContainer neighbor = Peer.neighbors.get(dropped);
+		JoinPacket dp = new JoinPacket();
+		dp.dropped = dropped;
+		Message<JoinPacket> m = new Message<JoinPacket>(3, dp);
+		neighbor.oos.writeObject(m);
+		neighbor.oos.flush();
+
+		// Removing neighbor to be dropped from records
+		neighbor.link.running = false;
+		Peer.neighbors.remove(dropped);
+		// Peer.allNodes.remove(dropped);
+
+		// INFORM ROUTING ABOUT LINK DROP!
+
+		return dropped;
 	}
 
 	/**
@@ -109,50 +140,10 @@ public class Listen extends Thread {
 	 * @throws InterruptedException
 	 */
 	public void setUpObjectStreams() throws IOException, InterruptedException {
-		System.out
-				.println("** setting up object streams for listening - start**");
-		// oos = new ObjectOutputStream(new BufferedOutputStream(
-		// peerSocket.getOutputStream()));
-		oos = new ObjectOutputStream(p.peerSocket.getOutputStream());
-		this.sleep(1000);
-		ois = new ObjectInputStream(p.peerSocket.getInputStream());
-
-		System.out
-				.println("object input and output stream set up successfully..	");
-		// oos.flush();
-		// ois = new ObjectInputStream(new BufferedInputStream(
-		// peerSocket.getInputStream()));
-
-		System.out.println("received object input stream..");
-		System.out
-				.println("** setting up object streams for listening - finish");
+		oos = new ObjectOutputStream(Peer.peerSocket.getOutputStream());
+		Thread.sleep(100);
+		ois = new ObjectInputStream(Peer.peerSocket.getInputStream());
+		System.out.println("OOS and OIS set up");
 	}
 
-	/**
-	 * Checks if new join request can be processed by current node.<br/>
-	 * Does this by checking if number of links after the node joins in are<br/>
-	 * within limits of log<i>n</i>.
-	 * 
-	 * @param peerSocket
-	 * @return
-	 */
-	public boolean nodeJoinPermitted(Socket peerSocket) {
-		return true;
-		// System.out.println("** node join permissing check - start **");
-		// int existingNetworkSize = Peer.allNodes.size();
-		// int newNetworkSize = Peer.allNodes.size() + 1;
-		// if (Math.ceil(Math.log(existingNetworkSize)) == Math.ceil(Math
-		// .log(newNetworkSize))) {
-		// System.out.println("permission denied..");
-		// System.out.println("** node join permission check - finish");
-		// return false;
-		// } else {
-		// if (Peer.vacancies.size() == 0) {
-		// //
-		// }
-		// System.out.println("permission granted..");
-		// System.out.println("** node join permission check - finish");
-		// return true;
-		// }
-	}
 }

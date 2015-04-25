@@ -22,13 +22,15 @@ public class Message<K> implements Serializable {
 	// new peer)
 	// 3 - remove peer
 	// 4 - remove peer acknowledgement
-	// 5 - ping
-	// 6 - ping acknowledgement
+	// 100 - poll
+	// 101 - poll acknowledgement
 	// 7 - send packet
 	// 8 - packet acknowledgement
 	// 50 - sharing new neighbor info
 	// 99 - random message
-	//
+	// 100 poll
+	// 101 poll reply
+	// 102 notification about new neighbor to be added, no reply needed
 	int type;
 	long requestNo;
 	K packet;
