@@ -37,7 +37,7 @@ public class GenericParser {
 		switch (type){
 
 		case "update" :
-			System.out.println("parsing update packet");
+			//System.out.println("parsing update packet");
 			parseUpdatePacket(jsonObject, packetObj);
 			break;
 		case "route" :
@@ -56,7 +56,7 @@ public class GenericParser {
 
 		JsonElement jsonActionElement = jsonObject.get("action");
 		String action = jsonActionElement.getAsString();
-		System.out.println("action: " + action);
+		System.out.println("Update action: " + action);
 		LinkObj linkObj;
 		PrefixListObj prefixListObj;
 		PrefixObj prefixObj;
@@ -68,7 +68,7 @@ public class GenericParser {
 
 		case "addLink" :
 
-			System.out.println("parsing addlink");
+			//System.out.println("parsing addlink");
 			//parse the packet into a addLinkObj
 			linkObj = parse.parseAddLink(jsonObject);
 			//create the genericPacketObj
@@ -76,7 +76,7 @@ public class GenericParser {
 			//add it to the Update Queue
 
 			packetQueue2.addToUpdateQueue(gpoAddLink);
-			System.out.println("update added to update queue");
+			//System.out.println("update added to update queue");
 
 			break;
 
@@ -176,7 +176,7 @@ public class GenericParser {
 	public void parseRoutePacket(JsonObject jsonObject, PacketObj packetObj){
 		JsonElement jsonTypeElement = jsonObject.get("action");
 		String action = jsonTypeElement.getAsString();
-
+		System.out.println("Routing action: " + action);
 		//GenericPacketObj genericPacketObj;
 		switch(action){
 

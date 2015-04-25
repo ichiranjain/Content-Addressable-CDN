@@ -12,11 +12,14 @@ import packetObjects.PrefixListObj;
 import packetObjects.PrefixObj;
 import topology.DirectlyConnectedNodes;
 import topology.FIB;
+import topology.FIBEntryDiscard;
 import topology.GeneralQueueHandler;
+import topology.MsgIDEntryDiscard;
 import topology.NeighborAndCostStrings;
 import topology.Node;
 import topology.NodeRepository;
 import topology.PIT;
+import topology.PITEntryDiscard;
 import topology.PacketQueue2;
 import topology.RoutingQueueHandler;
 import topology.SendPacket;
@@ -95,14 +98,14 @@ public class RouterTest implements Runnable{
 		//update msagId's seen
 		//sleep time id for Thread.sleep
 		//keepMsgTime is in nano Time to remove old entries
-		//Thread removeMsgIDs = new Thread(new MsgIDEntryDiscard(updateMsgsSeen, sleepTime, keepMsgTime, running));
-		//removeMsgIDs.start();
+		Thread removeMsgIDs = new Thread(new MsgIDEntryDiscard(updateMsgsSeen, sleepTime, keepMsgTime, running));
+		removeMsgIDs.start();
 		//PIT entries
-		//Thread removePitEntries = new Thread(new PITEntryDiscard(pit, sleepTime, keepMsgTime, running));
-		//removePitEntries.start();
+		Thread removePitEntries = new Thread(new PITEntryDiscard(pit, sleepTime, keepMsgTime, running));
+		removePitEntries.start();
 		//FIB
-		//Thread removeFibEntries = new Thread(new FIBEntryDiscard(fib, nodeRepo, sleepTime, running));
-		//removeFibEntries.start();
+		Thread removeFibEntries = new Thread(new FIBEntryDiscard(fib, nodeRepo, sleepTime, running));
+		removeFibEntries.start();
 
 
 		/*
@@ -218,16 +221,16 @@ public class RouterTest implements Runnable{
 		//normal route
 		intrestPacket("Bprefix4", "", 1234, "client3A");
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//		try {
+		//			Thread.sleep(1000);
+		//		} catch (InterruptedException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
 		// needs synchronization added intrestPacket("Bprefix4", "A", 1234, "client4A");
 
 		//route DNE
-		// needs D to be removed intrestPacket("D", "A", 2345, "A");
+		//intrestPacket("D", "A", 2345, "A");
 
 		//route with a large prefix that matches a smaller one
 		// worked intrestPacket("B/video", "A", 3456, "client3A");
@@ -236,7 +239,7 @@ public class RouterTest implements Runnable{
 		//intrestPacket(contentName, originRouter, nonce, fromNode);
 
 		//Duplicate request so pit entry get another requester
-		//intrestPacket("Bprefix4", "client1A", 5678, "A");
+		intrestPacket("Bprefix4", "client1A", 5678, "A");
 
 
 		//data packet 
@@ -296,7 +299,7 @@ public class RouterTest implements Runnable{
 				printDirectlyConnectedClietns();
 				break;
 
-			case "msgIDs" :
+			case "msg" :
 				printMsgIDsSeen();
 				break;
 
@@ -463,7 +466,7 @@ public class RouterTest implements Runnable{
 		sendPacket.createIntrestPacket(intrestObj1);
 		PacketObj packetObj1 = new PacketObj(intrestObj1.getOriginalPacket(), fromNode, false);
 		packetQueue2.addToGeneralQueue(packetObj1);
-		System.out.println("added to general q");
+		//System.out.println("added to general q");
 	}
 	public void dataPacket(String contentName, String originRouter, byte flag, String data, byte cacheFlag, boolean lastChunk, String fromNode){
 		DataObj dataObj = new DataObj(contentName, originRouter, flag, data, cacheFlag, lastChunk);

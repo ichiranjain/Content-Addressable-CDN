@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import packetObjects.DataObj;
 import packetObjects.IntrestObj;
+import packetObjects.PITEntry;
 
 public class ProcessRoutingPackets {
 
@@ -47,7 +48,9 @@ public class ProcessRoutingPackets {
 		//check the pit
 		//System.out.println(intrestObj.getContentName());
 		//System.out.println("does entry exist: " + pit.doesEntryExist(intrestObj.getContentName()));
-		if(pit.doesEntryExist(intrestObj.getContentName()) == true){
+		//if(pit.doesEntryExist(intrestObj.getContentName()) == true){
+		PITEntry pitEntry = pit.addEntryIfItDoesntExist(intrestObj.getContentName(), recievedFromNode);
+		if(pitEntry != null){	
 			//add info to the pit entry if it is new... if it is in the pit already
 			//resend the packet
 			if(pit.doesRequesterExist(intrestObj.getContentName(), recievedFromNode) == false){
@@ -62,7 +65,7 @@ public class ProcessRoutingPackets {
 
 		if(nextHop.equals("broadCast") == true){
 			//broad cast
-			//sendPacket.broadcast();
+			sendPacket.forwardToAllRouters(intrestObj.getOriginalPacket());
 
 		}else if(!nextHop.equals("") == true){
 			//a route exists

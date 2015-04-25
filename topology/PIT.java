@@ -21,6 +21,12 @@ public class PIT {
 		pit.put(content, new PITEntry(time, requester));
 	}
 
+	public PITEntry addEntryIfItDoesntExist(String content, String requester){
+		long time = System.nanoTime();
+		PITEntry exists = pit.putIfAbsent(content,  new PITEntry(time, requester));
+		return exists;
+	}
+
 	public void removeEntry(String content){
 		if(doesEntryExist(content) == true){
 			pit.remove(content);			

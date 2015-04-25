@@ -127,6 +127,8 @@ public class Dijkstras {
 				//set the best cost to the node to infinity, because no links 
 				//go into the node ... there for it is unreachable
 				graph.get(key).setBestCost(Integer.MAX_VALUE);
+				graph.get(key).setOriginNextHop("");
+				graph.remove(key);
 			}
 		}
 	}

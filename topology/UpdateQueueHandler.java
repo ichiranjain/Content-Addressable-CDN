@@ -53,7 +53,7 @@ public class UpdateQueueHandler implements Runnable {
 			if(genericPacketObj != null){
 				//give to the thread pool for processing 
 				//executer service == java's thread pool
-				System.out.println("packet recieved in update handler");
+				//System.out.println("packet recieved in update handler");
 				Thread thread = new Thread(new UpdateSwitch(genericPacketObj, 
 						nodeRepo, 
 						fib, 

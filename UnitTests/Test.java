@@ -56,7 +56,7 @@ public class Test {
 		//		updateSim.dataPacketPassTowardServer();
 		//		updateSim.dataPacketForwardToServer();
 		//		updateSim.dataPacketNoPITEntry();
-		Thread thread = new Thread(new RouterTest("A", 9999999, 999999999L));
+		Thread thread = new Thread(new RouterTest("A", 10000, 40000L));
 		thread.start();
 
 

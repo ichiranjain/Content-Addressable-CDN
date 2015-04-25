@@ -21,8 +21,9 @@ public class FIBEntryDiscard implements Runnable{
 	public void run() {
 		while(keepRunning){
 
+			//System.out.println("fib discard");
 			int longestPrefixLength = fib.getLongestPrefixLength();
-			for(int i = 1; i < longestPrefixLength; i++){
+			for(int i = 1; i <= longestPrefixLength; i++){
 				if(fib.doesPrefixLengthHashMapExist(i) == true){
 					ArrayList<String> prefixList = fib.getPrefixesForLength(i);
 					for(int j = 0; j < prefixList.size(); j++){						
@@ -31,6 +32,7 @@ public class FIBEntryDiscard implements Runnable{
 							//when get best cost advertiser is called the returned value is checked 
 							//to make sure the node exists before returning it
 							//if the node does not exist, the function removes it 
+							//System.out.println("fib discard running");
 							fib.getBestCostAdvertiser(i, prefixList.get(j));
 						}
 					}

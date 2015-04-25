@@ -149,14 +149,19 @@ public class FIB{
 		//check if there are any advertisers for the prefix
 		if(hmOfPrefixLengths.get(prefixLength).get(prefix).isEmpty() == false){
 
-			if(nodeRepo.HMdoesNodeExist(hmOfPrefixLengths.get(prefixLength).get(prefix).get(0)) == true){
+			//** or is a client
+			if((nodeRepo.HMdoesNodeExist(hmOfPrefixLengths.get(prefixLength).get(prefix).get(0)) == true) || 
+					(directlyConnectedNodes.doesDirectlyConnectedClientExist(hmOfPrefixLengths.get(prefixLength).get(prefix).get(0)) == true) ){
 				return  hmOfPrefixLengths.get(prefixLength).get(prefix).get(0);
 			}else{
 
 				//check if all the advertiser nodes exist, if it doesn't exist not it
 				ArrayList<String> advertisers = hmOfPrefixLengths.get(prefixLength).get(prefix);
 				for(int j = 0; j < advertisers.size(); j++){
-					if(nodeRepo.HMdoesNodeExist(advertisers.get(j)) == false){
+
+					//** and clients
+					if(nodeRepo.HMdoesNodeExist(advertisers.get(j)) == false || 
+							(directlyConnectedNodes.doesDirectlyConnectedClientExist(hmOfPrefixLengths.get(prefixLength).get(prefix).get(0)) == false)){
 						advertisers.remove(j);
 					}
 				}	
@@ -180,6 +185,19 @@ public class FIB{
 					int bestCost = 0;
 					String temp = "";
 					index = 0;
+
+					for(int i = 0; i < arraySize; i++){
+						if(directlyConnectedNodes.doesDirectlyConnectedClientExist(advertisers.get(i)) == true){
+							//swap to 1 index position
+							temp = advertisers.get(0);
+							advertisers.set(0, advertisers.get(i));
+							advertisers.set(i, temp);
+
+							//over write the list with the new list
+							setAdvertisers(prefixLength, prefix, advertisers);
+							return hmOfPrefixLengths.get(prefixLength).get(prefix).get(0);
+						}
+					}
 
 					//find the best cost node in the list of advertisers
 					bestCost = nodeRepo.HMgetNode(advertisers.get(0)).getBestCost();
@@ -456,6 +474,10 @@ public class FIB{
 
 						// there was no error
 						nextHop = nodeRepo.HMgetNode(bestCostNode).getOriginNextHop();
+
+						if(nextHop.equals("")){
+							nextHop = "broadCast";
+						}
 
 						if(pit.doesEntryExist(contentName) == true){
 

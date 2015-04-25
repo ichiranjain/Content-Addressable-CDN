@@ -49,7 +49,7 @@ public class RoutingQueueHandler implements Runnable{
 			//something is placed in the queue
 			GenericPacketObj genericPacketObj = packetQueue2.removeFromRoutingQueue();
 			if(genericPacketObj != null){
-				System.out.println("recieved in routing handler");
+				//System.out.println("recieved in routing handler");
 				//give to the thread pool for processing 
 				//executer service == java's thread pool
 

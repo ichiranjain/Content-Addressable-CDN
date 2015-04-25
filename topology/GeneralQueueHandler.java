@@ -36,7 +36,7 @@ public class GeneralQueueHandler implements Runnable{
 				/*
 				 * could parse the whole json string here
 				 */
-				System.out.println("generic queue handler called parse");
+				//System.out.println("generic queue handler called parse");
 				genericParser.parsePacket(packetObj);
 
 
