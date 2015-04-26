@@ -13,9 +13,11 @@ import java.net.UnknownHostException;
 public class Link extends Thread {
 	ObjectInputStream ois = null;
 	String connectedTo;
+	int previousCost;
 	boolean running;
 
 	public Link(String peerAddress, ObjectInputStream ois) throws IOException {
+		previousCost = -1;
 		connectedTo = Peer.getIP(peerAddress);
 		this.ois = ois;
 		running = true;
@@ -122,8 +124,19 @@ public class Link extends Thread {
 			// process neighbors and vacancies
 			JoinPacket pollReplyPacket = (JoinPacket) m.packet;
 			Peer.allNodes.addAll(pollReplyPacket.neighbors);
-			Peer.routing.modifyLink(Peer.generateID(connectedTo) + "",
-					(int) (endTime - startTime));
+			
+			if(previousCost < 0) {
+				Peer.routing.modifyLink(Peer.generateID(connectedTo) + "",
+						(int) (endTime - startTime));				
+				previousCost = (int) (endTime - startTime);				
+			}
+			double change =(double) previousCost/(endTime - startTime);
+			change *= 100;
+			if (Math.abs(change - 100) > 30) {
+				Peer.routing.modifyLink(Peer.generateID(connectedTo) + "",
+						(int) (endTime - startTime));				
+				previousCost = (int) (endTime - startTime);
+			}
 		}
 		// force remove node because it dropped
 		else if (m.type == 200) {

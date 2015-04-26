@@ -33,6 +33,7 @@ public class GenericParser {
 		JsonElement jsonTypeElement = jsonObject.get("type");
 		String type = jsonTypeElement.getAsString();
 
+		System.out.println("Inside parsePacket::type::" + type);
 
 		switch (type){
 
@@ -63,6 +64,8 @@ public class GenericParser {
 		NeighborRequestObj neighborRequestObj;
 		//GenericPacketObj genericPacketObj;
 		ModifyNodeObj modifyNodeObj;
+
+		System.out.println("Parsing update packet now::action::" + action);
 
 		switch(action){
 

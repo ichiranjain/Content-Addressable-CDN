@@ -49,6 +49,10 @@ public class UpdateQueueHandler implements Runnable {
 			//System.out.println("update thread blocking");
 			genericPacketObj = packetQueue2.removeFromUpdateQueue();
 
+			System.out
+					.println("Handling update queue packet::genericPacketObj::"
+							+ genericPacketObj);
+
 			//System.out.println("removed packet from update queue");
 			if(genericPacketObj != null){
 				//give to the thread pool for processing 

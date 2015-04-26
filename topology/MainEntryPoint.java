@@ -82,13 +82,13 @@ public class MainEntryPoint implements Runnable{
 		//sleep time id for Thread.sleep
 		//keepMsgTime is in nano Time to remove old entries
 		Thread removeMsgIDs = new Thread(new MsgIDEntryDiscard(updateMsgsSeen, msgIDSleepTime, msgIDKeepMsgTime, running));
-		removeMsgIDs.start();
+		// removeMsgIDs.start();
 		//PIT entries
 		Thread removePitEntries = new Thread(new PITEntryDiscard(pit, pitSleepTime, pitKeepMsgTime, running));
-		removePitEntries.start();
+		// removePitEntries.start();
 		//FIB
 		Thread removeFibEntries = new Thread(new FIBEntryDiscard(fib, nodeRepo, fibSleepTime, running));
-		removeFibEntries.start();
+		// removeFibEntries.start();
 
 
 

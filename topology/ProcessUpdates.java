@@ -344,6 +344,13 @@ public class ProcessUpdates {
 				fib.findBestCostAdvertisers();
 
 			}
+
+			ArrayList<Node> nodes = nodeRepo.getGraphList();
+			for (int i = 0; i < nodes.size(); i++) {
+				System.out.println("nodes in grph: " + nodes.get(i).getName()
+						+ " " + nodes.get(i).getOriginNextHop() + " "
+						+ nodes.get(i).getBestCost());
+			}
 			//send updates or forward updates
 			sendPacket.createModifyNodePacket(modifyNodeObj);
 			sendPacket.forwardUpdate(modifyNodeObj.getOriginalPacket(), doNotSendToNode);

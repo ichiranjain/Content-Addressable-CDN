@@ -21,7 +21,8 @@ public class UpdateMsgsSeen {
 	}
 
 	public boolean doesMsgIDExist(String msgID){
-		if(msgIDHM.contains(msgID) == true){
+		// if(msgIDHM.contains(msgID) == true){
+		if (msgIDHM.containsKey(msgID) == true) {
 			return true;
 		}else{
 			return false;

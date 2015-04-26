@@ -105,6 +105,9 @@ public class Peer { // implements PeerInterface
 				// Start listening on server socket for new connections
 				p.listen();
 				mep = startRouting();
+				Thread mepThread = new Thread(mep);
+				mepThread.start();
+
 			} else {
 				System.out.println("Please pass command line arguments "
 						+ "suggesting the mode in which the node is to "
@@ -116,10 +119,12 @@ public class Peer { // implements PeerInterface
 		} else if (args.length == 2) {
 			if (args[0].toLowerCase().equals("join")) {
 				String server = args[1].toLowerCase();
+
 				// Start listening on server socket
 				p.listen();
-
-				startRouting();
+				mep = startRouting();
+				Thread mepThread = new Thread(mep);
+				mepThread.start();
 
 				// join node
 				Message<JoinPacket> m = Peer.join(server, true);
@@ -158,15 +163,7 @@ public class Peer { // implements PeerInterface
 		 * Start ROUTING
 		 *************************************/
 
-		if (mep == null)
-			mep = new MainEntryPoint(ID + "", 300000, 86400000,
-				86400000, 86400000, 86400000);
-
-		Thread mepThread = new Thread(mep);
-		mepThread.start();
-
 		routing = new PassToRoutingLayer(mep.packetQueue2);
-		
 		scanner = new Scanner(System.in);
 
 		boolean alive = true;

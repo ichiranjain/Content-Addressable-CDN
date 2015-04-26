@@ -20,14 +20,14 @@ public class Polling extends Thread {
 	public void run() {
 		while (polling) {
 			try {
-				Thread.sleep(10000);
+				Thread.sleep(45000);
 				if (Peer.neighbors.size() > 0) {
 					// poll neighbors by sending own neighbors
 					JoinPacket jp = new JoinPacket();
 					Message<JoinPacket> m = new Message<JoinPacket>(100, jp);
 					for (String neighbor : Peer.neighbors.keySet()) {
 						pollLatency.put(Peer.getIP(neighbor),
-								-1 * System.currentTimeMillis());
+								System.currentTimeMillis());
 						Peer.sendMessageX(neighbor, m);
 					}					
 				}

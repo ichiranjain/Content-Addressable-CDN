@@ -60,6 +60,8 @@ public class UpdateSwitch implements Runnable{
 		//		PrefixListObj prefixListObj;
 		//		PrefixObj prefixObj;
 
+		System.out.println("inside update switch::action::" + action);
+
 		switch(action){
 
 		case "addLink" :
