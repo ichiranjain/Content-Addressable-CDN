@@ -51,7 +51,7 @@ public class MainEntryPoint implements Runnable{
 		//set my best cost
 		nodeRepo.HMgetNode(thisMachinesName).setBestCost(0);
 		//set my next hop to my self
-		nodeRepo.HMgetNode(thisMachinesName).setOriginNextHop("A");
+		nodeRepo.HMgetNode(thisMachinesName).setOriginNextHop(thisMachinesName);
 		//add my name to the FIB table 
 		fib.addPrefixToFIB(thisMachinesName, thisMachinesName);
 		//add my self as a directly connected client

@@ -65,7 +65,8 @@ public class Listen extends Thread {
 				Peer.addPeer(m.packet, Peer.peerSocket, oos, ois, link);
 				System.out.println("ID sent to routing:: "
 						+ Peer.generateID(Peer.peerSocket
-								.getRemoteSocketAddress().toString()));
+								.getRemoteSocketAddress().toString())
+						+ " cost::" + 60000);
 				Peer.routing.addLink(
 						Peer.generateID(Peer.peerSocket
 								.getRemoteSocketAddress().toString()) + "",

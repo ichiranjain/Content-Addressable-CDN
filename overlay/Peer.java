@@ -364,8 +364,8 @@ public class Peer { // implements PeerInterface
 
 		// INFORM ROUTING LAYER ABOUT NEW NEIGHBOR
 		System.out.println("sent to routing:: "
-				+ generateID(peerSocket.getRemoteSocketAddress()
-				.toString()));
+				+ generateID(peerSocket.getRemoteSocketAddress().toString())
+				+ " cost::" + (joinStartFinish - joinStartTime));
 		routing.addLink(generateID(peerSocket.getRemoteSocketAddress()
 				.toString()) + "",(int) (joinStartFinish - joinStartTime));
 

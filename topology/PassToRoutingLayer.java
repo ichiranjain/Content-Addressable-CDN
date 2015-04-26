@@ -14,6 +14,7 @@ public class PassToRoutingLayer {
 	}
 
 	public void addLink(String nodeName, int nodeCost){
+		System.out.println("New link to: " + nodeName);
 		//System.out.println("creating add link obj");
 		//make the obj
 		LinkObj addlinkObj = new LinkObj(nodeName, nodeCost);
