@@ -2,6 +2,7 @@ package overlay;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.net.UnknownHostException;
 
 /**
  * Receive message objects from neighbors and process them.
@@ -60,11 +61,18 @@ public class Link extends Thread {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				running = false;
-			}
+			} finally {
 			if (!running) {
 				Peer.neighbors.remove(connectedTo);
 				Peer.allNodes.remove(connectedTo);
 				// inform neighbors about dropped node
+					try {
+						Peer.routing.removeLink(Peer.generateID(connectedTo)
+								+ "", -1);
+					} catch (UnknownHostException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 		System.out.println("Link to " + connectedTo + " dropped...");
@@ -87,6 +95,7 @@ public class Link extends Thread {
 		} else if (m.type == 3) {
 			running = false;
 			Peer.neighbors.remove(connectedTo);
+			Peer.routing.removeLink(Peer.generateID(connectedTo) + "", 0);
 			System.out.println("Removed " + connectedTo + " as neighbor");
 		}
 		// poll packet
@@ -100,7 +109,7 @@ public class Link extends Thread {
 			JoinPacket pollReplyPakcet = new JoinPacket();
 			Message<JoinPacket> pollReply = new Message<JoinPacket>(101,
 					pollReplyPakcet);
-			Peer.sendMessage(connectedTo, pollReply);
+			Peer.sendMessageX(connectedTo, pollReply);
 		}
 		// poll reply
 		else if (m.type == 101) {
@@ -113,6 +122,8 @@ public class Link extends Thread {
 			// process neighbors and vacancies
 			JoinPacket pollReplyPacket = (JoinPacket) m.packet;
 			Peer.allNodes.addAll(pollReplyPacket.neighbors);
+			Peer.routing.modifyLink(Peer.generateID(connectedTo) + "",
+					(int) (endTime - startTime));
 		}
 		// force remove node because it dropped
 		else if (m.type == 200) {
@@ -125,6 +136,11 @@ public class Link extends Thread {
 		// new node added notification
 		else if (m.type == 102) {
 			Peer.allNodes.add(m.packet.toString());
+		} else if (m.type == 7) {
+			Message<String> m2 = m;
+			Peer.routing.addPacket(m2.packet,
+					Peer.generateID(connectedTo) + "",
+					false);
 		}
 	}
 }

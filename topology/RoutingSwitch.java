@@ -1,5 +1,6 @@
 package topology;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -62,7 +63,11 @@ public class RoutingSwitch implements Runnable{
 		case "intrest" :
 			IntrestObj intrestObj = (IntrestObj) genericPacketObj.getObj();
 			if(intrestObj.getContentName().equals(nodeRepo.getThisMachinesName()) == false){
-				process.processIntrest(intrestObj);
+				try {
+					process.processIntrest(intrestObj);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}else{
 				SendPacket sendPacket = new SendPacket();
 				//the packet is for this node

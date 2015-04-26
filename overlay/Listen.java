@@ -63,6 +63,14 @@ public class Listen extends Thread {
 				link.start();
 
 				Peer.addPeer(m.packet, Peer.peerSocket, oos, ois, link);
+				System.out.println("ID sent to routing:: "
+						+ Peer.generateID(Peer.peerSocket
+								.getRemoteSocketAddress().toString()));
+				Peer.routing.addLink(
+						Peer.generateID(Peer.peerSocket
+								.getRemoteSocketAddress().toString()) + "",
+						60000);
+
 				if (Peer.nodeDropRequired(Peer.peerSocket)) {
 					mReply.type = -2;
 					System.out.println("Neighbor drop required");
@@ -129,6 +137,8 @@ public class Listen extends Thread {
 		// Peer.allNodes.remove(dropped);
 
 		// INFORM ROUTING ABOUT LINK DROP!
+		Peer.routing.removeLink(Peer.generateID(dropped) + "", 0);
+
 
 		return dropped;
 	}

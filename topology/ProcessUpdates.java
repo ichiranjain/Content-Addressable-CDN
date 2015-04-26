@@ -1,5 +1,6 @@
 package topology;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import packetObjects.AddNodeObj;
@@ -30,7 +31,7 @@ public class ProcessUpdates {
 		this.dijkstras = new Dijkstras();
 	}
 
-	public void addLink(LinkObj linkObj){
+	public void addLink(LinkObj linkObj) throws IOException {
 		//if the node does not exist .. add it to the graph 
 		if(nodeRepo.HMdoesNodeExist(linkObj.getNeighboringNode()) == false){
 
@@ -81,7 +82,7 @@ public class ProcessUpdates {
 
 	}
 
-	public void removeLink(LinkObj linkObj){
+	public void removeLink(LinkObj linkObj) throws IOException {
 		if(nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).doesNeighborExist(linkObj.getNeighboringNode()) == true){
 			nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).removeNeighbor(linkObj.getNeighboringNode());
 		}
@@ -107,7 +108,7 @@ public class ProcessUpdates {
 		//sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
 	}
 
-	public void addClientLink(LinkObj linkObj){
+	public void addClientLink(LinkObj linkObj) throws IOException {
 		if(directlyConnectedNodes.doesDirectlyConnectedClientExist(linkObj.getNeighboringNode()) == false){
 
 			//this will add the clients name to the clients prefix list
@@ -131,7 +132,7 @@ public class ProcessUpdates {
 		}
 	}
 
-	public void removeClientLink(LinkObj linkObj){
+	public void removeClientLink(LinkObj linkObj) throws IOException {
 
 		if(directlyConnectedNodes.doesDirectlyConnectedClientExist(linkObj.getNeighboringNode()) == true){
 
@@ -159,7 +160,7 @@ public class ProcessUpdates {
 		}
 	}
 
-	public void modifyLink(LinkObj linkObj){
+	public void modifyLink(LinkObj linkObj) throws IOException {
 
 		//does the neighbor exist
 		int index = nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).getNeighborIndex(linkObj.getNeighboringNode());
@@ -193,7 +194,8 @@ public class ProcessUpdates {
 
 	}
 
-	public void addCLientPrefix(PrefixObj prefixObj, String doNotSendToNode){
+	public void addCLientPrefix(PrefixObj prefixObj, String doNotSendToNode)
+			throws IOException {
 
 		//try to add the prefix, if the prefix and advertiser already exist, it will return false, else it will be added
 		if(fib.addPrefixToFIB(prefixObj.getPrefixName(), prefixObj.getAdvertiser()) == true){
@@ -210,7 +212,8 @@ public class ProcessUpdates {
 		sendPacket.forwardUpdate(prefixObj.getOriginalPacket(), doNotSendToNode);
 	}
 
-	public void addClientPrefixList(PrefixListObj prefixListObj, String doNotSendToNode){
+	public void addClientPrefixList(PrefixListObj prefixListObj,
+			String doNotSendToNode) throws IOException {
 
 		ArrayList<String> prefixList = prefixListObj.getPrefixList();
 
@@ -234,7 +237,8 @@ public class ProcessUpdates {
 		sendPacket.forwardUpdate(prefixListObj.getOriginalPacket(), doNotSendToNode);
 	}
 
-	public void removeClientPrefix(PrefixObj prefixObj, String doNotSendToNode){
+	public void removeClientPrefix(PrefixObj prefixObj, String doNotSendToNode)
+			throws IOException {
 
 		//remove the prefix from the fib, this will return false if the prefix or advertiser does not exist
 		if(fib.removePrefixFromFIB(prefixObj.getPrefixName(), prefixObj.getAdvertiser()) == true){
@@ -252,7 +256,8 @@ public class ProcessUpdates {
 
 	}
 
-	public void removeClientPrefixList(PrefixListObj prefixListObj, String doNotSendToNode){
+	public void removeClientPrefixList(PrefixListObj prefixListObj,
+			String doNotSendToNode) throws IOException {
 
 		ArrayList<String> prefixList = prefixListObj.getPrefixList();
 
@@ -304,7 +309,8 @@ public class ProcessUpdates {
 		}
 	}
 
-	public void modifyNode(ModifyNodeObj modifyNodeObj, String doNotSendToNode){
+	public void modifyNode(ModifyNodeObj modifyNodeObj, String doNotSendToNode)
+			throws IOException {
 
 		//check the previous seen update msgs IDs to make sure it is a new update
 		//if it was seen ... drop packet
@@ -494,7 +500,8 @@ public class ProcessUpdates {
 		sendPacket.forwardPacket(dataObj.getOriginalPacket(), neighborRequestObj.getFromName());
 	}
 
-	public void addPrefix(PrefixObj prefixObj, String doNotSendToNode){
+	public void addPrefix(PrefixObj prefixObj, String doNotSendToNode)
+			throws IOException {
 
 		//if the prefix update has been seen already, do nothing 
 		if(upDatesSeen.doesMsgIDExist(prefixObj.getMsgID()) == false){
@@ -512,7 +519,8 @@ public class ProcessUpdates {
 
 	}
 
-	public void addPrefixList(PrefixListObj prefixListObj, String doNotSendToNode){
+	public void addPrefixList(PrefixListObj prefixListObj,
+			String doNotSendToNode) throws IOException {
 
 		//if the prefix update has been seen already, do nothing 
 		if(upDatesSeen.doesMsgIDExist(prefixListObj.getMsgID()) == false){
@@ -532,7 +540,8 @@ public class ProcessUpdates {
 		}
 	}
 
-	public void removePrefix(PrefixObj prefixObj, String doNotSendToNode){
+	public void removePrefix(PrefixObj prefixObj, String doNotSendToNode)
+			throws IOException {
 		//if the entry exists remove it 
 
 		if(upDatesSeen.doesMsgIDExist(prefixObj.getMsgID()) == false){
@@ -551,7 +560,8 @@ public class ProcessUpdates {
 
 	}
 
-	public void removePrefixList(PrefixListObj prefixListObj, String doNotSendToNode){
+	public void removePrefixList(PrefixListObj prefixListObj,
+			String doNotSendToNode) throws IOException {
 
 		if(upDatesSeen.doesMsgIDExist(prefixListObj.getMsgID()) == false){
 

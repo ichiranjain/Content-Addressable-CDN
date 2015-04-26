@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
+import topology.MainEntryPoint;
+import topology.PassToRoutingLayer;
+
 /**
  * Peer class to represent a node in the overlay network. Implements the
  * PeerInterface interface.
@@ -27,7 +30,7 @@ public class Peer { // implements PeerInterface
 	static Socket peerSocket;
 
 	// ID of this node
-	String ID;
+	static String ID;
 	// serverSocket to listen on
 	static ServerSocket serverSocket;
 	// map of neighboring sockets
@@ -36,11 +39,15 @@ public class Peer { // implements PeerInterface
 	static HashMap<String, Integer> vacancies;
 	// set of all nodes in the connected network
 	static HashSet<String> allNodes;
-	static Scanner s;
+	static Scanner scanner;
 	static int logN;
+
+	static HashMap<String, String> idIPMap;
 
 	static LinkedList<Long> requests;
 	
+	static PassToRoutingLayer routing;
+
 	// static block for initializing static content
 	// like serverSocket used for listening
 	{
@@ -57,9 +64,10 @@ public class Peer { // implements PeerInterface
 		neighbors = new HashMap<String, SocketContainer>();
 		vacancies = new HashMap<String, Integer>();
 		allNodes = new HashSet<String>();
-		s = null;
+		scanner = null;
 		logN = 0;
 		requests = new LinkedList<Long>();
+		idIPMap = new HashMap<String, String>();
 	}
 
 	/**
@@ -69,7 +77,7 @@ public class Peer { // implements PeerInterface
 	 */
 	public Peer() {
 		try {
-			ID = generateID() + ""; // unique ID based on IP address
+			ID = generateID("") + ""; // unique ID based on IP address
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -79,6 +87,7 @@ public class Peer { // implements PeerInterface
 	// Main thread
 	public static void main(String[] args) throws IOException,
 			ClassNotFoundException, InterruptedException {
+		MainEntryPoint mep = null;
 		Peer p = new Peer();
 		if (args.length == 1) {
 			if (args[0].equals("man")) {
@@ -95,6 +104,7 @@ public class Peer { // implements PeerInterface
 
 				// Start listening on server socket for new connections
 				p.listen();
+				mep = startRouting();
 			} else {
 				System.out.println("Please pass command line arguments "
 						+ "suggesting the mode in which the node is to "
@@ -108,6 +118,8 @@ public class Peer { // implements PeerInterface
 				String server = args[1].toLowerCase();
 				// Start listening on server socket
 				p.listen();
+
+				startRouting();
 
 				// join node
 				Message<JoinPacket> m = Peer.join(server, true);
@@ -142,21 +154,101 @@ public class Peer { // implements PeerInterface
 		Polling poll = new Polling();
 		poll.start();
 
-		// s = new Scanner(System.in);
+		/*************************************
+		 * Start ROUTING
+		 *************************************/
+
+		if (mep == null)
+			mep = new MainEntryPoint(ID + "", 300000, 86400000,
+				86400000, 86400000, 86400000);
+
+		Thread mepThread = new Thread(mep);
+		mepThread.start();
+
+		routing = new PassToRoutingLayer(mep.packetQueue2);
+		
+		scanner = new Scanner(System.in);
+
+		boolean alive = true;
+		String action = "";
+		while (alive) {
+
+			// add functions here to get node repo
+			// Fib data
+			// pit data
+			// directly connected clients data
+			// directly connected routers data
+			// update msg data
+			action = scanner.next();
+
+			switch (action) {
+			case "node":
+				System.out.println("-printing nodes-");
+				mep.printNodeRepo();
+				break;
+
+			case "nd":
+				// scanner
+				action = scanner.next();
+				mep.printNodeDetails(action);
+				break;
+
+			case "fib":
+				mep.printFIB();
+				break;
+
+			case "pit":
+				mep.printPIT();
+				break;
+
+			case "drr":
+				mep.printDirectlyConnectedRouters();
+				break;
+
+			case "drc":
+				mep.printDirectlyConnectedClietns();
+				break;
+
+			case "msgIDs":
+				mep.printMsgIDsSeen();
+				break;
+
+			case "kill":
+				mep.killThreads();
+				alive = false;
+				System.out.println("killing program");
+				break;
+
+			default:
+				System.out.println("default hit");
+				break;
+			}
+
+		}
+		System.out.println("program terminating");
 
 		// share general messages with neighbors
-		while (true) {
-			try {
+		// while (true) {
+		// try {
+		//
+		// Thread.sleep(1500);
+		// // System.out.println("Neighbors: " + neighbors);
+		// // System.out.println("allNodes: " + allNodes);
+		//
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// System.out.println("");
+		// }
+		// }
+	}
 
-				Thread.sleep(1500);
-				System.out.println("Neighbors: " + neighbors);
-				System.out.println("allNodes: " + allNodes);
+	public static MainEntryPoint startRouting() {
+		MainEntryPoint mep = new MainEntryPoint(ID + "", 300000, 86400000,
+				86400000, 86400000, 86400000);
+		routing = new PassToRoutingLayer(mep.packetQueue2);
 
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("");
-			}
-		}
+		return mep;
+
 	}
 
 	/**
@@ -240,7 +332,7 @@ public class Peer { // implements PeerInterface
 		peerSocket = new Socket(peer, 43125);
 
 		Message<String> newNodeMsg = new Message<String>(102, peer);
-		sendMessageToAllBut("", newNodeMsg);
+		sendMessageToAllButX("", newNodeMsg);
 		
 		// connectedTo.add(getIP(peer));
 		//
@@ -271,6 +363,11 @@ public class Peer { // implements PeerInterface
 		// updateNeighbors(connectedTo, m.packet, 50);
 
 		// INFORM ROUTING LAYER ABOUT NEW NEIGHBOR
+		System.out.println("sent to routing:: "
+				+ generateID(peerSocket.getRemoteSocketAddress()
+				.toString()));
+		routing.addLink(generateID(peerSocket.getRemoteSocketAddress()
+				.toString()) + "",(int) (joinStartFinish - joinStartTime));
 
 		return m;
 	}
@@ -303,9 +400,11 @@ public class Peer { // implements PeerInterface
 	 * @param m
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	public static boolean sendMessage(String ID, Message m) {
 		try {
-			SocketContainer sc = neighbors.get(ID);
+			System.out.println(":::ID::: " + ID);
+			SocketContainer sc = neighbors.get(idIPMap.get(ID));
 			sc.oos.writeObject(m);			
 		} catch (IOException e) {
 			return false;
@@ -313,6 +412,17 @@ public class Peer { // implements PeerInterface
 		return true;
 	}
 	
+	@SuppressWarnings("rawtypes")
+	public static boolean sendMessageX(String IP, Message m) {
+		try {
+			SocketContainer sc = neighbors.get(IP);
+			sc.oos.writeObject(m);
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Method to be called by upper layers to send a message to a list of<br/>
 	 * neighbors.<br/>
@@ -324,6 +434,7 @@ public class Peer { // implements PeerInterface
 	 * @return
 	 * @throws IOException
 	 */
+	@SuppressWarnings("rawtypes")
 	public static boolean sendMessage(List<String> IDs, Message m)
 			throws IOException {
 		for (String id : IDs) {
@@ -345,12 +456,27 @@ public class Peer { // implements PeerInterface
 	 * @return
 	 * @throws IOException
 	 */
+	@SuppressWarnings("rawtypes")
 	public static boolean sendMessageToAllBut(String ID, Message m)
 			throws IOException {
-		List<String> IDs = new ArrayList<String>(neighbors.keySet());
-		for (String id : IDs) {
-			if (!("" + ID).equals(id)) {
-				if (!sendMessage(id, m)) {
+		List<String> IPs = new ArrayList<String>(neighbors.keySet());
+		for (String ip : IPs) {
+			if (!("" + idIPMap.get(ID)).equals(ip)) {
+				if (!sendMessage(generateID(ip) + "", m)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public static boolean sendMessageToAllButX(String IP, Message m)
+			throws IOException {
+		List<String> IPs = new ArrayList<String>(neighbors.keySet());
+		for (String ip : IPs) {
+			if (!("" + IP).equals(ip)) {
+				if (!sendMessageX(ip, m)) {
 					return false;
 				}
 			}
@@ -372,8 +498,12 @@ public class Peer { // implements PeerInterface
 	 * @return
 	 * @throws UnknownHostException
 	 */
-	public static long generateID() throws UnknownHostException {
+	public static long generateID(String IP) throws UnknownHostException {
 		String hostAddress = InetAddress.getLocalHost().getHostAddress();
+		if (!IP.equals("")) {
+			hostAddress = IP;
+		}
+		hostAddress = getIP(hostAddress);
 		System.out.println("Generating ID... (" + hostAddress + ")");
 		long prime1 = 105137;
 		long prime2 = 179422891;
@@ -385,6 +515,8 @@ public class Peer { // implements PeerInterface
 			}
 		}
 		System.out.println("ID: " + ID);
+		idIPMap.put(ID + "", hostAddress);
+
 		return ID;
 	}
 

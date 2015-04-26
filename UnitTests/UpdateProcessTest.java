@@ -1,5 +1,6 @@
 package UnitTests;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import packetObjects.LinkObj;
@@ -77,7 +78,7 @@ public class UpdateProcessTest {
 		process = new ProcessUpdates(nodeRepo, upDatesSeen, fib, directlyConnectedNodes);
 	}
 
-	public void testUpdateProcess(){
+	public void testUpdateProcess() throws IOException {
 
 		//String doNotSendToNode = "ZZ";
 

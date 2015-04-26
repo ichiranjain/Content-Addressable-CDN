@@ -1,5 +1,6 @@
 package UnitTests;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import packetObjects.DataObj;
@@ -61,7 +62,7 @@ public class UpdateSimulation {
 		System.out.println("");
 	}
 
-	public void addLinks(){
+	public void addLinks() throws IOException {
 
 		//add a directly connected link
 		//this will also request that nodes neighbors
@@ -137,7 +138,7 @@ public class UpdateSimulation {
 		System.out.println("");
 	}
 
-	public void modifyNode(){
+	public void modifyNode() throws IOException {
 
 		//receive modify node update
 		ArrayList<NeighborAndCostStrings> neighbors2 = new ArrayList<NeighborAndCostStrings>();
@@ -153,7 +154,7 @@ public class UpdateSimulation {
 		System.out.println("");
 	}
 
-	public void modifyLink(){
+	public void modifyLink() throws IOException {
 		//modify Link 
 		LinkObj linkObj4 = new LinkObj("B", 24);
 		process.modifyLink(linkObj4);
@@ -163,7 +164,7 @@ public class UpdateSimulation {
 		System.out.println("");
 	}	
 
-	public void removeLink(){
+	public void removeLink() throws IOException {
 
 		//receive a remove link
 		LinkObj linkObj5 = new LinkObj("B", 90);
@@ -188,7 +189,7 @@ public class UpdateSimulation {
 	}
 
 
-	public void addClient(){
+	public void addClient() throws IOException {
 		System.out.println("-Add client-");
 
 		//receive a add client 
@@ -211,7 +212,7 @@ public class UpdateSimulation {
 		System.out.println("Does fib have client1 prefix: " + fib.doesHashMapContainPrefix(1, "client2"));
 	}
 
-	public void addPrefixesToClient(){
+	public void addPrefixesToClient() throws IOException {
 		System.out.println("\n-Add prefixes to client-");
 		//receive a prefix from client
 		PrefixObj prefixObj3 = new PrefixObj("client1Prefix1", "clients1234", "client1", true);
@@ -240,7 +241,7 @@ public class UpdateSimulation {
 
 	}
 
-	public void removeClient(){
+	public void removeClient() throws IOException {
 
 		System.out.println("\n-Remove client-");
 		//receive a remove client
@@ -253,7 +254,7 @@ public class UpdateSimulation {
 		System.out.println("Does fib have client1Prefix3 prefix: " + fib.doesHashMapContainPrefix(1, "client1Prefix3"));
 	}
 
-	public void prefixUpdate(){
+	public void prefixUpdate() throws IOException {
 
 		System.out.println("\n-prefixUpdate-");
 
@@ -283,7 +284,7 @@ public class UpdateSimulation {
 	 * removing a node does not require an update be sent
 	 */
 
-	public void intrestPacket(){
+	public void intrestPacket() throws IOException {
 		System.out.println("-IntrestPacket-");
 		//forward interest packet
 		System.out.println("does bloom filter contain prefix5B/video: " + fib.doesBloomFilterConteinPrefix(2, "prefix5B/video"));
@@ -295,7 +296,7 @@ public class UpdateSimulation {
 
 	}
 
-	public void intrestPacketNoPrefix(){
+	public void intrestPacketNoPrefix() throws IOException {
 		System.out.println("-IntrestPacketNoPrefix-");
 		//forward interest packet with no prefix
 		IntrestObj intrestObj1 = new IntrestObj("noPrefix", "D", 1234);
@@ -306,7 +307,7 @@ public class UpdateSimulation {
 
 	}
 
-	public void intrestPacketPITentry(){
+	public void intrestPacketPITentry() throws IOException {
 		System.out.println("-IntrestPacketPITEntry-");
 		//receive interest packet with pit entry already in pit table
 		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video", "D", 1234);
@@ -317,7 +318,7 @@ public class UpdateSimulation {
 
 	}
 
-	public void intrestLongPrefix(){
+	public void intrestLongPrefix() throws IOException {
 		System.out.println("-IntrestPacketPrefix-");
 		//longer prefix being looked for, should match a smaller prefix in fib
 		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video/one", "D", 1234);

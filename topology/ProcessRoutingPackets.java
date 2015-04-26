@@ -1,5 +1,6 @@
 package topology;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import packetObjects.DataObj;
@@ -35,7 +36,7 @@ public class ProcessRoutingPackets {
 
 	}
 
-	public void processIntrest(IntrestObj intrestObj){
+	public void processIntrest(IntrestObj intrestObj) throws IOException {
 		//check the cs
 		//		if( check cs == true ){
 		//			intrestObj.getContentName() need received from node

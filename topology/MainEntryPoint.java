@@ -14,7 +14,7 @@ public class MainEntryPoint implements Runnable{
 	long msgIDKeepMsgTime;
 	int fibSleepTime;
 
-	PacketQueue2 packetQueue2;
+	public PacketQueue2 packetQueue2;
 	NodeRepository nodeRepo;
 	PIT pit;
 	DirectlyConnectedNodes directlyConnectedNodes;
@@ -23,6 +23,7 @@ public class MainEntryPoint implements Runnable{
 	Scanner scanner; 
 
 	public MainEntryPoint(String thisMachinesName, int pitSleepTime, long pitKeepMsgTime, int msgIDSleepTime, long msgIDKeepMsgTime, int fibSleepTime) {
+		System.out.println("MainEntryPoint constructor called...");
 		this.thisMachinesName = thisMachinesName;
 		this.pitSleepTime = pitSleepTime;
 		this.pitKeepMsgTime = pitKeepMsgTime;
@@ -37,7 +38,7 @@ public class MainEntryPoint implements Runnable{
 		directlyConnectedNodes = new DirectlyConnectedNodes();
 		updateMsgsSeen = new UpdateMsgsSeen();
 		fib = new FIB(nodeRepo, pit, directlyConnectedNodes);
-		scanner = new Scanner(System.in);
+		// scanner = new Scanner(System.in);
 	}
 
 	@Override
@@ -90,63 +91,7 @@ public class MainEntryPoint implements Runnable{
 		removeFibEntries.start();
 
 
-		boolean alive = true;
-		String action = "";
-		while(alive == true){
 
-			//add functions here to get node repo 
-			//Fib data
-			//pit data
-			//directly connected clients data
-			//directly connected routers data
-			//update msg data
-			action = scanner.next();
-
-			switch(action){
-			case "node" :
-				System.out.println("-printing nodes-");
-				printNodeRepo();
-				break;
-
-			case "nd" :
-				//scanner
-				action = scanner.next();
-				printNodeDetails(action);
-				break;
-
-			case "fib" :
-				printFIB();
-				break;
-
-			case "pit" :
-				printPIT();
-				break;
-
-			case "drr" :
-				printDirectlyConnectedRouters();
-				break;
-
-			case "drc" :
-				printDirectlyConnectedClietns();
-				break;
-
-			case "msgIDs" :
-				printMsgIDsSeen();
-				break;
-
-			case "kill" :
-				killThreads();
-				alive = false;
-				System.out.println("killing program");
-				break;
-
-			default :
-				System.out.println("default hit");
-				break;
-			}
-
-		}
-		System.out.println("program terminating");
 
 	}
 

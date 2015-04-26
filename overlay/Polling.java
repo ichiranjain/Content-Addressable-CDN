@@ -28,7 +28,7 @@ public class Polling extends Thread {
 					for (String neighbor : Peer.neighbors.keySet()) {
 						pollLatency.put(Peer.getIP(neighbor),
 								-1 * System.currentTimeMillis());
-						Peer.sendMessage(neighbor, m);
+						Peer.sendMessageX(neighbor, m);
 					}					
 				}
 			} catch (InterruptedException e) {

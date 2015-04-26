@@ -23,7 +23,7 @@ public class Send extends Thread {
 	public void run() {
 		while (true) {
 			try {
-				String line = Peer.s.nextLine();
+				String line = Peer.scanner.nextLine();
 				String[] parts = line.split("=");
 				if (Peer.neighbors.containsKey(parts[0])) {
 					System.out.println("Sending msg to " + parts[0] + "...");

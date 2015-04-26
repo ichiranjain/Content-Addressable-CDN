@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 
+@SuppressWarnings("serial")
 public class JoinPacket implements Serializable {
 	// map of neighboring sockets
 	HashSet<String> neighbors;

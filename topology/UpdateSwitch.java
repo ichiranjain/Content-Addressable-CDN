@@ -1,5 +1,7 @@
 package topology;
 
+import java.io.IOException;
+
 import packetObjects.GenericPacketObj;
 import packetObjects.LinkObj;
 import packetObjects.ModifyNodeObj;
@@ -62,23 +64,40 @@ public class UpdateSwitch implements Runnable{
 
 		case "addLink" :
 			LinkObj addLinkObj = (LinkObj) genericPacketObj.getObj();
-			process.addLink(addLinkObj);
+			try {
+				process.addLink(addLinkObj);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			break;
 
 		case "removeLink" :
 			LinkObj removeLinkObj = (LinkObj) genericPacketObj.getObj();
-			process.removeLink(removeLinkObj);
+			try {
+				process.removeLink(removeLinkObj);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			break;
 
 		case "modifyLink" :
 			LinkObj modifyLinkObj = (LinkObj) genericPacketObj.getObj();
-			process.modifyLink(modifyLinkObj);
+			try {
+				process.modifyLink(modifyLinkObj);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			break;
 
 		case "modify" : 
 			ModifyNodeObj modifyNodeObj = (ModifyNodeObj) genericPacketObj.getObj();
 			if(doesMsgIDExist(modifyNodeObj.getMsgID()) == false){				
-				process.modifyNode(modifyNodeObj, genericPacketObj.getRecievedFromNode());
+				try {
+					process.modifyNode(modifyNodeObj,
+							genericPacketObj.getRecievedFromNode());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 			break;
 
@@ -87,12 +106,18 @@ public class UpdateSwitch implements Runnable{
 			PrefixObj prefixObj = (PrefixObj) genericPacketObj.getObj();
 			if(doesMsgIDExist(prefixObj.getMsgID()) == false){				
 				boolean addRemovePrefix = prefixObj.getAddRemoveFlag();
-				if(addRemovePrefix == true){
-					//add the packet
-					process.addPrefix(prefixObj, genericPacketObj.getRecievedFromNode());
-				}else{
-					//remove the packet
-					process.removePrefix(prefixObj, genericPacketObj.getRecievedFromNode());
+				try {
+					if (addRemovePrefix == true) {
+						// add the packet
+						process.addPrefix(prefixObj,
+								genericPacketObj.getRecievedFromNode());
+					} else {
+						// remove the packet
+						process.removePrefix(prefixObj,
+								genericPacketObj.getRecievedFromNode());
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 			break;
@@ -101,47 +126,75 @@ public class UpdateSwitch implements Runnable{
 			PrefixListObj prefixListObj = (PrefixListObj) genericPacketObj.getObj();
 			if(doesMsgIDExist(prefixListObj.getMsgID()) == false){				
 				boolean addRemovePrefixList = prefixListObj.getAddRemoveFlag();
-				if(addRemovePrefixList == true){
-					//add the packet
-					process.addPrefixList(prefixListObj, genericPacketObj.getRecievedFromNode());
-				}else{
-					//remove the packet
-					process.removePrefixList(prefixListObj, genericPacketObj.getRecievedFromNode());
+				try {
+					if (addRemovePrefixList == true) {
+						// add the packet
+						process.addPrefixList(prefixListObj,
+								genericPacketObj.getRecievedFromNode());
+					} else {
+						// remove the packet
+						process.removePrefixList(prefixListObj,
+								genericPacketObj.getRecievedFromNode());
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 			break;
 
 		case "addClient" : 
 			LinkObj addClienLlinkObj = (LinkObj) genericPacketObj.getObj();
-			process.addClientLink(addClienLlinkObj);
+			try {
+				process.addClientLink(addClienLlinkObj);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			break;
 
 		case "removeClient" : 
 			LinkObj removeClientLinkObj = (LinkObj) genericPacketObj.getObj();
-			process.removeClientLink(removeClientLinkObj);
+			try {
+				process.removeClientLink(removeClientLinkObj);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			break;
 
 		case "clientPrefix" : 
 			PrefixObj clientPrefixObj = (PrefixObj) genericPacketObj.getObj();
 			boolean addRemoveClientPrefix = clientPrefixObj.getAddRemoveFlag();
-			if(addRemoveClientPrefix == true){
-				//add the packet
-				process.addCLientPrefix(clientPrefixObj, genericPacketObj.getRecievedFromNode());
-			}else{
-				//remove the packet
-				process.removeClientPrefix(clientPrefixObj, genericPacketObj.getRecievedFromNode());
+			try {
+				if (addRemoveClientPrefix == true) {
+					// add the packet
+					process.addCLientPrefix(clientPrefixObj,
+							genericPacketObj.getRecievedFromNode());
+				} else {
+					// remove the packet
+					process.removeClientPrefix(clientPrefixObj,
+							genericPacketObj.getRecievedFromNode());
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			break;
 
 		case "clientPrefixList" : 
 			PrefixListObj clientPrefixListObj = (PrefixListObj) genericPacketObj.getObj();
 			boolean addRemoveClientPrefixList = clientPrefixListObj.getAddRemoveFlag();
-			if(addRemoveClientPrefixList == true){
-				//add the packet
-				process.addClientPrefixList(clientPrefixListObj, genericPacketObj.getRecievedFromNode());
-			}else{
-				//remove the packet
-				process.removeClientPrefixList(clientPrefixListObj, genericPacketObj.getRecievedFromNode());
+			try {
+				if (addRemoveClientPrefixList == true) {
+					// add the packet
+					process.addClientPrefixList(clientPrefixListObj,
+							genericPacketObj.getRecievedFromNode());
+				} else {
+					// remove the packet
+					process.removeClientPrefixList(clientPrefixListObj,
+							genericPacketObj.getRecievedFromNode());
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			break;
 
