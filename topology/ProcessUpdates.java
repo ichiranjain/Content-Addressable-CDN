@@ -41,8 +41,14 @@ public class ProcessUpdates {
 			//add new node name to prefix hash map
 			fib.addPrefixToFIB(linkObj.getNeighboringNode(), linkObj.getNeighboringNode());
 
+			System.out.println("AddLink::current neighbors: "
+					+ nodeRepo.HMgetNode(nodeRepo.getThisMachinesName())
+							.getNeighbors());
 			//add the new node as a neighbor, the add neighbor does nothing if it already exists
 			nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).addNeighbor(linkObj.getNeighboringNode(), linkObj.getCost());
+			System.out.println("AddLink::current neighbors: "
+					+ nodeRepo.HMgetNode(nodeRepo.getThisMachinesName())
+							.getNeighbors());
 
 			//add the link to my directly connected list, if it already exists the method does nothing
 			directlyConnectedNodes.addDirectlyConnectedRouter(linkObj.getNeighboringNode());
@@ -56,9 +62,14 @@ public class ProcessUpdates {
 			//send the packet asking for its neighbors
 			requestNeighbors(linkObj.getNeighboringNode());
 		}else{
-
+			System.out.println("AddLink::current neighbors: "
+					+ nodeRepo.HMgetNode(nodeRepo.getThisMachinesName())
+							.getNeighbors());
 			//the node exists already, just add as a neighbor, if the neighbor already exists, the method will do nothing
 			nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).addNeighbor(linkObj.getNeighboringNode(), linkObj.getCost());
+			System.out.println("AddLink::current neighbors: "
+					+ nodeRepo.HMgetNode(nodeRepo.getThisMachinesName())
+							.getNeighbors());
 
 			//add the link to my directly connected list, if it already exists the method does nothing
 			directlyConnectedNodes.addDirectlyConnectedRouter(linkObj.getNeighboringNode());
@@ -319,9 +330,9 @@ public class ProcessUpdates {
 		//if it was seen ... drop packet
 		if(upDatesSeen.doesMsgIDExist(modifyNodeObj.getMsgID()) == false){
 			upDatesSeen.addMsgID(modifyNodeObj.getMsgID(), System.nanoTime());
-
+			System.out.println("firstIF*******************************");
 			if(nodeRepo.HMdoesNodeExist(modifyNodeObj.getName()) == true){
-
+				System.out.println("modifyNode**********************");
 				ArrayList<String> neighborsToRequest = new ArrayList<String>();
 				ArrayList<String> neighbors = modifyNodeObj.getNeighborsNames();
 				for(int i = 0; i < neighbors.size(); i++){
@@ -342,8 +353,12 @@ public class ProcessUpdates {
 				}
 
 				//update the neighbors list for the given node
+				System.out.println("ModifyNode::current neighbors: "
+						+ nodeRepo.HMgetNode(nodeRepo.getThisMachinesName())
+								.getNeighbors());
 				nodeRepo.HMsetNeighborList(modifyNodeObj.getName(), modifyNodeObj.getNeighbors());
-
+				System.out.println("ModifyNode::new neighbors: "
+						+ modifyNodeObj.getNeighbors());
 				//run Dijkstra
 				dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
 
@@ -368,6 +383,9 @@ public class ProcessUpdates {
 			sendPacket.createModifyNodePacket(modifyNodeObj);
 			upDatesSeen.addMsgID(modifyNodeObj.getMsgID(), System.nanoTime());
 			sendPacket.forwardUpdate(modifyNodeObj.getOriginalPacket(), doNotSendToNode);
+		}
+ else {
+			System.out.println("WOLOLOLOLOLOOOOOOOOOOOOOOOOOO!!!");
 		}
 
 	}
@@ -453,36 +471,40 @@ public class ProcessUpdates {
 
 			ArrayList<String> neighborsToRequest = new ArrayList<String>();
 			ArrayList<String> neighbors = modifyNodeObj.getNeighborsNames();
-			ArrayList<NeighborAndCostStrings> neighborz = modifyNodeObj.getNeighbors();
+			//ArrayList<NeighborAndCostStrings> neighborz = modifyNodeObj.getNeighbors();
 			ArrayList<Node> graph = nodeRepo.getGraphList();
 			for (Node g : graph) {
 				System.out.println("NODES: " + g.getName());
 			}
-			for(int i = 0; i < neighborz.size(); i++){
+			for(int i = 0; i < neighbors.size(); i++){
 
 				System.out.println("PROCCESS NEIGHBORS REQUEST: "
 						+ neighbors.get(i));
 				//check if the node exist for the neighbor
-				if(nodeRepo.HMdoesNodeExist(neighborz.get(i).getNeighborName()) == false){
+				if(nodeRepo.HMdoesNodeExist(neighbors.get(i)) == false){
 					System.out.println("DOES NEIGHBOR EXIST: FALSE: "
-							+ neighborz.get(i).getNeighborName());
+							+ neighbors.get(i));
 					//if the neighboring node is not in the graph
 					//add the neighbor to the graph
-					addNode(new AddNodeObj(neighborz.get(i).getNeighborName()));
-					fib.addPrefixToFIB(neighborz.get(i).getNeighborName(), neighborz.get(i).getNeighborName());
+					addNode(new AddNodeObj(neighbors.get(i)));
+					fib.addPrefixToFIB(neighbors.get(i), neighbors.get(i));
 
 					//request the newly added nodes neighbors
 					// requestNeighbors(neighbors.get(i));
 
-					nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).addNeighbor(neighborz.get(i).getNeighborName(), neighborz.get(i).getCost());
+					//nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).addNeighbor(neighborz.get(i).getNeighborName(), neighborz.get(i).getCost());
 
 					neighborsToRequest.add(neighbors.get(i));
 				}
 			}
 
-			//update the neighbors list for the given node
-			//nodeRepo.HMsetNeighborList(modifyNodeObj.getName(), modifyNodeObj.getNeighbors());
+			
+			System.out.println("Neighbors Reponse::current neighbors: " + nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).getNeighbors());
 
+			//update the neighbors list for the given node
+			nodeRepo.HMsetNeighborList(modifyNodeObj.getName(), modifyNodeObj.getNeighbors());
+
+			System.out.println("Neighbors Response::new neighbors: " + modifyNodeObj.getNeighbors());
 			//run Dijkstra
 			dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
 
