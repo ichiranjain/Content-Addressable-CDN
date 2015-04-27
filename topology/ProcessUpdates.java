@@ -319,6 +319,7 @@ public class ProcessUpdates {
 
 			if(nodeRepo.HMdoesNodeExist(modifyNodeObj.getName()) == true){
 
+				ArrayList<String> neighborsToRequest = new ArrayList<String>();
 				ArrayList<String> neighbors = modifyNodeObj.getNeighborsNames();
 				for(int i = 0; i < neighbors.size(); i++){
 
@@ -329,8 +330,11 @@ public class ProcessUpdates {
 						//add the neighbor to the graph
 						addNode(new AddNodeObj(neighbors.get(i)));
 
+						fib.addPrefixToFIB(neighbors.get(i), neighbors.get(i));
+
 						//request the newly added nodes neighbors
-						requestNeighbors(neighbors.get(i));
+						// requestNeighbors(neighbors.get(i));
+						neighborsToRequest.add(neighbors.get(i));
 					}
 				}
 
@@ -342,6 +346,12 @@ public class ProcessUpdates {
 
 				//sort FIB entries
 				fib.findBestCostAdvertisers();
+
+				if (neighborsToRequest.size() > 0) {
+					for (String request : neighborsToRequest) {
+						requestNeighbors(request);
+					}
+				}
 
 			}
 
@@ -437,18 +447,28 @@ public class ProcessUpdates {
 
 		if(nodeRepo.HMdoesNodeExist(modifyNodeObj.getName()) == true){
 
+			ArrayList<String> neighborsToRequest = new ArrayList<String>();
 			ArrayList<String> neighbors = modifyNodeObj.getNeighborsNames();
+			ArrayList<Node> graph = nodeRepo.getGraphList();
+			for (Node g : graph) {
+				System.out.println("NODES: " + g.getName());
+			}
 			for(int i = 0; i < neighbors.size(); i++){
 
+				System.out.println("PROCCESS NEIGHBORS REQUEST: "
+						+ neighbors.get(i));
 				//check if the node exist for the neighbor
 				if(nodeRepo.HMdoesNodeExist(neighbors.get(i)) == false){
-
+					System.out.println("DOES NEIGHBOR EXIST: FALSE: "
+							+ neighbors.get(i));
 					//if the neighboring node is not in the graph
 					//add the neighbor to the graph
 					addNode(new AddNodeObj(neighbors.get(i)));
+					fib.addPrefixToFIB(neighbors.get(i), neighbors.get(i));
 
 					//request the newly added nodes neighbors
-					requestNeighbors(neighbors.get(i));
+					// requestNeighbors(neighbors.get(i));
+					neighborsToRequest.add(neighbors.get(i));
 				}
 			}
 
@@ -458,9 +478,15 @@ public class ProcessUpdates {
 			//run Dijkstra
 			dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
 
-			//sort FIB entries
+			// sort FIB entries
 			fib.findBestCostAdvertisers();
 
+			System.out.println("SIZE OF LIST: " + neighborsToRequest.size());
+			if (neighborsToRequest.size() > 0) {
+				for (String request : neighborsToRequest) {
+					requestNeighbors(request);
+				}
+			}
 		}
 		//}
 	}

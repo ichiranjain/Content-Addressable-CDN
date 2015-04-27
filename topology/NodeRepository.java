@@ -15,7 +15,7 @@ public class NodeRepository {
 	}
 
 	public boolean HMdoesNodeExist(String nodeName){
-		if(graph.containsKey(nodeName)){
+		if (graph.containsKey(nodeName) == true) {
 			return true;
 		}else{
 			return false;

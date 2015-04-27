@@ -33,8 +33,10 @@ public class Peer { // implements PeerInterface
 	static String ID;
 	// serverSocket to listen on
 	static ServerSocket serverSocket;
-	// map of neighboring sockets
+	// map of neighboring cacheServers
 	static HashMap<String, SocketContainer> neighbors;
+	// map of neighboring clients and servers
+	static HashMap<String, SocketContainer> clientServers;
 	// map of vacancies with current and neighboring nodes
 	static HashMap<String, Integer> vacancies;
 	// set of all nodes in the connected network
@@ -229,8 +231,8 @@ public class Peer { // implements PeerInterface
 		// try {
 		//
 		// Thread.sleep(1500);
-		// // System.out.println("Neighbors: " + neighbors);
-		// // System.out.println("allNodes: " + allNodes);
+		// System.out.println("Neighbors: " + neighbors);
+		// System.out.println("allNodes: " + allNodes);
 		//
 		// } catch (Exception e) {
 		// e.printStackTrace();
@@ -360,7 +362,7 @@ public class Peer { // implements PeerInterface
 		// updateNeighbors(connectedTo, m.packet, 50);
 
 		// INFORM ROUTING LAYER ABOUT NEW NEIGHBOR
-		System.out.println("sent to routing:: "
+		System.out.println(System.currentTimeMillis() + " sent to routing:: "
 				+ generateID(peerSocket.getRemoteSocketAddress().toString())
 				+ " cost::" + (joinStartFinish - joinStartTime));
 		routing.addLink(generateID(peerSocket.getRemoteSocketAddress()
@@ -412,6 +414,8 @@ public class Peer { // implements PeerInterface
 	@SuppressWarnings("rawtypes")
 	public static boolean sendMessageX(String IP, Message m) {
 		try {
+			System.out.println("SendMessageX::" + IP + " looking in "
+					+ neighbors.keySet());
 			SocketContainer sc = neighbors.get(IP);
 			sc.oos.writeObject(m);
 		} catch (IOException e) {

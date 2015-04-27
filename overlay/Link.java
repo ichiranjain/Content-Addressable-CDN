@@ -32,7 +32,8 @@ public class Link extends Thread {
 		while (running) {
 			try {
 				m = (Message) ois.readObject();
-				System.out.println("Message received from: " + connectedTo);
+				System.out.println(System.currentTimeMillis()
+						+ "Message received from: " + connectedTo);
 				System.out.println("Message type: " + m.type);
 				System.out.println("Request no: " + m.requestNo);
 				 attempt = 0;
@@ -145,6 +146,10 @@ public class Link extends Thread {
 		// routing and other packets
 		else if (m.type == 0 /* or anything else */) {
 
+		} // routing and other packets
+		else if (m.type == 402 /* or anything else */) {
+			Peer.clientServers.get(connectedTo).oos
+					.writeObject(new Message(403));
 		}
 		// new node added notification
 		else if (m.type == 102) {
