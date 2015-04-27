@@ -54,7 +54,7 @@ public class ProcessUpdates {
 			fib.findBestCostAdvertisers();
 
 			//send the packet asking for its neighbors
-			requestNeighbors(linkObj.getNeighboringNode());
+			//(linkObj.getNeighboringNode());
 		}else{
 
 			//the node exists already, just add as a neighbor, if the neighbor already exists, the method will do nothing
@@ -352,7 +352,7 @@ public class ProcessUpdates {
 
 				if (neighborsToRequest.size() > 0) {
 					for (String request : neighborsToRequest) {
-						requestNeighbors(request);
+						//requestNeighbors(request);
 					}
 				}
 
