@@ -30,8 +30,8 @@ public class GeneralQueueHandler implements Runnable{
 			//because this is a blocking queue, this will block until 
 			//something is placed in the queue
 			PacketObj packetObj = packetQueue2.removeFromGeneralQueue();
-			System.out.println("packet picked from general queue:: "
-					+ packetObj.getPacket());
+			//System.out.println("packet picked from general queue:: "
+			//		+ packetObj.getPacket());
 			if(packetObj != null){
 
 

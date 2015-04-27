@@ -60,7 +60,7 @@ public class UpdateSwitch implements Runnable{
 		//		PrefixListObj prefixListObj;
 		//		PrefixObj prefixObj;
 
-		System.out.println("inside update switch::action::" + action);
+		//System.out.println("inside update switch::action::" + action);
 
 		switch(action){
 
@@ -92,6 +92,7 @@ public class UpdateSwitch implements Runnable{
 			break;
 
 		case "modify" : 
+			System.out.println("--MODIFY MSG RECIEVED IN UPDATE SWITCH--");
 			ModifyNodeObj modifyNodeObj = (ModifyNodeObj) genericPacketObj.getObj();
 			if(doesMsgIDExist(modifyNodeObj.getMsgID()) == false){				
 				try {
@@ -100,6 +101,8 @@ public class UpdateSwitch implements Runnable{
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+			}else{
+				System.out.println("--MODIFY NODE THE NODE DOES NOT EXISTS YET--");
 			}
 			break;
 
@@ -236,7 +239,7 @@ public class UpdateSwitch implements Runnable{
 			return true;
 		}else{
 			//this is a new msg ... so add it to the msgs seen 
-			msgsSeen.addMsgID(msgID, System.nanoTime());
+			//msgsSeen.addMsgID(msgID, System.nanoTime());
 			return false;
 		}
 	}

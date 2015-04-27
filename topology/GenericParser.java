@@ -33,7 +33,7 @@ public class GenericParser {
 		JsonElement jsonTypeElement = jsonObject.get("type");
 		String type = jsonTypeElement.getAsString();
 
-		System.out.println("Inside parsePacket::type::" + type);
+		//System.out.println("Inside parsePacket::type::" + type);
 
 		switch (type){
 
@@ -179,7 +179,7 @@ public class GenericParser {
 	public void parseRoutePacket(JsonObject jsonObject, PacketObj packetObj){
 		JsonElement jsonTypeElement = jsonObject.get("action");
 		String action = jsonTypeElement.getAsString();
-		System.out.println("Routing action: " + action);
+		System.out.println("Routing action::" + action);
 		//GenericPacketObj genericPacketObj;
 		switch(action){
 

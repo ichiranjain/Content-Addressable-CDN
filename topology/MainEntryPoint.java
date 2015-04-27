@@ -23,7 +23,7 @@ public class MainEntryPoint implements Runnable{
 	Scanner scanner; 
 
 	public MainEntryPoint(String thisMachinesName, int pitSleepTime, long pitKeepMsgTime, int msgIDSleepTime, long msgIDKeepMsgTime, int fibSleepTime) {
-		System.out.println("MainEntryPoint constructor called...");
+		//System.out.println("MainEntryPoint constructor called...");
 		this.thisMachinesName = thisMachinesName;
 		this.pitSleepTime = pitSleepTime;
 		this.pitKeepMsgTime = pitKeepMsgTime;
