@@ -75,7 +75,7 @@ public class ProcessUpdates {
 				nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).getNeighbors(), 
 				(nodeRepo.getThisMachinesName() + System.nanoTime()) );
 		sendPacket.createModifyNodePacket(modifyNodeObj);
-
+		upDatesSeen.addMsgID(modifyNodeObj.getMsgID(), System.nanoTime());
 		//forward to all routers
 		sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket());
 		//sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
@@ -102,7 +102,7 @@ public class ProcessUpdates {
 				nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).getNeighbors(), 
 				(nodeRepo.getThisMachinesName() + System.nanoTime()) );
 		sendPacket.createModifyNodePacket(modifyNodeObj);
-
+		upDatesSeen.addMsgID(modifyNodeObj.getMsgID(), System.nanoTime());
 		//forward to all routers
 		sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket());
 		//sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
@@ -125,7 +125,7 @@ public class ProcessUpdates {
 					(nodeRepo.getThisMachinesName() + System.nanoTime()), 
 					nodeRepo.getThisMachinesName(), true);
 			sendPacket.createPrefixPacket(prefixObj);
-
+			upDatesSeen.addMsgID(prefixObj.getMsgID(), System.nanoTime());
 			//sendPacket
 			sendPacket.forwardToAllRouters(prefixObj.getOriginalPacket());
 			//sendPacket.forwardToAllRouters(prefixObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
@@ -153,7 +153,7 @@ public class ProcessUpdates {
 					(nodeRepo.getThisMachinesName() + System.nanoTime()) );
 
 			sendPacket.createPrefixListPacket(prefixListObj);
-
+			upDatesSeen.addMsgID(prefixListObj.getMsgID(), System.nanoTime());
 			//sendPacket
 			sendPacket.forwardToAllRouters(prefixListObj.getOriginalPacket());
 			//sendPacket.forwardToAllRouters(prefixListObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
@@ -183,7 +183,7 @@ public class ProcessUpdates {
 					(nodeRepo.getThisMachinesName() + System.nanoTime()));
 
 			sendPacket.createModifyNodePacket(modifyNodeObj);
-
+			upDatesSeen.addMsgID(modifyNodeObj.getMsgID(), System.nanoTime());
 			//sendPacket
 			sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket());
 			//sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
@@ -206,9 +206,9 @@ public class ProcessUpdates {
 
 		//forward the prefix update using this router name, because it was a client prefix 
 		prefixObj.setAdvertiser(nodeRepo.getThisMachinesName());
-
 		//send the packet update to the rest of the graph 
 		sendPacket.createPrefixPacket(prefixObj);
+		upDatesSeen.addMsgID(prefixObj.getMsgID(), System.nanoTime());
 		sendPacket.forwardUpdate(prefixObj.getOriginalPacket(), doNotSendToNode);
 	}
 
@@ -234,6 +234,7 @@ public class ProcessUpdates {
 
 		//send the packet update to the rest of the graph 
 		sendPacket.createPrefixListPacket(prefixListObj);
+		upDatesSeen.addMsgID(prefixListObj.getMsgID(), System.nanoTime());
 		sendPacket.forwardUpdate(prefixListObj.getOriginalPacket(), doNotSendToNode);
 	}
 
@@ -252,6 +253,7 @@ public class ProcessUpdates {
 
 		//send the packet update to the rest of the graph 
 		sendPacket.createPrefixPacket(prefixObj);
+		upDatesSeen.addMsgID(prefixObj.getMsgID(), System.nanoTime());
 		sendPacket.forwardUpdate(prefixObj.getOriginalPacket(), doNotSendToNode);
 
 	}
@@ -278,6 +280,7 @@ public class ProcessUpdates {
 
 		//send the packet update to the rest of the graph 
 		sendPacket.createPrefixListPacket(prefixListObj);
+		upDatesSeen.addMsgID(prefixListObj.getMsgID(), System.nanoTime());
 		sendPacket.forwardUpdate(prefixListObj.getOriginalPacket(), doNotSendToNode);
 
 	}
@@ -363,6 +366,7 @@ public class ProcessUpdates {
 			}
 			//send updates or forward updates
 			sendPacket.createModifyNodePacket(modifyNodeObj);
+			upDatesSeen.addMsgID(modifyNodeObj.getMsgID(), System.nanoTime());
 			sendPacket.forwardUpdate(modifyNodeObj.getOriginalPacket(), doNotSendToNode);
 		}
 
@@ -547,6 +551,7 @@ public class ProcessUpdates {
 
 			//forward the pack to the rest of the graph
 			sendPacket.createPrefixPacket(prefixObj);
+			upDatesSeen.addMsgID(prefixObj.getMsgID(), System.nanoTime());
 			sendPacket.forwardUpdate(prefixObj.getOriginalPacket(), doNotSendToNode);
 		}
 
@@ -569,6 +574,7 @@ public class ProcessUpdates {
 
 			//forward the prefix update
 			sendPacket.createPrefixListPacket(prefixListObj);
+			upDatesSeen.addMsgID(prefixListObj.getMsgID(), System.nanoTime());
 			sendPacket.forwardUpdate(prefixListObj.getOriginalPacket(), doNotSendToNode);
 		}
 	}
@@ -587,6 +593,7 @@ public class ProcessUpdates {
 
 			//forward the update to the rest of the graph
 			sendPacket.createPrefixPacket(prefixObj);
+			upDatesSeen.addMsgID(prefixObj.getMsgID(), System.nanoTime());
 			sendPacket.forwardUpdate(prefixObj.getOriginalPacket(), doNotSendToNode);
 
 		}
@@ -608,6 +615,7 @@ public class ProcessUpdates {
 
 			//forward the update to the rest of the graph
 			sendPacket.createPrefixListPacket(prefixListObj);
+			upDatesSeen.addMsgID(prefixListObj.getMsgID(), System.nanoTime());
 			sendPacket.forwardUpdate(prefixListObj.getOriginalPacket(), doNotSendToNode);
 
 		}

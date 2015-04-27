@@ -68,7 +68,7 @@ public class RouterTest implements Runnable{
 		//set my best cost
 		nodeRepo.HMgetNode(thisMachinesName).setBestCost(0);
 		//set my next hop to my self
-		nodeRepo.HMgetNode(thisMachinesName).setOriginNextHop("A");
+		nodeRepo.HMgetNode(thisMachinesName).setOriginNextHop(thisMachinesName);
 		//add my name to the FIB table 
 		fib.addPrefixToFIB(thisMachinesName, thisMachinesName);
 		//add my self as a directly connected client
@@ -114,12 +114,8 @@ public class RouterTest implements Runnable{
 		 * act like the over lay is sending the router a msg
 		 */
 
-		addLink("B", 5);
-		addLink("D", 7);
-
-		//receive request for neighbors
-		requestNeighbors("A", "B", 1234, "B");
-		//receive neighbor response
+		addLink("B", 60000);
+		//addLink("D", 7);
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -127,99 +123,122 @@ public class RouterTest implements Runnable{
 			e.printStackTrace();
 		}
 
-		byte flag = 0;
+		//		//receive request for neighbors
+		//		requestNeighbors("A", "B", 1234, "B");
+		//
+		//		try {
+		//			Thread.sleep(1000);
+		//		} catch (InterruptedException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
+
 		ArrayList<NeighborAndCostStrings> neighbors = new ArrayList<NeighborAndCostStrings>();
-		neighbors.add(new NeighborAndCostStrings("A", 5));
-		neighbors.add(new NeighborAndCostStrings("C", 4));
+		neighbors.add(new NeighborAndCostStrings("A", 233));
 
-		neighborsResponse("B", neighbors, "B", "A", flag, flag);
-		//receive prefix response
-
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		ArrayList<String> prefixList = new ArrayList<String>();
-		prefixList.add("B");
-		prefixList.add("Bprefix1");
-
-		prefixResponse(prefixList, "B", true, "B", "A", flag, flag);
-
-		//add client
-		addClient("client1A", 0, "client1A");
-		//add client
-		addClient("client2A", 0, "client2A");
-		//add client prefix
-		addClient("client3A", 0, "client3A");
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//add client prefix List update
-		clientPrefix("client1Aprefix1", "client1A", true, "client1A");
-
-		prefixList = new ArrayList<String>();
-		prefixList.add("client2Aprefix1");
-		prefixList.add("client2Aprefix2");
-		prefixList.add("client2Aprefix3");
-		prefixList.add("client2Aprefix4");
-		clientPrefixList(prefixList, "client2A", true, "client2A");
-
-		//add prefix update 
-		prefix("Bprefix1", "B", true, "B");
-		//add prefixList update 
-
-		prefixList = new ArrayList<String>();
-		prefixList.add("Bprefix2");
-		prefixList.add("Bprefix3");
-		prefixList.add("Bprefix4");
-		prefixList(prefixList, "B", true, "B");
-
-		//remove client prefix
-		clientPrefix("client2Aprefix1", "client2A", false, "client2A");
-		//remove client prefixList
-		prefixList = new ArrayList<String>();
-		prefixList.add("client2Aprefix2");
-		prefixList.add("client2Aprefix3");
-		clientPrefixList(prefixList, "client2A", false, "client2A");
-
-		//remove prefix
-		prefix("Bprefix1", "B", false, "B");
-		//remove preifxList
-		prefixList = new ArrayList<String>();
-		prefixList.add("Bprefix2");
-		prefixList.add("Bprefix3");
-		prefixList(prefixList, "B", false, "B");
-
-		//modify node packet
-		neighbors = new ArrayList<NeighborAndCostStrings>();
-		neighbors.add(new NeighborAndCostStrings("A", 7));
-		neighbors.add(new NeighborAndCostStrings("C", 6));
-		modifyNode("D", neighbors, "D");
-
-		//modify link
-		modifyLink("B", 3);
-		//remove link
-		removeLink("D", 7);
-
-
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		modifyNode("B", neighbors, "B");
+		modifyNode("B", neighbors, "B");
+		//receive neighbor response
+		//		try {
+		//			Thread.sleep(1000);
+		//		} catch (InterruptedException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
+		//
+		//		byte flag = 0;
+		//		ArrayList<NeighborAndCostStrings> neighbors = new ArrayList<NeighborAndCostStrings>();
+		//		neighbors.add(new NeighborAndCostStrings("A", 5));
+		//		neighbors.add(new NeighborAndCostStrings("C", 4));
+		//
+		//		neighborsResponse("B", neighbors, "B", "A", flag, flag);
+		//		//receive prefix response
+		//
+		//
+		//		try {
+		//			Thread.sleep(1000);
+		//		} catch (InterruptedException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
+		//
+		//		ArrayList<String> prefixList = new ArrayList<String>();
+		//		prefixList.add("B");
+		//		prefixList.add("Bprefix1");
+		//
+		//		prefixResponse(prefixList, "B", true, "B", "A", flag, flag);
+		//
+		//		//add client
+		//		addClient("client1A", 0, "client1A");
+		//		//add client
+		//		addClient("client2A", 0, "client2A");
+		//		//add client prefix
+		//		addClient("client3A", 0, "client3A");
+		//
+		//		try {
+		//			Thread.sleep(1000);
+		//		} catch (InterruptedException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
+		//		//add client prefix List update
+		//		clientPrefix("client1Aprefix1", "client1A", true, "client1A");
+		//
+		//		prefixList = new ArrayList<String>();
+		//		prefixList.add("client2Aprefix1");
+		//		prefixList.add("client2Aprefix2");
+		//		prefixList.add("client2Aprefix3");
+		//		prefixList.add("client2Aprefix4");
+		//		clientPrefixList(prefixList, "client2A", true, "client2A");
+		//
+		//		//add prefix update 
+		//		prefix("Bprefix1", "B", true, "B");
+		//		//add prefixList update 
+		//
+		//		prefixList = new ArrayList<String>();
+		//		prefixList.add("Bprefix2");
+		//		prefixList.add("Bprefix3");
+		//		prefixList.add("Bprefix4");
+		//		prefixList(prefixList, "B", true, "B");
+		//
+		//		//remove client prefix
+		//		clientPrefix("client2Aprefix1", "client2A", false, "client2A");
+		//		//remove client prefixList
+		//		prefixList = new ArrayList<String>();
+		//		prefixList.add("client2Aprefix2");
+		//		prefixList.add("client2Aprefix3");
+		//		clientPrefixList(prefixList, "client2A", false, "client2A");
+		//
+		//		//remove prefix
+		//		prefix("Bprefix1", "B", false, "B");
+		//		//remove preifxList
+		//		prefixList = new ArrayList<String>();
+		//		prefixList.add("Bprefix2");
+		//		prefixList.add("Bprefix3");
+		//		prefixList(prefixList, "B", false, "B");
+		//
+		//		//modify node packet
+		//		neighbors = new ArrayList<NeighborAndCostStrings>();
+		//		neighbors.add(new NeighborAndCostStrings("A", 7));
+		//		neighbors.add(new NeighborAndCostStrings("C", 6));
+		//		modifyNode("D", neighbors, "D");
+		//
+		//		//modify link
+		//		modifyLink("B", 3);
+		//		//remove link
+		//		removeLink("D", 7);
+		//
+		//
+		//		try {
+		//			Thread.sleep(2000);
+		//		} catch (InterruptedException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
 
 		//Interest packet
 		//normal route
-		intrestPacket("Bprefix4", "", 1234, "client3A");
+		//intrestPacket("Bprefix4", "", 1234, "client3A");
 
 		//		try {
 		//			Thread.sleep(1000);
@@ -239,7 +258,7 @@ public class RouterTest implements Runnable{
 		//intrestPacket(contentName, originRouter, nonce, fromNode);
 
 		//Duplicate request so pit entry get another requester
-		intrestPacket("Bprefix4", "client1A", 5678, "A");
+		//intrestPacket("Bprefix4", "client1A", 5678, "A");
 
 
 		//data packet 

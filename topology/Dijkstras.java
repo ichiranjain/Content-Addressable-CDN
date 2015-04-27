@@ -129,6 +129,7 @@ public class Dijkstras {
 				graph.get(key).setBestCost(Integer.MAX_VALUE);
 				graph.get(key).setOriginNextHop("");
 				graph.remove(key);
+
 			}
 		}
 	}
