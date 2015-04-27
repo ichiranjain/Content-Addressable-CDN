@@ -54,7 +54,7 @@ public class ProcessUpdates {
 			fib.findBestCostAdvertisers();
 
 			//send the packet asking for its neighbors
-			//(linkObj.getNeighboringNode());
+			requestNeighbors(linkObj.getNeighboringNode());
 		}else{
 
 			//the node exists already, just add as a neighbor, if the neighbor already exists, the method will do nothing
@@ -352,7 +352,7 @@ public class ProcessUpdates {
 
 				if (neighborsToRequest.size() > 0) {
 					for (String request : neighborsToRequest) {
-						//requestNeighbors(request);
+						requestNeighbors(request);
 					}
 				}
 
@@ -453,31 +453,35 @@ public class ProcessUpdates {
 
 			ArrayList<String> neighborsToRequest = new ArrayList<String>();
 			ArrayList<String> neighbors = modifyNodeObj.getNeighborsNames();
+			ArrayList<NeighborAndCostStrings> neighborz = modifyNodeObj.getNeighbors();
 			ArrayList<Node> graph = nodeRepo.getGraphList();
 			for (Node g : graph) {
 				System.out.println("NODES: " + g.getName());
 			}
-			for(int i = 0; i < neighbors.size(); i++){
+			for(int i = 0; i < neighborz.size(); i++){
 
 				System.out.println("PROCCESS NEIGHBORS REQUEST: "
 						+ neighbors.get(i));
 				//check if the node exist for the neighbor
-				if(nodeRepo.HMdoesNodeExist(neighbors.get(i)) == false){
+				if(nodeRepo.HMdoesNodeExist(neighborz.get(i).getNeighborName()) == false){
 					System.out.println("DOES NEIGHBOR EXIST: FALSE: "
-							+ neighbors.get(i));
+							+ neighborz.get(i).getNeighborName());
 					//if the neighboring node is not in the graph
 					//add the neighbor to the graph
-					addNode(new AddNodeObj(neighbors.get(i)));
-					fib.addPrefixToFIB(neighbors.get(i), neighbors.get(i));
+					addNode(new AddNodeObj(neighborz.get(i).getNeighborName()));
+					fib.addPrefixToFIB(neighborz.get(i).getNeighborName(), neighborz.get(i).getNeighborName());
 
 					//request the newly added nodes neighbors
 					// requestNeighbors(neighbors.get(i));
+
+					nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).addNeighbor(neighborz.get(i).getNeighborName(), neighborz.get(i).getCost());
+
 					neighborsToRequest.add(neighbors.get(i));
 				}
 			}
 
 			//update the neighbors list for the given node
-			nodeRepo.HMsetNeighborList(modifyNodeObj.getName(), modifyNodeObj.getNeighbors());
+			//nodeRepo.HMsetNeighborList(modifyNodeObj.getName(), modifyNodeObj.getNeighbors());
 
 			//run Dijkstra
 			dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
