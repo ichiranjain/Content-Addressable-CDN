@@ -26,32 +26,6 @@ public class Parse2 {
 
 	}
 
-	//	public String parseType(String jsonString){
-	//
-	//		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		JsonElement jsonNameElement = jsonObject.get("type");
-	//		String typeInfo = jsonNameElement.getAsString();
-	//
-	//		return typeInfo;
-	//	}
-	//
-	//	public String parseMsgID(String jsonString){
-	//		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		JsonElement jsonNameElement = jsonObject.get("msgID");
-	//		String msgIDInfo = jsonNameElement.getAsString();
-	//
-	//		return msgIDInfo;
-	//	}
-	//
-	//	public String parseAction(String jsonString){
-	//		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		JsonElement jsonNameElement = jsonObject.get("action");
-	//		String actionInfo = jsonNameElement.getAsString();
-	//
-	//		return actionInfo;
-	//	}
-
-
 	public AddNodeObj parseAddNodeJson(JsonObject jsonObject, String originalPacket){
 
 		JsonElement jsonNameElement = jsonObject.get("nodeName");
@@ -124,13 +98,6 @@ public class Parse2 {
 		return prefixInfo;
 	}
 
-	//	public boolean parsePrefixAddRemove(String jsonString){
-	//		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		JsonElement jsonAddRemoveElement = jsonObject.get("addRemove");
-	//		boolean addRemove = jsonAddRemoveElement.getAsBoolean();
-	//		return addRemove;
-	//	}
-
 	public IntrestObj parseIntrestJson(JsonObject jsonObject, String originalPacket){
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
@@ -171,58 +138,6 @@ public class Parse2 {
 		DataObj dataInfo = new DataObj(contentName, originRouter, flag, data, originalPacket, cacheFlag, lastChunk);
 		return dataInfo; 
 	}
-
-	//	public String parseContentName(String jsonString){
-	//		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		JsonElement jsonContentNameElement = jsonObject.get("contentName");
-	//		String contentName = jsonContentNameElement.getAsString();
-	//
-	//		return contentName;
-	//	}
-	//
-	//	public byte parseDataFlag(String jsonString){
-	//		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		JsonElement jsonFlagElement = jsonObject.get("flag");
-	//		byte flag = jsonFlagElement.getAsByte();
-	//		return flag;
-	//	}
-
-	//	public HelloObj parseHelloJson(String jsonString){
-	//
-	//		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		JsonElement jsonFromNodeElement = jsonObject.get("fromNode");
-	//		String fromNode = jsonFromNodeElement.getAsString();
-	//
-	//		JsonElement jsonRequestTableElement = jsonObject.get("requestTable");
-	//		boolean requestTable = jsonRequestTableElement.getAsBoolean();
-	//
-	//		HelloObj helloObj = new HelloObj(fromNode, requestTable);
-	//		return helloObj;
-	//	}
-	//
-	//	public boolean parseRequestTable(String jsonString){
-	//
-	//		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		JsonElement jsonRequestTableElement = jsonObject.get("requestTable");
-	//		boolean requestTable = jsonRequestTableElement.getAsBoolean();
-	//		return requestTable;
-	//	}
-	//
-	//	public TableObj parseTableJson(String jsonString){
-	//
-	//		JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		//		JsonElement jsonFromNodeElement = jsonObject.get("fromNode");
-	//		//		String fromNode = jsonFromNodeElement.getAsString();
-	//
-	//		JsonElement jsonGraphElement = jsonObject.get("graph");
-	//		String graphString = jsonGraphElement.getAsString();
-	//		Type graphType = new TypeToken<ArrayList<Node>>(){}.getType();
-	//		ArrayList<Node> graph = gson.fromJson(graphString, graphType);
-	//
-	//		TableObj tableObj = new TableObj(graph);
-	//		return tableObj;
-	//
-	//	}
 
 	public PrefixListObj parsePrefixListJson(JsonObject jsonObject){
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);

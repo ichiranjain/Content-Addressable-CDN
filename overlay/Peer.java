@@ -47,7 +47,7 @@ public class Peer { // implements PeerInterface
 	static HashMap<String, String> idIPMap;
 
 	static LinkedList<Long> requests;
-	
+
 	static PassToRoutingLayer routing;
 
 	// static block for initializing static content
@@ -88,7 +88,7 @@ public class Peer { // implements PeerInterface
 
 	// Main thread
 	public static void main(String[] args) throws IOException,
-			ClassNotFoundException, InterruptedException {
+	ClassNotFoundException, InterruptedException {
 		MainEntryPoint mep = null;
 		Peer p = new Peer();
 		if (args.length == 1) {
@@ -148,7 +148,7 @@ public class Peer { // implements PeerInterface
 						i++;
 					}
 					System.out
-							.println("Joining peer " + neighborsOfPeer.get(0));
+					.println("Joining peer " + neighborsOfPeer.get(0));
 					m = Peer.join(neighborsOfPeer.get(i), false);
 					neighborsOfPeer.clear();
 					neighborsOfPeer.addAll(m.packet.neighbors);
@@ -212,6 +212,22 @@ public class Peer { // implements PeerInterface
 				mep.printMsgIDsSeen();
 				break;
 
+			case "si":
+				action = scanner.next();
+				mep.intrestPacket(action);
+				break;
+
+			case "sp":
+				action = scanner.next();
+				boolean addRemovePrefix = scanner.hasNextBoolean();
+				mep.prefix(action, addRemovePrefix);
+				break;
+
+			case "spl":
+				boolean addRemovePrefixList = scanner.hasNextBoolean();
+				mep.prefixList(addRemovePrefixList);
+				break;
+
 			case "kill":
 				mep.killThreads();
 				alive = false;
@@ -255,7 +271,7 @@ public class Peer { // implements PeerInterface
 	 */
 	public static void addPeer(JoinPacket packet, Socket peerSocket,
 			ObjectOutputStream oos, ObjectInputStream ois, Link link)
-			throws IOException {
+					throws IOException {
 		String peer = getIP(peerSocket.getRemoteSocketAddress().toString());
 		neighbors.put(peer,
 				new SocketContainer(peerSocket, ois, oos, link));
@@ -282,7 +298,7 @@ public class Peer { // implements PeerInterface
 	// send remaining neighbors information about new peer
 	public static void updateNeighbors(List<String> except, JoinPacket packet,
 			int type)
-			throws IOException {
+					throws IOException {
 		// send neighbors with new peer info
 		int i = 0;
 		System.out.println("Total neighbors: " + neighbors.size());
@@ -292,7 +308,7 @@ public class Peer { // implements PeerInterface
 			if (!except.contains(e.getKey())) {
 				++i;
 				System.out
-						.println("Sending new neighbor update: " + e.getKey());
+				.println("Sending new neighbor update: " + e.getKey());
 				e.getValue().oos.writeObject(m);
 			}
 		}
@@ -311,7 +327,7 @@ public class Peer { // implements PeerInterface
 	public void start() throws IOException {
 		System.out.println("Starting node...");
 		System.out
-				.println("IP: " + InetAddress.getLocalHost().getHostAddress());
+		.println("IP: " + InetAddress.getLocalHost().getHostAddress());
 		// creating peer
 		System.out.println("Waiting for client peer...");
 		allNodes.add(getIP(InetAddress.getLocalHost().getHostAddress()));
@@ -332,7 +348,7 @@ public class Peer { // implements PeerInterface
 
 		Message<String> newNodeMsg = new Message<String>(102, peer);
 		sendMessageToAllButX("", newNodeMsg);
-		
+
 		// connectedTo.add(getIP(peer));
 		//
 		JoinPacket packet = new JoinPacket();
@@ -378,7 +394,7 @@ public class Peer { // implements PeerInterface
 	 */
 	public static void updateMetaData(Message<JoinPacket> m) {
 		System.out.println("** Updating meta data - start**");
-		JoinPacket packet = (JoinPacket) m.packet;
+		JoinPacket packet = m.packet;
 		System.out.println("Packet allNodes: " + packet.allNodes);
 		System.out.println("Packet neighbors: " + packet.neighbors);
 		// allNodes.addAll(packet.allNodes);
@@ -388,7 +404,7 @@ public class Peer { // implements PeerInterface
 		System.out.println("neighbors: " + neighbors);
 		System.out.println("** Updating meta data - finish**");
 	}
-	
+
 	/**
 	 * Method to be called by upper layers to send a message to a particular<br/>
 	 * neighbor.<br/>
@@ -410,7 +426,7 @@ public class Peer { // implements PeerInterface
 		}
 		return true;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static boolean sendMessageX(String IP, Message m) {
 		try {
@@ -554,7 +570,7 @@ public class Peer { // implements PeerInterface
 		System.out.println("linksPresent: " + linksPresent);
 		System.out.println("linksRequired: " + linksRequired);
 		System.out
-				.println("linksSatisfied: " + (linksPresent == linksRequired));
+		.println("linksSatisfied: " + (linksPresent == linksRequired));
 		return linksPresent == linksRequired;
 	}
 }
