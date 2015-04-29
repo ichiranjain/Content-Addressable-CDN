@@ -10,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        storeObj.store = new HashMap<>();
+        storeObj.store = new HashMap<String, Content>();
         Content c1 = new Content(1, "firstContent", null, 200, new Object());
         Content c2 = new Content(2, "secondContent", null, 200, new Object());
         Content c3 = new Content(3, "secondContent", null, 200, "updatedSecondContent");
