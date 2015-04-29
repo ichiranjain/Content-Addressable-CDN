@@ -237,7 +237,9 @@ public class Peer { // implements PeerInterface
 				alive = false;
 				System.out.println("killing program");
 				break;
-
+			case "overlay":
+				System.out.println("neighbors: "+neighbors);
+				break;
 			default:
 				System.out.println("default hit");
 				break;
@@ -360,7 +362,7 @@ public class Peer { // implements PeerInterface
 
 		ObjectOutputStream oos = new ObjectOutputStream(
 				peerSocket.getOutputStream());
-		Thread.sleep(100);
+		// Thread.sleep(100);
 		ObjectInputStream ois = new ObjectInputStream(
 				peerSocket.getInputStream());
 
