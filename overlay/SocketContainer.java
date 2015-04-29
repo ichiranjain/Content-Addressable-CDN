@@ -10,14 +10,14 @@ import java.net.Socket;
  * @author Gaurav
  *
  */
-class SocketContainer {
+public class SocketContainer {
 	Socket socket;
 	ObjectInputStream ois;
 	ObjectOutputStream oos;
-	Link link;
+	ServerLinks link;
 
 	public SocketContainer(Socket socket, ObjectInputStream ois,
-			ObjectOutputStream oos, Link link) {
+			ObjectOutputStream oos, ServerLinks link) {
 		this.socket = socket;
 		this.ois = ois;
 		this.oos = oos;
