@@ -213,17 +213,21 @@ public class Peer { // implements PeerInterface
 				break;
 
 			case "si":
+				System.out.println("ener content name");
 				action = scanner.next();
 				mep.intrestPacket(action);
 				break;
 
 			case "sp":
+				System.out.println("enter a prefix");
 				action = scanner.next();
+				System.out.println("add or remove boolean");
 				boolean addRemovePrefix = scanner.hasNextBoolean();
 				mep.prefix(action, addRemovePrefix);
 				break;
 
 			case "spl":
+				System.out.println("add or remove boolean");
 				boolean addRemovePrefixList = scanner.hasNextBoolean();
 				mep.prefixList(addRemovePrefixList);
 				break;
