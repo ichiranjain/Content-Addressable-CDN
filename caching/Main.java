@@ -80,5 +80,7 @@ public class Main {
         System.out.println();
     }
 
-    private void testUpdateScoreOnIterface()
+    private void testUpdateScoreOnIterface(){
+    	
+    }
 }
