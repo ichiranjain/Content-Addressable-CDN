@@ -33,7 +33,6 @@ public class Content {
 
     public Content(int contentId, String contentName, int maxNScore, int timeToLive, List<Integer> trail, long sizeInBytes, Object contentCache) {
         this.contentId = contentId;
-
         this.contentName = contentName;
         this.maxNScore = maxNScore;
         this.timeToLive = timeToLive;

@@ -6,8 +6,8 @@ import java.util.HashMap;
  * Created by rushabhmehta91 on 4/6/15.
  */
 public class ContentStore {
-    private HashMap<String, Content> store;
-    private long storeSize = 999999;
+    static Runtime r = Runtime.getRuntime();
+    public HashMap<String, Content> store;
 
     /**
      * Handles different type of incoming packet and behaves accordingly
@@ -72,7 +72,7 @@ public class ContentStore {
      *
      * @return
      */
-    private Content incomingReplyContent(ContentPacket packet) {
+    public Content incomingReplyContent(ContentPacket packet) {
         return (Content) packet.getData();
     }
 
@@ -83,9 +83,9 @@ public class ContentStore {
      * @param packet - incoming packet
      * @return
      */
-    private boolean incomingContent(ContentPacket packet) {
+    public boolean incomingContent(ContentPacket packet) {
         Content receivedContent = (Content) packet.getData();
-        if (receivedContent.getSizeInBytes() <= this.storeSize) {
+        if (receivedContent.getSizeInBytes() <= r.freeMemory()) {
             return place(receivedContent);
         } else {
             return replace(receivedContent);
@@ -109,13 +109,10 @@ public class ContentStore {
      * @param receivedContent - incoming content
      * @return
      */
-    private boolean place(Content receivedContent) {
+    public boolean place(Content receivedContent) {
         if (!store.containsKey(receivedContent.getContentName())) {
-            if (store.put(receivedContent.getContentName(), receivedContent) != null) {
-                return true;
-            } else {
-                return false;
-            }
+            store.put(receivedContent.getContentName(), receivedContent);
+            return true;
         } else {
             if (store.replace(receivedContent.getContentName(), receivedContent) != null) {
                 return true;
@@ -132,7 +129,7 @@ public class ContentStore {
      * @param fileName - name of the content
      * @return ContentPacket
      */
-    private ContentPacket replyContentRequest(String fileName) {
+    public ContentPacket replyContentRequest(String fileName) {
 
         return new ContentPacket(1, store.get(fileName));
     }
@@ -191,7 +188,7 @@ public class ContentStore {
      * @param content - content requested
      * @return
      */
-    private boolean deleteContent(Content content) {
+    public boolean deleteContent(Content content) {
         if (store.remove(content.getContentName()) != null) {
             return true;
         } else {

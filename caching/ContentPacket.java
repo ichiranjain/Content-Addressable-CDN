@@ -29,4 +29,16 @@ public class ContentPacket {
     public void setIncomingPacketType(int incomingPacketType) {
         this.incomingPacketType = incomingPacketType;
     }
+
+    public String toString(ContentPacket cp) {
+        if (cp.data instanceof Content) {
+            Content c = (Content) cp.getData();
+            return "Incoming Packet type: " + cp.getIncomingPacketType() + " " + " Content Name: " + c.getContentName();
+        } else if (cp.data instanceof String) {
+            String requestedContentName = (String) cp.data;
+            return "Incoming Packet type: " + cp.getIncomingPacketType() + " " + " Content Name: " + requestedContentName;
+        } else {
+            return " Type of Object unknown";
+        }
+    }
 }
