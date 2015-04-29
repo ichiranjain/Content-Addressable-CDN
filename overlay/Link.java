@@ -44,6 +44,8 @@ public class Link extends Thread {
 					}
 					Peer.requests.add(m.requestNo);
 					handleUpdate(m);
+				} else {
+					System.out.println("KYABAATKYABAATKYABAAT!");
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -141,7 +143,7 @@ public class Link extends Thread {
 		}
 		// force remove node because it dropped
 		else if (m.type == 200) {
-			// forward same packet to neighbors
+
 		}
 		// routing and other packets
 		else if (m.type == 0 /* or anything else */) {

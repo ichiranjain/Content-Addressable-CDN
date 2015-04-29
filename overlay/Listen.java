@@ -63,14 +63,7 @@ public class Listen extends Thread {
 				link.start();
 
 				Peer.addPeer(m.packet, Peer.peerSocket, oos, ois, link);
-				System.out.println("ID sent to routing:: "
-						+ Peer.generateID(Peer.peerSocket
-								.getRemoteSocketAddress().toString())
-						+ " cost::" + 60000);
-				Peer.routing.addLink(
-						Peer.generateID(Peer.peerSocket
-								.getRemoteSocketAddress().toString()) + "",
-						60000);
+
 
 				if (Peer.nodeDropRequired(Peer.peerSocket)) {
 					mReply.type = -2;
@@ -99,6 +92,14 @@ public class Listen extends Thread {
 				// }
 				// }
 				// }
+				System.out.println("ID sent to routing:: "
+						+ Peer.generateID(Peer.peerSocket
+								.getRemoteSocketAddress().toString())
+						+ " cost::" + 60000);
+				Peer.routing.addLink(
+						Peer.generateID(Peer.peerSocket
+								.getRemoteSocketAddress().toString()) + "",
+						60000);
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
@@ -152,7 +153,7 @@ public class Listen extends Thread {
 	 */
 	public void setUpObjectStreams() throws IOException, InterruptedException {
 		oos = new ObjectOutputStream(Peer.peerSocket.getOutputStream());
-		Thread.sleep(100);
+		// Thread.sleep(100);
 		ois = new ObjectInputStream(Peer.peerSocket.getInputStream());
 		System.out.println("OOS and OIS set up");
 	}
