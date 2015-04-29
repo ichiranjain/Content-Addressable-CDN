@@ -30,27 +30,11 @@ public class GeneralQueueHandler implements Runnable{
 			//because this is a blocking queue, this will block until 
 			//something is placed in the queue
 			PacketObj packetObj = packetQueue2.removeFromGeneralQueue();
-			//System.out.println("packet picked from general queue:: "
-			//		+ packetObj.getPacket());
+
 			if(packetObj != null){
 
-
-				/*
-				 * could parse the whole json string here
-				 */
-				//System.out.println("generic queue handler called parse");
 				genericParser.parsePacket(packetObj);
 
-
-
-				//				//place in the corresponding queue
-				//				if(type.equals("update") == true){
-				//					//place in the update queue
-				//					packetQueue2.addToUpdateQueue(packetObj);
-				//				}else{
-				//					//place in the routing queue
-				//					packetQueue2.addToRoutingQueue(packetObj);
-				//				}
 			}
 
 		}//end while loop

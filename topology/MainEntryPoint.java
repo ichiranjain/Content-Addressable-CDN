@@ -3,6 +3,11 @@ package topology;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import packetObjects.IntrestObj;
+import packetObjects.PacketObj;
+import packetObjects.PrefixListObj;
+import packetObjects.PrefixObj;
+
 
 public class MainEntryPoint implements Runnable{
 
@@ -143,6 +148,37 @@ public class MainEntryPoint implements Runnable{
 		for(String entry : entries){
 			System.out.println("MsgID: " + entry);
 		}
+	}
+
+	public void intrestPacket(String contentName){
+		IntrestObj intrestObj1 = new IntrestObj(contentName, nodeRepo.thisMachinesName, 12345);
+		SendPacket sendPacket = new SendPacket();
+		sendPacket.createIntrestPacket(intrestObj1);
+		PacketObj packetObj1 = new PacketObj(intrestObj1.getOriginalPacket(), "fakeClient", false);
+		packetQueue2.addToGeneralQueue(packetObj1);
+		//System.out.println("added to general q");
+	}
+
+	public void prefix(String prefix, boolean addRemove){
+		String msgID = nodeRepo.thisMachinesName + System.nanoTime();
+		PrefixObj prefixObj4 = new PrefixObj(prefix, msgID, nodeRepo.thisMachinesName, addRemove);
+		SendPacket sendPacket = new SendPacket();
+		sendPacket.createPrefixPacket(prefixObj4);
+		PacketObj packetObj1 = new PacketObj(prefixObj4.getOriginalPacket(), nodeRepo.thisMachinesName, false);
+		packetQueue2.addToGeneralQueue(packetObj1);
+	}
+
+	public void prefixList(boolean addRemove){
+		String msgID = nodeRepo.thisMachinesName + System.nanoTime();
+		ArrayList<String> prefixList = new ArrayList<String>();
+		prefixList.add("prefix1");
+		prefixList.add("prefix2/video");
+		prefixList.add("prefix3/video/news");
+		PrefixListObj prefixListObj3 = new PrefixListObj(prefixList, nodeRepo.thisMachinesName, addRemove, msgID);
+		SendPacket sendPacket = new SendPacket();
+		sendPacket.createPrefixListPacket(prefixListObj3);
+		PacketObj packetObj1 = new PacketObj(prefixListObj3.getOriginalPacket(), nodeRepo.thisMachinesName, false);
+		packetQueue2.addToGeneralQueue(packetObj1);
 	}
 
 }
