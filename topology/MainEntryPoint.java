@@ -82,16 +82,22 @@ public class MainEntryPoint implements Runnable{
 		updateQueueHandler.start();
 		routingQueueHandler.start();
 
-		//start the removal threads
-		//update msagId's seen
-		//sleep time id for Thread.sleep
-		//keepMsgTime is in nano Time to remove old entries
+
+		//keepMsgTime is a long for the amount nano Time the entry should be kept before it is removed
+		//sleep time is an int for the amount mili seconds the thread should sleep
+
+		//MsgIds entries 
+		//suggested run every 1 minute with a entry keep time of 2 to 3 minutes 
 		Thread removeMsgIDs = new Thread(new MsgIDEntryDiscard(updateMsgsSeen, msgIDSleepTime, msgIDKeepMsgTime, running));
 		// removeMsgIDs.start();
+
 		//PIT entries
+		//suggested to have run every 1 minutes with an entry keep time of 30 seconds
 		Thread removePitEntries = new Thread(new PITEntryDiscard(pit, pitSleepTime, pitKeepMsgTime, running));
 		// removePitEntries.start();
+
 		//FIB
+		//suggest to have run every 10 to 15 seconds 
 		Thread removeFibEntries = new Thread(new FIBEntryDiscard(fib, nodeRepo, fibSleepTime, running));
 		// removeFibEntries.start();
 

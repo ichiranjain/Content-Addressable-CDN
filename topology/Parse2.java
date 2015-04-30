@@ -26,7 +26,7 @@ public class Parse2 {
 
 	}
 
-	public AddNodeObj parseAddNodeJson(JsonObject jsonObject, String originalPacket){
+	public AddNodeObj parseAddNodeJson(JsonObject jsonObject, String originalPacket) throws Exception{
 
 		JsonElement jsonNameElement = jsonObject.get("nodeName");
 		String nodeName = jsonNameElement.getAsString();
@@ -47,7 +47,7 @@ public class Parse2 {
 		return addNodeInfo;
 	}
 
-	public ModifyNodeObj parseModifyNodeJson(JsonObject jsonObject, String originalPacket){
+	public ModifyNodeObj parseModifyNodeJson(JsonObject jsonObject, String originalPacket) throws Exception{
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 		JsonElement jsonNameElement = jsonObject.get("nodeName");
@@ -66,7 +66,7 @@ public class Parse2 {
 		return modifyNodeInfo;
 	}
 
-	public RemoveNodeObj parseRemoveNodeJson(JsonObject jsonObject, String originalPacket){
+	public RemoveNodeObj parseRemoveNodeJson(JsonObject jsonObject, String originalPacket) throws Exception{
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 		JsonElement jsonNameElement = jsonObject.get("removeNodeName");
@@ -79,7 +79,7 @@ public class Parse2 {
 		return removeNodeInfo;
 	}
 
-	public PrefixObj parsePrefixJson(JsonObject jsonObject, String originalPacket){
+	public PrefixObj parsePrefixJson(JsonObject jsonObject, String originalPacket) throws Exception{
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 		JsonElement jsonContentNameElement = jsonObject.get("prefix");
@@ -98,7 +98,7 @@ public class Parse2 {
 		return prefixInfo;
 	}
 
-	public IntrestObj parseIntrestJson(JsonObject jsonObject, String originalPacket){
+	public IntrestObj parseIntrestJson(JsonObject jsonObject, String originalPacket) throws Exception{
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 		JsonElement jsonContentNameElement = jsonObject.get("contentName");
@@ -114,7 +114,7 @@ public class Parse2 {
 		return intrestInfo;
 	}
 
-	public DataObj parseDataJson(JsonObject jsonObject, String originalPacket){
+	public DataObj parseDataJson(JsonObject jsonObject, String originalPacket) throws Exception{
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 		JsonElement jsonContentNameElement = jsonObject.get("contentName");
@@ -139,7 +139,7 @@ public class Parse2 {
 		return dataInfo; 
 	}
 
-	public PrefixListObj parsePrefixListJson(JsonObject jsonObject){
+	public PrefixListObj parsePrefixListJson(JsonObject jsonObject) throws Exception{
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
 		JsonElement jsonIDElement = jsonObject.get("msgID");
@@ -159,7 +159,7 @@ public class Parse2 {
 		return prefixListObj;
 	}
 
-	public LinkObj parseClientAddNodeJson(JsonObject jsonObject){
+	public LinkObj parseClientAddNodeJson(JsonObject jsonObject) throws Exception{
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 		JsonElement jsonNameElement = jsonObject.get("nodeName");
@@ -174,7 +174,7 @@ public class Parse2 {
 
 	}
 
-	public LinkObj parseClientRemoveNodeJson(JsonObject jsonObject){
+	public LinkObj parseClientRemoveNodeJson(JsonObject jsonObject) throws Exception{
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 		JsonElement jsonNameElement = jsonObject.get("nodeName");
 		String removeNodeName = jsonNameElement.getAsString();
@@ -187,7 +187,7 @@ public class Parse2 {
 		return linkObjInfo;
 	}
 
-	public LinkObj parseAddLink(JsonObject jsonObject){
+	public LinkObj parseAddLink(JsonObject jsonObject) throws Exception{
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
 		JsonElement jsonNodeNameElement = jsonObject.get("nodeName");
@@ -199,7 +199,7 @@ public class Parse2 {
 		return new LinkObj(nodeName, cost);
 	}
 
-	public LinkObj parseRemoveLink(JsonObject jsonObject){
+	public LinkObj parseRemoveLink(JsonObject jsonObject) throws Exception{
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
 		JsonElement jsonNodeNameElement = jsonObject.get("nodeName");
@@ -211,7 +211,7 @@ public class Parse2 {
 		return new LinkObj(nodeName, cost);
 	}
 
-	public LinkObj parseModifyLink(JsonObject jsonObject, String originalPacket){
+	public LinkObj parseModifyLink(JsonObject jsonObject, String originalPacket) throws Exception{
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
 		JsonElement jsonNodeNameElement = jsonObject.get("nodeName");
@@ -223,7 +223,7 @@ public class Parse2 {
 		return new LinkObj(nodeName, cost);
 	}
 
-	public NeighborRequestObj parseRequestNeighbors(JsonObject jsonObject){
+	public NeighborRequestObj parseRequestNeighbors(JsonObject jsonObject) throws Exception{
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 

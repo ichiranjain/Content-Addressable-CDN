@@ -28,10 +28,17 @@ public class GenericParser {
 	}
 
 	public void parsePacket(PacketObj packetObj){
+		String type;
+		JsonObject jsonObject = new JsonObject();
+		try{
 
-		JsonObject jsonObject = gson.fromJson(packetObj.getPacket(), JsonObject.class);
-		JsonElement jsonTypeElement = jsonObject.get("type");
-		String type = jsonTypeElement.getAsString();
+			jsonObject = gson.fromJson(packetObj.getPacket(), JsonObject.class);
+			JsonElement jsonTypeElement = jsonObject.get("type");
+			type = jsonTypeElement.getAsString();
+
+		}catch(Exception e){
+			type = "dropPacket";
+		}
 
 		//System.out.println("Inside parsePacket::type::" + type);
 
@@ -55,9 +62,17 @@ public class GenericParser {
 
 	public void parseUpdatePacket(JsonObject jsonObject, PacketObj packetObj){
 
-		JsonElement jsonActionElement = jsonObject.get("action");
-		String action = jsonActionElement.getAsString();
-		System.out.println("Update action: " + action);
+		JsonElement jsonActionElement;
+		String action;
+		try{
+
+			jsonActionElement = jsonObject.get("action");
+			action = jsonActionElement.getAsString();
+			System.out.println("Update action: " + action);
+
+		}catch(Exception e){
+			action = "dropPacket";
+		}
 		LinkObj linkObj;
 		PrefixListObj prefixListObj;
 		PrefixObj prefixObj;
@@ -71,102 +86,168 @@ public class GenericParser {
 
 		case "addLink" :
 
-			//System.out.println("parsing addlink");
-			//parse the packet into a addLinkObj
-			linkObj = parse.parseAddLink(jsonObject);
-			//create the genericPacketObj
-			GenericPacketObj<LinkObj> gpoAddLink = new GenericPacketObj<LinkObj>(action, packetObj.getRecievedFromNode(), linkObj);
-			//add it to the Update Queue
+			try{
 
-			packetQueue2.addToUpdateQueue(gpoAddLink);
-			//System.out.println("update added to update queue");
+				//System.out.println("parsing addlink");
+				//parse the packet into a addLinkObj
+				linkObj = parse.parseAddLink(jsonObject);
+				//create the genericPacketObj
+				GenericPacketObj<LinkObj> gpoAddLink = new GenericPacketObj<LinkObj>(action, packetObj.getRecievedFromNode(), linkObj);
+				//add it to the Update Queue
+
+				packetQueue2.addToUpdateQueue(gpoAddLink);
+				//System.out.println("update added to update queue");
+
+			}catch(Exception e){
+
+			}
 
 			break;
 
 		case "removeLink" :
-			linkObj = parse.parseRemoveLink(jsonObject);
-			GenericPacketObj<LinkObj> gpoRemoveLink = new GenericPacketObj<LinkObj>(action, packetObj.getRecievedFromNode(), linkObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoRemoveLink);
+			try{
+
+				linkObj = parse.parseRemoveLink(jsonObject);
+				GenericPacketObj<LinkObj> gpoRemoveLink = new GenericPacketObj<LinkObj>(action, packetObj.getRecievedFromNode(), linkObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoRemoveLink);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "modifyLink" :
-			linkObj = parse.parseModifyLink(jsonObject, packetObj.getPacket());
-			GenericPacketObj<LinkObj> gpoModifyLink = new GenericPacketObj<LinkObj>(action, packetObj.getRecievedFromNode(), linkObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoModifyLink);
+			try{
+
+				linkObj = parse.parseModifyLink(jsonObject, packetObj.getPacket());
+				GenericPacketObj<LinkObj> gpoModifyLink = new GenericPacketObj<LinkObj>(action, packetObj.getRecievedFromNode(), linkObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoModifyLink);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "modify" : 
-			modifyNodeObj = parse.parseModifyNodeJson(jsonObject, packetObj.getPacket());
-			GenericPacketObj<ModifyNodeObj> gpoModifyNodeObj = new GenericPacketObj<ModifyNodeObj>(action, packetObj.getRecievedFromNode(), modifyNodeObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoModifyNodeObj);
+			try{
+
+				modifyNodeObj = parse.parseModifyNodeJson(jsonObject, packetObj.getPacket());
+				GenericPacketObj<ModifyNodeObj> gpoModifyNodeObj = new GenericPacketObj<ModifyNodeObj>(action, packetObj.getRecievedFromNode(), modifyNodeObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoModifyNodeObj);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "prefix" :
 
-			prefixObj = parse.parsePrefixJson(jsonObject, packetObj.getPacket());
-			GenericPacketObj<PrefixObj> gpoPrefixObj = new GenericPacketObj<PrefixObj>(action, packetObj.getRecievedFromNode(), prefixObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoPrefixObj);
+			try{
+
+				prefixObj = parse.parsePrefixJson(jsonObject, packetObj.getPacket());
+				GenericPacketObj<PrefixObj> gpoPrefixObj = new GenericPacketObj<PrefixObj>(action, packetObj.getRecievedFromNode(), prefixObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoPrefixObj);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "prefixList" : 
 
-			prefixListObj = parse.parsePrefixListJson(jsonObject);
-			GenericPacketObj<PrefixListObj> gpoPrefixListObj = new GenericPacketObj<PrefixListObj>(action, packetObj.getRecievedFromNode(), prefixListObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoPrefixListObj);
+			try{
+
+				prefixListObj = parse.parsePrefixListJson(jsonObject);
+				GenericPacketObj<PrefixListObj> gpoPrefixListObj = new GenericPacketObj<PrefixListObj>(action, packetObj.getRecievedFromNode(), prefixListObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoPrefixListObj);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "addClient" : 
-			linkObj = parse.parseClientAddNodeJson(jsonObject);
-			GenericPacketObj<LinkObj> gpoAddClient = new GenericPacketObj<LinkObj>(action, packetObj.getRecievedFromNode(), linkObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoAddClient);
+			try{
+
+				linkObj = parse.parseClientAddNodeJson(jsonObject);
+				GenericPacketObj<LinkObj> gpoAddClient = new GenericPacketObj<LinkObj>(action, packetObj.getRecievedFromNode(), linkObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoAddClient);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "removeClient" : 
-			linkObj = parse.parseClientRemoveNodeJson(jsonObject);
-			GenericPacketObj<LinkObj> gpoRemoveClient = new GenericPacketObj<LinkObj>(action, packetObj.getRecievedFromNode(), linkObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoRemoveClient);
+			try{
+
+				linkObj = parse.parseClientRemoveNodeJson(jsonObject);
+				GenericPacketObj<LinkObj> gpoRemoveClient = new GenericPacketObj<LinkObj>(action, packetObj.getRecievedFromNode(), linkObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoRemoveClient);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "clientPrefix" : 
-			prefixObj = parse.parsePrefixJson(jsonObject, packetObj.getPacket());
-			GenericPacketObj<PrefixObj> gpoClientPrefix = new GenericPacketObj<PrefixObj>(action, packetObj.getRecievedFromNode(), prefixObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoClientPrefix);
+			try{
+
+				prefixObj = parse.parsePrefixJson(jsonObject, packetObj.getPacket());
+				GenericPacketObj<PrefixObj> gpoClientPrefix = new GenericPacketObj<PrefixObj>(action, packetObj.getRecievedFromNode(), prefixObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoClientPrefix);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "clientPrefixList" : 
-			prefixListObj = parse.parsePrefixListJson(jsonObject);
-			GenericPacketObj<PrefixListObj> gpoClientPrefixList= new GenericPacketObj<PrefixListObj>(action, packetObj.getRecievedFromNode(), prefixListObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoClientPrefixList);
+			try{
+
+				prefixListObj = parse.parsePrefixListJson(jsonObject);
+				GenericPacketObj<PrefixListObj> gpoClientPrefixList= new GenericPacketObj<PrefixListObj>(action, packetObj.getRecievedFromNode(), prefixListObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoClientPrefixList);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "neighborRequest" :
-			neighborRequestObj = parse.parseRequestNeighbors(jsonObject);
-			GenericPacketObj<NeighborRequestObj> gpoNeighborRequestObj = new GenericPacketObj<NeighborRequestObj>(action, packetObj.getRecievedFromNode(), neighborRequestObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoNeighborRequestObj);
+			try{
+
+				neighborRequestObj = parse.parseRequestNeighbors(jsonObject);
+				GenericPacketObj<NeighborRequestObj> gpoNeighborRequestObj = new GenericPacketObj<NeighborRequestObj>(action, packetObj.getRecievedFromNode(), neighborRequestObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoNeighborRequestObj);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "prefixResponse" :
-			prefixListObj = parse.parsePrefixListJson(jsonObject);
-			GenericPacketObj<PrefixListObj> gpoPrefixResponse = new GenericPacketObj<PrefixListObj>(action, packetObj.getRecievedFromNode(), prefixListObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoPrefixResponse);
+			try{
+
+				prefixListObj = parse.parsePrefixListJson(jsonObject);
+				GenericPacketObj<PrefixListObj> gpoPrefixResponse = new GenericPacketObj<PrefixListObj>(action, packetObj.getRecievedFromNode(), prefixListObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoPrefixResponse);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "neighborResponse" :
-			modifyNodeObj = parse.parseModifyNodeJson(jsonObject, packetObj.getPacket());
-			GenericPacketObj<ModifyNodeObj> gpoNeighborResponse = new GenericPacketObj<ModifyNodeObj>(action, packetObj.getRecievedFromNode(), modifyNodeObj);
-			//add it to the Update Queue
-			packetQueue2.addToUpdateQueue(gpoNeighborResponse);
+			try{
+
+				modifyNodeObj = parse.parseModifyNodeJson(jsonObject, packetObj.getPacket());
+				GenericPacketObj<ModifyNodeObj> gpoNeighborResponse = new GenericPacketObj<ModifyNodeObj>(action, packetObj.getRecievedFromNode(), modifyNodeObj);
+				//add it to the Update Queue
+				packetQueue2.addToUpdateQueue(gpoNeighborResponse);
+			}catch(Exception e){
+
+			}
 			break;
 
 		default :
@@ -184,17 +265,27 @@ public class GenericParser {
 		switch(action){
 
 		case "intrest" :
-			IntrestObj intrestObj = parse.parseIntrestJson(jsonObject, packetObj.getPacket());
-			GenericPacketObj<IntrestObj> gpoIntrest = new GenericPacketObj<>(action, packetObj.getRecievedFromNode(), intrestObj);
-			//add it to the Update Queue
-			packetQueue2.addToRoutingQueue(gpoIntrest);
+			try{
+
+				IntrestObj intrestObj = parse.parseIntrestJson(jsonObject, packetObj.getPacket());
+				GenericPacketObj<IntrestObj> gpoIntrest = new GenericPacketObj<>(action, packetObj.getRecievedFromNode(), intrestObj);
+				//add it to the Update Queue
+				packetQueue2.addToRoutingQueue(gpoIntrest);
+			}catch(Exception e){
+
+			}
 			break;
 
 		case "data" :
-			DataObj dataObj = parse.parseDataJson(jsonObject, packetObj.getPacket());
-			GenericPacketObj<DataObj> gpoData= new GenericPacketObj<DataObj>(action, packetObj.getRecievedFromNode(), dataObj);
-			//add it to the Update Queue
-			packetQueue2.addToRoutingQueue(gpoData);
+			try{
+
+				DataObj dataObj = parse.parseDataJson(jsonObject, packetObj.getPacket());
+				GenericPacketObj<DataObj> gpoData= new GenericPacketObj<DataObj>(action, packetObj.getRecievedFromNode(), dataObj);
+				//add it to the Update Queue
+				packetQueue2.addToRoutingQueue(gpoData);
+			}catch(Exception e){
+
+			}
 			break;
 
 		default :

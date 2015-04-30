@@ -29,7 +29,7 @@ public class FIBEntryDiscard implements Runnable{
 					for(int j = 0; j < prefixList.size(); j++){						
 						if(fib.doesHashMapContainPrefix(i, prefixList.get(j)) == true){
 
-							//when get best cost advertiser is called the returned value is checked 
+							//when get best cost advertiser is called the value it returns is checked 
 							//to make sure the node exists before returning it
 							//if the node does not exist, the function removes it 
 							//System.out.println("fib discard running");

@@ -51,16 +51,30 @@ public class ProcessRoutingPackets {
 		//System.out.println("does entry exist: " + pit.doesEntryExist(intrestObj.getContentName()));
 		//if(pit.doesEntryExist(intrestObj.getContentName()) == true){
 		PITEntry pitEntry = pit.addEntryIfItDoesntExist(intrestObj.getContentName(), recievedFromNode);
+
+		//if the entry is not null, it means someone already requested this content, so add the new requester
 		if(pitEntry != null){	
-			//add info to the pit entry if it is new... if it is in the pit already
-			//resend the packet
+
 			if(pit.doesRequesterExist(intrestObj.getContentName(), recievedFromNode) == false){
 				pit.addRequester(intrestObj.getContentName(), recievedFromNode);
 			}
-			return;
-		}else{
-			pit.addEntry(intrestObj.getContentName(), recievedFromNode);
+
+
+			//			if(pit.doesRequesterExist(intrestObj.getContentName(), recievedFromNode) == true){
+			//				
+			//			}
+			//30000000000L == 30sec in nano time 
+			//if 20 sec has not elapsed do not resend
+			//			if(System.nanoTime() - pit.getTime(intrestObj.getContentName()) < 20000000000L ){
+			//				return;				
+			//			}else{
+			//				pit.setTime(intrestObj.getContentName());
+
+			//			}
 		}
+		//		else{
+		//			pit.addEntry(intrestObj.getContentName(), recievedFromNode);
+		//		}
 
 		String nextHop = fib.searchFIB(intrestObj.getContentName());
 
