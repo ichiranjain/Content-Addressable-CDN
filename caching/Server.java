@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import packetObjects.IntrestObj;
+
 /**
  * Created by Chiran on 4/26/15.
  */
@@ -19,17 +21,23 @@ public class Server implements Serializable{
     static  HashMap<String, SocketContainer> listOfConnection;
     public static HashMap<String, SocketContainer> isConnected;
     public static ArrayList<String> deadCacheNodes;
+    public HashMap<String, Content> store;
 
     public static void main(String args[]){
 
         Server o1 = new Server();
+        o1.fillStore();
         o1.initialize();
         o1.connectNetwork();
         advertise();
 
     }
 
-    private void initialize() {
+    private void fillStore() {
+		
+	}
+
+	private void initialize() {
         listOfConnection = new HashMap<String, SocketContainer>();
         //listOfConnection.put("10.0.0.1", new SocketContainer(s,ois,oos));
         isConnected = new HashMap<String, SocketContainer>();
@@ -62,7 +70,23 @@ public class Server implements Serializable{
         }
     }
 
-    public static void serveRequest(){
+    public void serveRequest(IntrestObj packet2){
+    	  String fileName = packet2.getContentName();
+          if (store.containsKey(fileName)) {
+              try {
+                  //place content returned
+                  ContentPacket packet = updateScoreOnIterface(store.get(fileName), interfaceId); //packet type : 2 = incoming packet
+                  if (packet != null) {
+                      return packet;
+                  }
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
+              return replyContentRequest(fileName);//packet type : 1 = reply
+          } else {
+              return null;
+          }
+    	
 
     }
 
