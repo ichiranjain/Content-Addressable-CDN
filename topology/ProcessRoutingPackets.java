@@ -112,17 +112,21 @@ public class ProcessRoutingPackets {
 		//check the cs flag
 		if(dataObj.getCacheFlag() == 2){
 			//pass to CS
-			//return
+			return;
 		}
 
 		//check the pit
 		if(pit.doesEntryExist(dataObj.getContentName()) ==  true){
+
+			//update the pit entry time
+			pit.setTime(dataObj.getContentName());
+
 			ArrayList<String> requesters = pit.getRequesters(dataObj.getContentName()).getRequesters();
 
 			//remove the pit entry if this was the last chunk packet 
-			if(dataObj.getLastChunk() == true){
-				pit.removeEntry(dataObj.getContentName());
-			}
+			//			if(dataObj.getLastChunk() == true){
+			//				pit.removeEntry(dataObj.getContentName());
+			//			}
 
 			boolean alternativePathUsed = false;
 			for(int i = 0; i < requesters.size(); i++){
@@ -133,16 +137,20 @@ public class ProcessRoutingPackets {
 				if((nodeRepo.HMdoesNodeExist(requesters.get(i)) == true) || 
 						(directlyConnectedNodes.doesDirectlyConnectedClientExist(requesters.get(i)) == true) ){
 
-					//forward the packet to each of the requesters
+					//forward the packet to each of the requester
 					sendPacket.forwardPacket(dataObj.getOriginalPacket(), requesters.get(i));
 
 				}else{
 
-					//set to boolean and call processData1 and send to origin router 
-					//this way the packet isn't sent to origin multiple times
-					if(alternativePathUsed == false ){
-						alternativePathUsed = true;
-						processData1(dataObj);
+					//if the original server is not equal to this routers name, try to forward the packet
+					if( !nodeRepo.getThisMachinesName().equals(dataObj.getOriginRouterName()) ){
+
+						//set to boolean and call processData1 and send to origin router 
+						//this way the packet isn't sent to origin multiple times
+						if(alternativePathUsed == false ){
+							alternativePathUsed = true;
+							processData1(dataObj);
+						}
 					}
 				}
 			}
@@ -206,6 +214,9 @@ public class ProcessRoutingPackets {
 		//2
 		//check if a pit entry exists 
 		if(pit.doesEntryExist(dataObj.getContentName()) == true){
+
+			//update the pit entry time if the entry exists 
+			pit.setTime(dataObj.getContentName());
 
 			//send to all the requesters
 			ArrayList<String> requesters = pit.getRequesters(dataObj.getContentName()).getRequesters();
