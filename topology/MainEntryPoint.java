@@ -5,8 +5,6 @@ import java.util.Scanner;
 
 import packetObjects.IntrestObj;
 import packetObjects.PacketObj;
-import packetObjects.PrefixListObj;
-import packetObjects.PrefixObj;
 
 
 public class MainEntryPoint implements Runnable{
@@ -24,7 +22,7 @@ public class MainEntryPoint implements Runnable{
 	PIT pit;
 	DirectlyConnectedNodes directlyConnectedNodes;
 	UpdateMsgsSeen updateMsgsSeen;
-	FIB fib;
+
 	Scanner scanner; 
 
 	public MainEntryPoint(String thisMachinesName, int pitSleepTime, long pitKeepMsgTime, int msgIDSleepTime, long msgIDKeepMsgTime, int fibSleepTime) {
@@ -42,7 +40,6 @@ public class MainEntryPoint implements Runnable{
 		pit = new PIT();
 		directlyConnectedNodes = new DirectlyConnectedNodes();
 		updateMsgsSeen = new UpdateMsgsSeen();
-		fib = new FIB(nodeRepo, pit, directlyConnectedNodes);
 		// scanner = new Scanner(System.in);
 	}
 
@@ -57,8 +54,6 @@ public class MainEntryPoint implements Runnable{
 		nodeRepo.HMgetNode(thisMachinesName).setBestCost(0);
 		//set my next hop to my self
 		nodeRepo.HMgetNode(thisMachinesName).setOriginNextHop(thisMachinesName);
-		//add my name to the FIB table 
-		fib.addPrefixToFIB(thisMachinesName, thisMachinesName);
 		//add my self as a directly connected client
 		directlyConnectedNodes.addDirectlyConnectedClient(thisMachinesName);
 		//add my name as a prefix 
@@ -69,39 +64,24 @@ public class MainEntryPoint implements Runnable{
 		//general
 		Thread generalQueueHandler = new Thread(new 
 				GeneralQueueHandler(packetQueue2, running));
-		//update
-		Thread updateQueueHandler = new Thread( new 
-				UpdateQueueHandler(packetQueue2, nodeRepo, fib, 
-						directlyConnectedNodes, updateMsgsSeen, running));
+
 		//routing
 		Thread routingQueueHandler = new Thread ( new 
-				RoutingQueueHandler(packetQueue2, nodeRepo, fib, 
+				RoutingQueueHandler(packetQueue2, nodeRepo, 
 						pit, directlyConnectedNodes, running));
 
 		generalQueueHandler.start();
-		updateQueueHandler.start();
 		routingQueueHandler.start();
 
-
-		//keepMsgTime is a long for the amount nano Time the entry should be kept before it is removed
-		//sleep time is an int for the amount mili seconds the thread should sleep
-
-		//MsgIds entries 
-		//suggested run every 1 minute with a entry keep time of 2 to 3 minutes 
+		//start the removal threads
+		//update msagId's seen
+		//sleep time id for Thread.sleep
+		//keepMsgTime is in nano Time to remove old entries
 		Thread removeMsgIDs = new Thread(new MsgIDEntryDiscard(updateMsgsSeen, msgIDSleepTime, msgIDKeepMsgTime, running));
 		// removeMsgIDs.start();
-
 		//PIT entries
-		//suggested to have run every 1 minutes with an entry keep time of 30 seconds
 		Thread removePitEntries = new Thread(new PITEntryDiscard(pit, pitSleepTime, pitKeepMsgTime, running));
 		// removePitEntries.start();
-
-		//FIB
-		//suggest to have run every 10 to 15 seconds 
-		Thread removeFibEntries = new Thread(new FIBEntryDiscard(fib, nodeRepo, fibSleepTime, running));
-		// removeFibEntries.start();
-
-
 
 
 	}
@@ -125,12 +105,7 @@ public class MainEntryPoint implements Runnable{
 			System.out.println("Neighbor: " + neighbor);
 		}
 	}
-	public void printFIB(){
-		ArrayList<String> entries = fib.getFIBEntries();
-		for(String entry : entries){
-			System.out.println("FIB entry: " + entry);
-		}
-	}
+
 	public void printPIT(){
 		ArrayList<String> entries = pit.getPitNamesAndEntries();
 		for(String entry : entries){
@@ -165,26 +140,5 @@ public class MainEntryPoint implements Runnable{
 		//System.out.println("added to general q");
 	}
 
-	public void prefix(String prefix, boolean addRemove){
-		String msgID = nodeRepo.thisMachinesName + System.nanoTime();
-		PrefixObj prefixObj4 = new PrefixObj(prefix, msgID, nodeRepo.thisMachinesName, addRemove);
-		SendPacket sendPacket = new SendPacket();
-		sendPacket.createPrefixPacket(prefixObj4);
-		PacketObj packetObj1 = new PacketObj(prefixObj4.getOriginalPacket(), nodeRepo.thisMachinesName, false);
-		packetQueue2.addToGeneralQueue(packetObj1);
-	}
-
-	public void prefixList(boolean addRemove){
-		String msgID = nodeRepo.thisMachinesName + System.nanoTime();
-		ArrayList<String> prefixList = new ArrayList<String>();
-		prefixList.add("prefix1");
-		prefixList.add("prefix2/video");
-		prefixList.add("prefix3/video/news");
-		PrefixListObj prefixListObj3 = new PrefixListObj(prefixList, nodeRepo.thisMachinesName, addRemove, msgID);
-		SendPacket sendPacket = new SendPacket();
-		sendPacket.createPrefixListPacket(prefixListObj3);
-		PacketObj packetObj1 = new PacketObj(prefixListObj3.getOriginalPacket(), nodeRepo.thisMachinesName, false);
-		packetQueue2.addToGeneralQueue(packetObj1);
-	}
 
 }
