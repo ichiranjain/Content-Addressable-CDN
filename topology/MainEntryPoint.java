@@ -3,6 +3,7 @@ package topology;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import packetObjects.DataObj;
 import packetObjects.IntrestObj;
 import packetObjects.PacketObj;
 import packetObjects.PrefixListObj;
@@ -163,6 +164,15 @@ public class MainEntryPoint implements Runnable{
 		PacketObj packetObj1 = new PacketObj(intrestObj1.getOriginalPacket(), "fakeClient", false);
 		packetQueue2.addToGeneralQueue(packetObj1);
 		//System.out.println("added to general q");
+	}
+
+	public void dataPacket(String contentName, String originRouter, String fromNode){
+		SendPacket sendPacket = new SendPacket();
+		byte b = 0;
+		DataObj dataObj = new DataObj(contentName, originRouter, b, "data data", b, true);
+		sendPacket.createDataPacket(dataObj);
+		PacketObj packetObj1 = new PacketObj(dataObj.getOriginalPacket(), fromNode, false);
+		packetQueue2.addToGeneralQueue(packetObj1);
 	}
 
 	public void prefix(String prefix, boolean addRemove){

@@ -214,9 +214,19 @@ public class Peer { // implements PeerInterface
 				break;
 
 			case "si":
-				System.out.println("ener content name");
+				System.out.println("Enter content name:");
 				action = scanner.next();
 				mep.intrestPacket(action);
+				break;
+
+			case "sd":
+				System.out.println("Enter content name:");
+				String contentName = scanner.next();
+				System.out.println("Enter origin Router name:");
+				String originRouter = scanner.next();
+				System.out.println("Enter from node:");
+				String fromNode = scanner.next();
+				mep.dataPacket(contentName, originRouter, fromNode);
 				break;
 
 			case "sp":
