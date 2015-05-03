@@ -52,7 +52,7 @@ public class Client {
 					link.start();
 					ID = generateID(getIP(cacheServerAddress)) + "";
 					connected = true;
-					oos.writeObject("joining client");
+					// oos.writeObject("joining client");
 				} catch (UnknownHostException e) {
 					System.out.println("Connection error.. Please try again..");
 				}
