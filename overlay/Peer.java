@@ -70,6 +70,7 @@ public class Peer { // implements PeerInterface
 		logN = 0;
 		requests = new LinkedList<Long>();
 		idIPMap = new HashMap<String, String>();
+		clientServers = new HashMap<String, SocketContainer>();
 	}
 
 	/**
