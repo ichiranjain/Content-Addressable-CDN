@@ -19,7 +19,7 @@ public class GenericParser {
 		this.packetQueue2 = packetQueue2;
 		// TODO Auto-generated constructor stub
 		//Implement runnable ... because this will be run in a thread 
-		// in the general queue thread pool 
+		// in the general queue thread pool
 	}
 
 	public void parsePacket(PacketObj packetObj){

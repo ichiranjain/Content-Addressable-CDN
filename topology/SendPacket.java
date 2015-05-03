@@ -1,7 +1,7 @@
 package topology;
 
+import overlay.Client;
 import overlay.Message;
-import overlay.Peer;
 import packetObjects.DataObj;
 import packetObjects.IntrestObj;
 import packetObjects.PrefixListObj;
@@ -19,26 +19,6 @@ public class SendPacket {
 
 	}
 
-	//	public void createAddClient(LinkObj linkObj){
-	//		JsonObject packet = new JsonObject();
-	//
-	//		packet.addProperty("type", "update");
-	//		packet.addProperty("action", "addClient");
-	//		packet.addProperty("nodeName", linkObj.getNeighboringNode());
-	//		packet.addProperty("cost", linkObj.getCost());
-	//
-	//		linkObj.setOriginalPacket(packet.toString());
-	//	}
-	//	public void createRemoveClient(LinkObj linkObj){
-	//		JsonObject packet = new JsonObject();
-	//
-	//		packet.addProperty("type", "update");
-	//		packet.addProperty("action", "removeClient");
-	//		packet.addProperty("nodeName", linkObj.getNeighboringNode());
-	//		packet.addProperty("cost", linkObj.getCost());
-	//
-	//		linkObj.setOriginalPacket(packet.toString());
-	//	}
 	public void createClientPrefix(PrefixObj prefixObj){
 		JsonObject packet = new JsonObject();
 
@@ -101,77 +81,14 @@ public class SendPacket {
 	 * if it can be made generic, then use on generic 
 	 * forward function instead of separate forward functions
 	 */
-	public void forwardPacket(String packet, String nextHop){
+	public void forwardPacket(String packet) {
 
 		// this will forward a packet to only the router specified
 		Message<String> packetMessage = new Message<String>(7, packet);
-		Peer.sendMessage(nextHop, packetMessage);
+		Client.sendMessage(packetMessage);
 		System.out.println("    -Forward packet next hop provided-");
 		System.out.println("packet: " + packet);
-		System.out.println("nextHop: " + nextHop);
 		System.out.println("-------------------------------------------");
 		System.out.println("");
 	}
-
-	//	public void broadcast(String packet) throws IOException {
-	//
-	//		// this will forward to everyone routers and clients
-	//
-	//		Message<String> packetMessage = new Message<String>(7, packet);
-	//		Peer.sendMessageToAllBut("", packetMessage);
-	//		System.out.println("    -Broadcast-");
-	//		System.out.println("packet: " + packet);
-	//		System.out.println("-------------------------------------------");
-	//		System.out.println("");
-	//	}
-	//
-	//	public void forwardUpdate(String packet, String doNotSendToNode)
-	//			throws IOException {
-	//		// this will forward to all routers except the router name passed into
-	//		// the function
-	//		Message<String> packetMessage = new Message<String>(7, packet);
-	//		Peer.sendMessageToAllBut(doNotSendToNode, packetMessage);
-	//		System.out.println("    -ForwardUpdate do not send node provided-");
-	//		System.out.println("packet: " + packet);
-	//		System.out.println("doNotSendToNode: " + doNotSendToNode);
-	//		System.out.println("-------------------------------------------");
-	//		System.out.println("");
-	//		//boolean true, send to routers 
-	//	}
-	//
-	//	public void forwardToAllRouters(String packet) throws IOException {
-	//		// this forwards the packet to all routers only
-	//		Message<String> packetMessage = new Message<String>(7, packet);
-	//		Peer.sendMessageToAllBut("", packetMessage);
-	//		System.out.println("    -Forward to all routers no hops provided-");
-	//		System.out.println("packet: " + packet);
-	//		System.out.println("-------------------------------------------");
-	//		System.out.println("");
-	//		//boolean
-	//	}
-
 }
-
-//	public void sendTablePacket(TableObj tableObj){
-//		ArrayList<JsonObject> nodeArray = new ArrayList<JsonObject>();
-//		JsonObject node;
-//
-//
-//		for(int i = 0; i < tableObj.getGraph().size(); i++){
-//
-//			node = new JsonObject();
-//			node.addProperty("neighbors", gson.toJson(tableObj.getGraph().get(i).getNeighbors()));
-//			node.addProperty("name", tableObj.getGraph().get(i).getName());
-//			nodeArray.add(node);
-//
-//		}
-//
-//		JsonObject packet = new JsonObject();
-//		packet.addProperty("type", "update");
-//		packet.addProperty("action", "table");
-//		packet.addProperty("graph", gson.toJson(nodeArray));
-//
-//
-//		String pkt  = packet.toString();
-//		tableObj.setOriginalPacket(pkt);
-//	}

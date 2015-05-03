@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 
 @SuppressWarnings("serial")
 public class JoinPacket implements Serializable {
@@ -24,12 +23,7 @@ public class JoinPacket implements Serializable {
 	List<String> doNotConnect;
 
 	public JoinPacket() {
-		neighbors = new HashSet<String>();
-		for (Entry<String, SocketContainer> entry : Peer.neighbors.entrySet()) {
-			neighbors.add(entry.getKey());
-		}
-		vacancies = Peer.vacancies;
-		allNodes = Peer.allNodes;
+
 	}
 
 	public JoinPacket(List<String> doNotConnect) {

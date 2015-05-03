@@ -22,7 +22,6 @@ public class GeneralQueueHandler implements Runnable{
 
 	@Override
 	public void run() {
-
 		//loop endlessly
 		while(running){
 
