@@ -57,49 +57,60 @@ public class Listen extends Thread {
 				Message<JoinPacket> mReply = new Message<JoinPacket>(2,
 						replyPacket);
 
-				// start listening on new link with new joinee
-				Link link = new Link(Peer.peerSocket.getRemoteSocketAddress()
-						+ "", ois);
-				link.start();
 
-				Peer.addPeer(m.packet, Peer.peerSocket, oos, ois, link);
-
-
-				if (Peer.nodeDropRequired(Peer.peerSocket)) {
-					mReply.type = -2;
-					System.out.println("Neighbor drop required");
-					String dropped = dropNeighbor(Peer.getIP(Peer.peerSocket
-							.getRemoteSocketAddress().toString()));
-					mReply.packet.dropped = dropped;
-					oos.writeObject(mReply);
-					oos.flush();
-					System.out.println("Node dropped" + dropped);
-				} else {
-					// read initial message from neighbor
-					System.out.println("No drops needed");
-					oos.writeObject(mReply);
-					oos.flush();
+				// code 11 for client join
+				// code 400 for server join
+				if (m.type == 11 || m.type == 400) {
+					// start listening on new link with new joinee
+					Link link = new Link(
+							Peer.peerSocket.getRemoteSocketAddress() + "", ois,
+							m.type == 11 ? 1 : 2);
+					link.start();
+					Peer.clientServers
+							.put(Peer.generateID(Peer.getIP(Peer.peerSocket
+									.getRemoteSocketAddress().toString())) + "",
+									new SocketContainer(Peer.peerSocket, ois,
+											oos, link));
 				}
-				// adding new peer and updating meta-data
-				System.out.println("Peer now coonnected");
-				System.out.println("New neighbors " + Peer.neighbors);
-				System.out.println("New allNodes " + Peer.allNodes);
-				// if (!Peer.linksSatisfied()) {
-				// for (String neighbor : m.packet.neighbors) {
-				// if (!neighbor.equals(m.packet.doNotConnect)) {
-				// Peer.join(neighbor, false);
-				// break;
-				// }
-				// }
-				// }
-				System.out.println("ID sent to routing:: "
-						+ Peer.generateID(Peer.peerSocket
-								.getRemoteSocketAddress().toString())
-						+ " cost::" + 60000);
-				Peer.routing.addLink(
-						Peer.generateID(Peer.peerSocket
-								.getRemoteSocketAddress().toString()) + "",
-						60000);
+				// else cache server join
+				else {
+					// start listening on new link with new joinee
+					Link link = new Link(
+							Peer.peerSocket.getRemoteSocketAddress() + "", ois,
+							3);
+					link.start();
+
+					Peer.addPeer(m.packet, Peer.peerSocket, oos, ois, link);
+
+					if (Peer.nodeDropRequired(Peer.peerSocket)) {
+						mReply.type = -2;
+						System.out.println("Neighbor drop required");
+						String dropped = dropNeighbor(Peer
+								.getIP(Peer.peerSocket.getRemoteSocketAddress()
+										.toString()));
+						mReply.packet.dropped = dropped;
+						oos.writeObject(mReply);
+						oos.flush();
+						System.out.println("Node dropped" + dropped);
+					} else {
+						// read initial message from neighbor
+						System.out.println("No drops needed");
+						oos.writeObject(mReply);
+						oos.flush();
+					}
+					// adding new peer and updating meta-data
+					System.out.println("Peer now coonnected");
+					System.out.println("New neighbors " + Peer.neighbors);
+					System.out.println("New allNodes " + Peer.allNodes);
+					System.out.println("ID sent to routing:: "
+							+ Peer.generateID(Peer.peerSocket
+									.getRemoteSocketAddress().toString())
+							+ " cost::" + 60000);
+					Peer.routing.addLink(
+							Peer.generateID(Peer.peerSocket
+									.getRemoteSocketAddress().toString()) + "",
+							60000);
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {

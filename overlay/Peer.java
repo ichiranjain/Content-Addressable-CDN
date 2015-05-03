@@ -376,7 +376,7 @@ public class Peer { // implements PeerInterface
 		System.out.println("Acknowledgement type: " + m.type);
 
 		// start listening to connected peer for any future communication
-		Link link = new Link(peerSocket.getRemoteSocketAddress() + "", ois);
+		Link link = new Link(peerSocket.getRemoteSocketAddress() + "", ois, 3);
 		link.start();
 		//
 		addPeer(m.packet, peerSocket, oos, ois, link);

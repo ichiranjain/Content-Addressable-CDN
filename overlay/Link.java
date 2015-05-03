@@ -2,7 +2,6 @@ package overlay;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.net.UnknownHostException;
 
 /**
  * Receive message objects from neighbors and process them.
@@ -15,12 +14,17 @@ public class Link extends Thread {
 	String connectedTo;
 	int previousCost;
 	boolean running;
+	int type; // 1 - client, 2 - server, 3 - cache server
+	String ID;
 
-	public Link(String peerAddress, ObjectInputStream ois) throws IOException {
+	public Link(String peerAddress, ObjectInputStream ois, int type)
+			throws IOException {
 		previousCost = -1;
 		connectedTo = Peer.getIP(peerAddress);
 		this.ois = ois;
 		running = true;
+		this.type = type;
+		ID = Peer.generateID(Peer.getIP(connectedTo)) + "";
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -67,15 +71,15 @@ public class Link extends Thread {
 				e.printStackTrace();
 				running = false;
 			} finally {
-			if (!running) {
-				Peer.neighbors.remove(connectedTo);
-				Peer.allNodes.remove(connectedTo);
-				// inform neighbors about dropped node
-					try {
-						Peer.routing.removeLink(Peer.generateID(connectedTo)
-								+ "", -1);
-					} catch (UnknownHostException e) {
-						e.printStackTrace();
+				if (!running) {
+					if (type == 1 && type == 2) {
+						Peer.clientServers.remove(ID);
+						Peer.routing.removeClient(ID, -1);
+					} else {
+						Peer.neighbors.remove(connectedTo);
+						Peer.allNodes.remove(connectedTo);
+						// inform neighbors about dropped node
+						Peer.routing.removeLink(ID, -1);
 					}
 				}
 			}
@@ -158,9 +162,7 @@ public class Link extends Thread {
 			Peer.allNodes.add(m.packet.toString());
 		} else if (m.type == 7) {
 			Message<String> m2 = m;
-			Peer.routing.addPacket(m2.packet,
-					Peer.generateID(connectedTo) + "",
-					false);
+			Peer.routing.addPacket(m2.packet, ID, false);
 		}
 	}
 }
