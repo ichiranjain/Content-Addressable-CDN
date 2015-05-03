@@ -46,35 +46,79 @@ public class ProcessRoutingPackets {
 		//sendPacket.sendPacket (Received from node);
 		//		}
 
-		//check the pit
-		//System.out.println(intrestObj.getContentName());
-		//System.out.println("does entry exist: " + pit.doesEntryExist(intrestObj.getContentName()));
-		//if(pit.doesEntryExist(intrestObj.getContentName()) == true){
-		PITEntry pitEntry = pit.addEntryIfItDoesntExist(intrestObj.getContentName(), recievedFromNode);
 
-		//if the entry is not null, it means someone already requested this content, so add the new requester
-		if(pitEntry != null){	
+		if(intrestObj.getOriginRouterName().equals("") == true){
+			//this is a client	
+			PITEntry pitEntry = pit.addClientEntryIfItDoesntExist(intrestObj.getContentName(), recievedFromNode);
+			if(pitEntry != null){	
 
-			if(pit.doesRequesterExist(intrestObj.getContentName(), recievedFromNode) == false){
-				pit.addRequester(intrestObj.getContentName(), recievedFromNode);
+				//if the pit entry exists 
+
+				//does the requester exist in the requesters list 
+				if(pit.doesClientRequesterExist(intrestObj.getContentName(), recievedFromNode) == false){
+
+					//if the client requester does not exist, add to the client to the client requester list 
+					pit.addCLientRequester(intrestObj.getContentName(), recievedFromNode);
+				}
+
+				//30000000000L == 30sec in nano time 
+				//if 20 seconds has not elapsed do not re send
+				if(System.nanoTime() - pit.getTime(intrestObj.getContentName()) < 20000000000L ){
+					return;				
+				}else{
+					pit.setTime(intrestObj.getContentName());
+					intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
+					sendPacket.createIntrestPacket(intrestObj);
+				}
+
+			}else{
+				//add to the router requester list 
+				pit.addCLientRequester(intrestObj.getContentName(), recievedFromNode);
+
+				//add to client requesters list
+				intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
+				sendPacket.createIntrestPacket(intrestObj);
+
 			}
+		}else{
+			//this is from another router
+			//this will add the pit entry if it does not exist
+			//if it doesn't exists the returned value will be null
+			//else it will return the value the hash map has for that key 
+			PITEntry pitEntry = pit.addEntryIfItDoesntExist(intrestObj.getContentName(), recievedFromNode);
 
+			//the pit entry already exists
+			//if the entry is not null, it means someone already requested this content, 
+			//so add the new requester
+			if(pitEntry != null){	
 
-			//			if(pit.doesRequesterExist(intrestObj.getContentName(), recievedFromNode) == true){
-			//				
-			//			}
-			//30000000000L == 30sec in nano time 
-			//if 20 sec has not elapsed do not resend
-			//			if(System.nanoTime() - pit.getTime(intrestObj.getContentName()) < 20000000000L ){
-			//				return;				
-			//			}else{
-			//				pit.setTime(intrestObj.getContentName());
+				//does the requester exist in the requesters list 
+				if(pit.doesRequesterExist(intrestObj.getContentName(), recievedFromNode) == false){
 
-			//			}
+					pit.addRequester(intrestObj.getContentName(), recievedFromNode);
+				}
+
+				//30000000000L == 30sec in nano time 
+				//if 20 seconds has not elapsed do not re send
+				if(System.nanoTime() - pit.getTime(intrestObj.getContentName()) < 20000000000L ){
+					return;				
+				}else{
+					pit.setTime(intrestObj.getContentName());
+					intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
+					sendPacket.createIntrestPacket(intrestObj);
+				}
+
+			}else{
+
+				//add to the router requester list 
+				pit.addRequester(intrestObj.getContentName(), recievedFromNode);
+
+				//add to client requesters list
+				intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
+				sendPacket.createIntrestPacket(intrestObj);
+
+			}
 		}
-		//		else{
-		//			pit.addEntry(intrestObj.getContentName(), recievedFromNode);
-		//		}
 
 		String nextHop = fib.searchFIB(intrestObj.getContentName());
 
@@ -82,27 +126,11 @@ public class ProcessRoutingPackets {
 			//broad cast
 			sendPacket.forwardToAllRouters(intrestObj.getOriginalPacket());
 
+			//if the nextHop == "" the node could have been deleted, drop packet 
 		}else if(!nextHop.equals("") == true){
-			//a route exists
 
-			//check if this is the first router to handle the packet
-			if(intrestObj.getOriginRouterName().equals("") == true){
-				//set the sender name to this router
+			sendPacket.forwardPacket(intrestObj.getOriginalPacket(), nextHop);
 
-				//fix parse ... add check for blank sender name
-				intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
-
-				//modified the packet then forward it 
-				sendPacket.createIntrestPacket(intrestObj);
-				sendPacket.forwardPacket(intrestObj.getOriginalPacket(), nextHop);
-
-			}else{
-				//record in the pit
-				//pit.addEntry(intrestObj.getContentName(), interface that sent intrest;
-
-				//forward
-				sendPacket.forwardPacket(intrestObj.getOriginalPacket(), nextHop);
-			}
 		}
 	}
 
@@ -134,8 +162,8 @@ public class ProcessRoutingPackets {
 				//requesters are always directly connected
 				//does the requester (next hop node) exist 
 				//if requester is down ... set to 1 AND boolean is not set 
-				if((nodeRepo.HMdoesNodeExist(requesters.get(i)) == true) || 
-						(directlyConnectedNodes.doesDirectlyConnectedClientExist(requesters.get(i)) == true) ){
+				if((nodeRepo.HMdoesNodeExist(requesters.get(i)) == true)){
+					//	 || (directlyConnectedNodes.doesDirectlyConnectedClientExist(requesters.get(i)) == true) ){
 
 					//forward the packet to each of the requester
 					sendPacket.forwardPacket(dataObj.getOriginalPacket(), requesters.get(i));
@@ -154,6 +182,17 @@ public class ProcessRoutingPackets {
 					}
 				}
 			}
+
+			ArrayList<String> clientRequesters = pit.getClientRequesters(dataObj.getContentName()).getRequesters();
+			for(int i = 0; i < clientRequesters.size(); i++){
+
+				if(directlyConnectedNodes.doesDirectlyConnectedClientExist(requesters.get(i)) == true){
+
+					//forward the packet to each of the requester
+					sendPacket.forwardPacket(dataObj.getOriginalPacket(), requesters.get(i));
+
+				}
+			}
 		}else{
 			//if no pit entry exists ... drop the packet
 			return;
@@ -161,6 +200,10 @@ public class ProcessRoutingPackets {
 	}
 
 	public void processData1(DataObj dataObj){
+
+		/*
+		 * add ttl to kill packet
+		 */
 
 		//1
 		//if the origin router is this machine ... call process data 2
@@ -220,15 +263,27 @@ public class ProcessRoutingPackets {
 
 			//send to all the requesters
 			ArrayList<String> requesters = pit.getRequesters(dataObj.getContentName()).getRequesters();
-
+			ArrayList<String> clientRequesters = pit.getClientRequesters(dataObj.getContentName()).getRequesters();
 			//remove the pit entry if this was the last chunk
-			if(dataObj.getLastChunk() == true){
-				pit.removeEntry(dataObj.getContentName());
-			}
+			//			if(dataObj.getLastChunk() == true){
+			//				pit.removeEntry(dataObj.getContentName());
+			//			}
+
 
 			for(int i = 0; i < requesters.size(); i++){
-				sendPacket.createDataPacket(dataObj);
-				sendPacket.forwardPacket(dataObj.getOriginalPacket(), requesters.get(i));
+				if(nodeRepo.HMdoesNodeExist(requesters.get(i)) == true){
+
+					sendPacket.createDataPacket(dataObj);
+					sendPacket.forwardPacket(dataObj.getOriginalPacket(), requesters.get(i));
+				}
+			}
+
+			for(int i = 0; i < clientRequesters.size(); i++){
+				if(directlyConnectedNodes.doesDirectlyConnectedClientExist(clientRequesters.get(i)) == true){
+
+					sendPacket.createDataPacket(dataObj);
+					sendPacket.forwardPacket(dataObj.getOriginalPacket(), requesters.get(i));
+				}
 			}
 
 
