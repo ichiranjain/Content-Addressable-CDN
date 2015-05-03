@@ -35,7 +35,7 @@ public class Link extends Thread {
 						+ "Message received from: " + connectedTo);
 				System.out.println("Message type: " + m.type);
 				System.out.println("Request no: " + m.requestNo);
-				 attempt = 0;
+				attempt = 0;
 				// handle updates if not previously seen
 				handleUpdate(m);
 			} catch (ClassNotFoundException e) {

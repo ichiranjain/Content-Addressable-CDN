@@ -29,6 +29,10 @@ public class ProcessData extends Thread {
 	}
 
 	public void processDataObj(DataObj dataObj) {
-
+		String contentName = null;
+		if (dataObj != null) {
+			contentName = dataObj.getContentName();
+		}
+		System.out.println("Content name: " + contentName);
 	}
 }

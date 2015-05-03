@@ -39,7 +39,7 @@ public class Client {
 		while (clientStarted) {
 			while (!connected) {
 				try {
-					System.out.println("Enter cache server to connect to: ");
+					System.out.print("Enter cache server to connect to: ");
 					String cacheServerAddress = s.nextLine();
 					Socket cacheServer = new Socket(cacheServerAddress, 43125);
 					ois = new ObjectInputStream(cacheServer.getInputStream());
