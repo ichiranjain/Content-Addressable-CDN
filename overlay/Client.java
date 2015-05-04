@@ -27,7 +27,7 @@ public class Client {
 	public static void main(String[] args) throws UnknownHostException,
 			IOException {
 		Scanner s = new Scanner(System.in);
-
+		sendPacketObj = new SendPacket();
 		boolean clientStarted = true;
 		boolean connected = false;
 
