@@ -40,7 +40,7 @@ public class Link extends Thread {
 						+ "Message received from: " + connectedTo);
 				System.out.println("Message type: " + m.type);
 				System.out.println("Request no: " + m.requestNo);
-				 attempt = 0;
+				attempt = 0;
 				// handle updates if not previously seen
 				if (!Peer.requests.contains(m.requestNo)) {
 					while (Peer.requests.size() >= 100) {
@@ -75,11 +75,13 @@ public class Link extends Thread {
 					if (type == 1 && type == 2) {
 						Peer.clientServers.remove(ID);
 						Peer.routing.removeClient(ID, -1);
+						System.out.println("Link: remove client");
 					} else {
 						Peer.neighbors.remove(connectedTo);
 						Peer.allNodes.remove(connectedTo);
 						// inform neighbors about dropped node
 						Peer.routing.removeLink(ID, -1);
+						System.out.println("Link: remove link");
 					}
 				}
 			}
@@ -88,7 +90,7 @@ public class Link extends Thread {
 	}
 
 	public void handleUpdate(Message m) throws IOException,
-			ClassNotFoundException, InterruptedException {
+	ClassNotFoundException, InterruptedException {
 		if (m.type == 50) {
 			JoinPacket jp = (JoinPacket) m.packet;
 			Peer.allNodes.addAll(jp.allNodes);
@@ -131,7 +133,7 @@ public class Link extends Thread {
 			// process neighbors and vacancies
 			JoinPacket pollReplyPacket = (JoinPacket) m.packet;
 			Peer.allNodes.addAll(pollReplyPacket.neighbors);
-			
+
 			if(previousCost < 0) {
 				Peer.routing.modifyLink(Peer.generateID(connectedTo) + "",
 						(int) (endTime - startTime));				
@@ -155,7 +157,7 @@ public class Link extends Thread {
 		} // routing and other packets
 		else if (m.type == 402 /* or anything else */) {
 			Peer.clientServers.get(connectedTo).oos
-					.writeObject(new Message(403));
+			.writeObject(new Message(403));
 		}
 		// new node added notification
 		else if (m.type == 102) {
