@@ -73,7 +73,7 @@ public class ProcessRoutingPackets {
 
 			}else{
 				//add to the router requester list 
-				pit.addCLientRequester(intrestObj.getContentName(), recievedFromNode);
+				//pit.addCLientRequester(intrestObj.getContentName(), recievedFromNode);
 
 				//add to client requesters list
 				intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
@@ -111,7 +111,7 @@ public class ProcessRoutingPackets {
 			}else{
 
 				//add to the router requester list 
-				pit.addRequester(intrestObj.getContentName(), recievedFromNode);
+				//pit.addRequester(intrestObj.getContentName(), recievedFromNode);
 
 				//add to client requesters list
 				intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
@@ -183,13 +183,17 @@ public class ProcessRoutingPackets {
 				}
 			}
 
-			ArrayList<String> clientRequesters = pit.getClientRequesters(dataObj.getContentName()).getRequesters();
+			ArrayList<String> clientRequesters = pit.getClientRequesters(dataObj.getContentName()).getClientRequesters();
+			System.out.println("clientRequesters: " + clientRequesters);
+			System.out.println("size: " + clientRequesters.size());
 			for(int i = 0; i < clientRequesters.size(); i++){
-
-				if(directlyConnectedNodes.doesDirectlyConnectedClientExist(requesters.get(i)) == true){
-
+				System.out.println("in for loop");
+				if(directlyConnectedNodes.doesDirectlyConnectedClientExist(clientRequesters.get(i)) == true){
+					System.out.println("client existed");
+					System.out.println(dataObj.getOriginalPacket());
+					System.out.println(clientRequesters.get(i));
 					//forward the packet to each of the requester
-					sendPacket.forwardPacket(dataObj.getOriginalPacket(), requesters.get(i));
+					sendPacket.forwardPacket(dataObj.getOriginalPacket(), clientRequesters.get(i));
 
 				}
 			}
