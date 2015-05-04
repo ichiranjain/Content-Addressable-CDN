@@ -158,10 +158,10 @@ public class MainEntryPoint implements Runnable{
 	}
 
 	public void intrestPacket(String contentName){
-		IntrestObj intrestObj1 = new IntrestObj(contentName, nodeRepo.thisMachinesName, 12345);
+		IntrestObj intrestObj1 = new IntrestObj(contentName, "", 12345);
 		SendPacket sendPacket = new SendPacket();
 		sendPacket.createIntrestPacket(intrestObj1);
-		PacketObj packetObj1 = new PacketObj(intrestObj1.getOriginalPacket(), "fakeClient", false);
+		PacketObj packetObj1 = new PacketObj(intrestObj1.getOriginalPacket(), "53830144", false);
 		packetQueue2.addToGeneralQueue(packetObj1);
 		//System.out.println("added to general q");
 	}

@@ -81,10 +81,10 @@ public class PITEntry {
 		String string = "";
 		string  = string + " time: " + time + " ";
 		for(String requester : requesters){
-			string = string + requester + " ";
+			string = string + requester + ": ";
 		}
 		for(String clientRequester : clientRequesters){
-			string = string + clientRequester + " ";
+			string = string + clientRequester + "; ";
 		}
 		return string;
 
