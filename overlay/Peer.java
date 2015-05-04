@@ -437,6 +437,9 @@ public class Peer { // implements PeerInterface
 		try {
 			System.out.println(":::ID::: " + ID);
 			SocketContainer sc = neighbors.get(idIPMap.get(ID));
+			if (sc == null) {
+				sc = clientServers.get(idIPMap.get(ID));
+			}
 			sc.oos.writeObject(m);			
 		} catch (IOException e) {
 			return false;
