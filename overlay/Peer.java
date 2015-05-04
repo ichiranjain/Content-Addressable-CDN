@@ -250,6 +250,7 @@ public class Peer { // implements PeerInterface
 				break;
 			case "overlay":
 				System.out.println("neighbors: "+neighbors);
+				System.out.println("clients+servers: " + clientServers);
 				break;
 			default:
 				System.out.println("default hit");
@@ -434,16 +435,25 @@ public class Peer { // implements PeerInterface
 	 */
 	@SuppressWarnings("rawtypes")
 	public static boolean sendMessage(String ID, Message m) {
+		System.out.println("(((enter sendMessage)))");
+		System.out.println("neighbors: " + neighbors);
+		System.out.println("clientServer: " + clientServers);
+		System.out.println("idIPMap: " + idIPMap);
 		try {
 			System.out.println(":::ID::: " + ID);
 			SocketContainer sc = neighbors.get(idIPMap.get(ID));
 			if (sc == null) {
+				System.out.println("inside if");
 				sc = clientServers.get(idIPMap.get(ID));
 			}
-			sc.oos.writeObject(m);			
+			System.out.println("sc: " + sc);
+			sc.oos.writeObject(m);
 		} catch (IOException e) {
+			System.out.println("inside catch");
+			System.out.println("(((exit sendMessage)))");
 			return false;
 		}
+		System.out.println("(((enter sendMessage)))");
 		return true;
 	}
 
