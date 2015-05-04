@@ -61,25 +61,21 @@ public class Listen extends Thread {
 				// code 11 for client join
 				// code 400 for server join
 				if (m.type == 11 || m.type == 400) {
-					System.out.println("(((enter - adding client/server)))");
 					// start listening on new link with new joinee
 					Link link = new Link(
 							Peer.peerSocket.getRemoteSocketAddress() + "", ois,
 							m.type == 11 ? 1 : 2);
 					link.start();
-					Peer.clientServers
-							.put(Peer.generateID(Peer.getIP(Peer.peerSocket
-									.getRemoteSocketAddress().toString())) + "",
-									new SocketContainer(Peer.peerSocket, ois,
-											oos, link));
+					Peer.clientServers.put(
+							Peer.getIP(Peer.peerSocket.getRemoteSocketAddress()
+									.toString()) + "", new SocketContainer(
+									Peer.peerSocket, ois, oos, link));
 					Peer.routing
 							.addClient(
 									Peer.generateID(Peer.getIP(Peer.peerSocket
 											.getRemoteSocketAddress()
 											.toString()))
 											+ "", 0);
-					System.out.println("clientSevers: " + Peer.clientServers);
-					System.out.println("(((exit - adding client/server)))");
 				}
 				// else cache server join
 				else {
