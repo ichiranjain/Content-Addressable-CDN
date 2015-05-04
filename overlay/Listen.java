@@ -71,6 +71,12 @@ public class Listen extends Thread {
 									.getRemoteSocketAddress().toString())) + "",
 									new SocketContainer(Peer.peerSocket, ois,
 											oos, link));
+					Peer.routing
+							.addClient(
+									Peer.generateID(Peer.getIP(Peer.peerSocket
+											.getRemoteSocketAddress()
+											.toString()))
+											+ "", 0);
 				}
 				// else cache server join
 				else {
