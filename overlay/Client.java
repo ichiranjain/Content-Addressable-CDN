@@ -23,6 +23,7 @@ public class Client {
 	static HashMap<String, String> idIPMap;
 	static GeneralQueueHandler gqh;
 	static PacketQueue2 pq2;
+	static ProcessData pd;
 
 	public static void main(String[] args) throws UnknownHostException,
 			IOException {
@@ -35,6 +36,8 @@ public class Client {
 		gqh = new GeneralQueueHandler(pq2, true);
 		Thread gqhThread = new Thread(gqh);
 		gqhThread.start();
+		pd = new ProcessData();
+		pd.start();
 
 		while (clientStarted) {
 			while (!connected) {
