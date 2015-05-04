@@ -77,6 +77,7 @@ public class GenericParser {
 				GenericPacketObj<DataObj> gpoData= new GenericPacketObj<DataObj>(action, packetObj.getRecievedFromNode(), dataObj);
 				//add it to the Update Queue
 				packetQueue2.addToRoutingQueue(gpoData);
+				System.out.println("generic parser added data OBJ to routing queue");
 			}catch(Exception e){
 
 			}
