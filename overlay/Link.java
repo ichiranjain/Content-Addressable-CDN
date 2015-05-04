@@ -72,7 +72,7 @@ public class Link extends Thread {
 				running = false;
 			} finally {
 				if (!running) {
-					if (type == 1 && type == 2) {
+					if (type == 1 || type == 2) {
 						Peer.clientServers.remove(ID);
 						Peer.routing.removeClient(ID, -1);
 						System.out.println("Link: remove client");
