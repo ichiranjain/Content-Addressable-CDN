@@ -13,7 +13,7 @@ import java.util.List;
  * Created by rushabhmehta91 on 4/6/15.
  */
 public class Content implements Serializable {
-    public HashMap<Integer, Integer> listofScoreOnInterfaces;
+    public HashMap<String, Integer> listofScoreOnInterfaces;
     private String contentName;
     private int maxNScore;
     private int timeToLive;
@@ -70,11 +70,11 @@ public class Content implements Serializable {
         this.timeToLive = timeToLive;
     }
 
-    public HashMap<Integer, Integer> getListofScoreOnInterfaces() {
+    public HashMap<String, Integer> getListofScoreOnInterfaces() {
         return listofScoreOnInterfaces;
     }
 
-    public void setListofScoreOnInterfaces(HashMap<Integer, Integer> listofScoreOnInterfaces) {
+    public void setListofScoreOnInterfaces(HashMap<String, Integer> listofScoreOnInterfaces) {
         this.listofScoreOnInterfaces = listofScoreOnInterfaces;
     }
 

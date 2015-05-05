@@ -9,33 +9,33 @@ public class ContentStore {
     static Runtime r = Runtime.getRuntime();
     public HashMap<String, Content> store;
 
-    /**
-     * Handles different type of incoming packet and behaves accordingly
-     *
-     * @param packet      - incoming packet
-     * @param interfaceId - incoming Interface Id
-     * @return
-     */
-    private Object packetHandler(ContentPacket packet, int interfaceId) {
-        try {
-            switch (packet.getIncomingPacketType()) {
-                case 0:
-                    return incomingContentRequest(packet, interfaceId);
-                case 1:
-                    return incomingReplyContent(packet);
-                case 2:
-                    return incomingContent(packet);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//    /**
+//     * Handles different type of incoming packet and behaves accordingly
+//     *
+//     * @param packet      - incoming packet
+//     * @param interfaceId - incoming Interface Id
+//     * @return
+//     */
+//    private Object packetHandler(ContentPacket packet, int interfaceId) {
+//        try {
+//            switch (packet.getIncomingPacketType()) {
+//                case 0:
+//                    return incomingContentRequest(packet, interfaceId);
+//                case 1:
+//                    return incomingReplyContent(packet);
+//                case 2:
+//                    return incomingContent(packet);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        return null;
+//    }
 
-        return null;
-    }
-
-    private ContentPacket forwardingContent(ContentPacket packet) {
-        return new ContentPacket(1, packet);
-    }
+//    private ContentPacket forwardingContent(ContentPacket packet) {
+//        return new ContentPacket(1, packet);
+//    }
 
     /**
      * Checks for content which is requested if available returns back the content in Content P acket and then updates

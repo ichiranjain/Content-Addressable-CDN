@@ -1,7 +1,8 @@
 package caching;
 
-import packetObjects.IntrestObj;
+import packetObjects.DataObj;
 import packetObjects.GenericPacketObj;
+import packetObjects.IntrestObj;
 
 public class ProcessData extends Thread {
 
@@ -12,23 +13,33 @@ public class ProcessData extends Thread {
     @Override
     public void run() {
         while (true) {
-            GenericPacketObj<IntrestObj> gpo = ServerLFS.pq2.removeFromRoutingQueue();
-            IntrestObj intrestObj = null;
+            GenericPacketObj gpo = ServerLFS.pq2.removeFromRoutingQueue();
             System.out.println("server process data action: " + gpo.getAction());
             String receivedFromNode = gpo.getRecievedFromNode();
             if (gpo.getAction().equals("intrest")) {
-                intrestObj = (IntrestObj) gpo.getObj();
+                IntrestObj intrestObj = (IntrestObj) gpo.getObj();
+                processIntrestObj(intrestObj, receivedFromNode);
 
             } else {
-                intrestObj = null;
+                if (gpo.getAction().equals("data")) {
+                    DataObj dataObj = (DataObj) gpo.getObj();
+                    processDataObj(dataObj);
 
+                }
             }
-            if (intrestObj == null) {
-                continue;
-            }
-
-            processIntrestObj(intrestObj,receivedFromNode);
+            continue;
         }
+    }
+
+    public void processDataObj(DataObj dataObj) {
+        String content = null;
+        byte cacheFlag = dataObj.getCacheFlag();
+        if (dataObj != null && cacheFlag == 2) {
+            content = dataObj.getData();
+            ServerLFS.incomingContent(content);
+            System.out.println("Content with name " + content + "is placed in cached");
+        }
+
     }
 
     public void processIntrestObj(IntrestObj intrestObj, String receivedFromNode) {
@@ -36,7 +47,16 @@ public class ProcessData extends Thread {
         if (intrestObj != null) {
             contentName = intrestObj.getContentName();
             Content requestedContent = ServerLFS.serveRequest(contentName);
-            ServerLFS.sendDataObj(requestedContent,receivedFromNode,intrestObj.getOriginRouterName());
+            if (requestedContent != null) {
+                try {
+                    ServerLFS.updateScoreOnIterface(requestedContent, receivedFromNode);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                ServerLFS.sendDataObj(requestedContent, receivedFromNode, intrestObj.getOriginRouterName());
+
+            }
+
         }
         System.out.println("Content name: " + contentName);
     }

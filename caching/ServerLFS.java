@@ -8,10 +8,7 @@ import topology.GeneralQueueHandler;
 import topology.PacketQueue2;
 import topology.SendPacket;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -23,21 +20,21 @@ import java.util.Scanner;
 /**
  * Created by rushabhmehta91 on 5/4/15.
  */
-
 public class ServerLFS implements Serializable {
     public static HashMap<String, SocketContainer> isConnected;
     public static ArrayList<String> deadCacheNodes;
     public static HashMap<String, SocketContainer> listOfConnection;
     public static HashMap<String, Content> store;
     public static ArrayList<String> storeList;
-    private static ObjectOutputStream oos = null;
-    private static ObjectInputStream ois = null;
     public static SendPacket sendPacketObj;
     public static String ID;
     public static HashMap<String, String> idIPMap;
     public static GeneralQueueHandler gqh;
     public static PacketQueue2 pq2;
     public static ProcessData pd;
+    static Runtime r = Runtime.getRuntime();
+    private static ObjectOutputStream oos = null;
+    private static ObjectInputStream ois = null;
 
     public static void main(String args[]) {
         ServerLFS s1 = new ServerLFS();
@@ -94,17 +91,149 @@ public class ServerLFS implements Serializable {
         return true;
     }
 
+    public static Content serveRequest(String fileName) {
+//        String fileName = packet2.getContentName();
+//        Integer interfaceId=packet2;
+        if (store.containsKey(fileName)) {
+            System.out.println("Request content found!!!!!");
+            return store.get(fileName);
+//            sendData(store.get(fileName));
+//            try {
+//                //place content returned
+//                Content sendingData = updateScoreOnIterface(store.get(fileName), interfaceId); //packet type : 2 = incoming packet
+//                if (sendingData != null) {
+//                    sendData(sendingData);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+        } else {
+            System.out.println("Request content not found on server. sending 404");
+            return store.get("404");
+        }
 
-//
-//
-//
-//
+
+    }
+
+    public static void sendDataObj(Content sendingContent, String fromNode, String receivedFromNode) {
+        System.out.println("Sending requested content");
+        DataObj dataObj = new DataObj(sendingContent.getContentName(), fromNode, (byte) 1, convertContentToString(sendingContent), (byte) 1, true);
+        sendPacketObj.createDataPacket(dataObj);
+        sendPacketObj.forwardPacket(dataObj.getOriginalPacket(), receivedFromNode);
+    }
+
+    /**
+     * When incoming packet have content which to be stored in content store than check the size of the the store
+     * if store has required size then place it in store else replace.
+     *
+     * @param packet - incoming packet
+     * @param packet
+     * @return
+     */
+    public static boolean incomingContent(String packet) {
+
+        Content receivedContent = convertStringToContent(packet);
+        if (receivedContent.getSizeInBytes() <= r.freeMemory()) {
+            return place(receivedContent);
+        } else {
+            return replace(receivedContent);
+        }
+    }
+
+    /**
+     * If content store has no space then replace the least recently used content from content store with new content
+     *
+     * @param receivedContent
+     * @return
+     */
+    private static boolean replace(Content receivedContent) {
+        return false;
+    }
+
+    /**
+     * Place the incoming content in the store. If content is in the store than replace the content else just add the
+     * content in the store
+     *
+     * @param receivedContent - incoming content
+     * @return
+     */
+    public static boolean place(Content receivedContent) {
+        if (!store.containsKey(receivedContent.getContentName())) {
+            store.put(receivedContent.getContentName(), receivedContent);
+            return true;
+        } else {
+            if (store.replace(receivedContent.getContentName(), receivedContent) != null) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+    }
+
+    /**
+     * Update N score of the interface and check for interface score score if it is zero than initiale copy and delete
+     * depending to N score on rest all interface
+     *
+     * @param contentStoreCopy - content in content store
+     * @param interfaceId      - interface Id on which content is requested
+     * @return
+     * @throws Exception
+     */
+    public static void updateScoreOnIterface(Content contentStoreCopy, String interfaceId) throws Exception {
+        if (!contentStoreCopy.listofScoreOnInterfaces.containsKey(interfaceId)) {
+            contentStoreCopy.listofScoreOnInterfaces.put(interfaceId, contentStoreCopy.getMaxNScore());
+        } else {
+            contentStoreCopy.listofScoreOnInterfaces.replace(interfaceId, contentStoreCopy.listofScoreOnInterfaces.get(interfaceId) - 1);
+        }
+//        boolean copyFlag = false;
+//        if (contentStoreCopy.listofScoreOnInterfaces.get(interfaceId) == 0) {
+//            copyFlag = true;
+//        }
+//        if (copyFlag) {
+//            return copyContent(contentStoreCopy);
+//        }
+    }
+
+    public static String convertContentToString(Content myObject) {
+        String serializedObject = "";
+
+        // serialize the object
+        try {
+            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+            ObjectOutputStream so = new ObjectOutputStream(bo);
+            so.writeObject(myObject);
+            so.flush();
+            serializedObject = bo.toString();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return serializedObject;
+    }
+
+    public static Content convertStringToContent(String serializedObject) {
+        Content contentObj = null;
+        try {
+            // deserialize the object
+            byte b[] = serializedObject.getBytes();
+            ByteArrayInputStream bi = new ByteArrayInputStream(b);
+            ObjectInputStream si = new ObjectInputStream(bi);
+            contentObj = (Content) si.readObject();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return contentObj;
+    }
+
+
+    ///only required for content server
 
     private void fillStore() {
 
     }
 
-    private void addContent(String key, String value) {
+    private void addContentToStore(String key, String value) {
         long size = value.length();
         ArrayList<Integer> trail = new ArrayList<Integer>();
         trail.add(-1);
@@ -123,7 +252,42 @@ public class ServerLFS implements Serializable {
         isConnected = new HashMap<String, SocketContainer>();
         deadCacheNodes = new ArrayList<String>();
     }
-
+//
+//    /**
+//     * Reply in form of ContentPacket to incoming request
+//     *
+//     * @param fileName - name of the content
+//     * @return ContentPacket
+//     */
+//    public ContentPacket replyContentRequest(String fileName) {
+//
+//        return new ContentPacket(1, store.get(fileName));
+//    }
+//
+//    /**
+//     * send content in the form of content packet
+//     *
+//     * @param content - content requested
+//     * @return
+//     */
+//    private Content copyContent(Content content) {
+//        return content;
+//    }
+//
+//    /**
+//     * delete content from current content store
+//     *
+//     * @param content - content requested
+//     * @return
+//     */
+//    public boolean deleteContent(Content content) {
+//        if (store.remove(content.getContentName()) != null) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//
+//    }
 
     private void connectNetwork() {
         Scanner sc = new Scanner(System.in);
@@ -194,100 +358,6 @@ public class ServerLFS implements Serializable {
     private void advertise() {
         //write advertize code here
     }
-
-    public static Content serveRequest(String fileName) {
-//        String fileName = packet2.getContentName();
-//        Integer interfaceId=packet2;
-        if (store.containsKey(fileName)) {
-            System.out.println("Request content found!!!!!");
-            return store.get(fileName);
-//            sendData(store.get(fileName));
-//            try {
-//                //place content returned
-//                Content sendingData = updateScoreOnIterface(store.get(fileName), interfaceId); //packet type : 2 = incoming packet
-//                if (sendingData != null) {
-//                    sendData(sendingData);
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//
-        } else {
-            System.out.println("Request content not found on server");
-            return store.get("404");
-        }
-
-
-    }
-
-    public static void sendDataObj(Content sendingContent, String fromNode, String receivedFromNode) {
-        System.out.println("Sending requested content");
-        DataObj dataObj = new DataObj(sendingContent.getContentName(), fromNode, (byte) 1, sendingContent.toString(), (byte) 1, true);
-        sendPacketObj.createDataPacket(dataObj);
-        sendPacketObj.forwardPacket(dataObj.getOriginalPacket(), receivedFromNode);
-    }
-
-//    /**
-//     * Update N score of the interface and check for interface score score if it is zero than initiale copy and delete
-//     * depending to N score on rest all interface
-//     *
-//     * @param contentStoreCopy - content in content store
-//     * @param interfaceId      - interface Id on which content is requested
-//     * @return
-//     * @throws Exception
-//     */
-//    private Content updateScoreOnIterface(Content contentStoreCopy, Integer interfaceId) throws Exception {
-//        if (!contentStoreCopy.listofScoreOnInterfaces.containsKey(interfaceId)) {
-//            contentStoreCopy.listofScoreOnInterfaces.put(interfaceId, contentStoreCopy.getMaxNScore());
-//        } else {
-//            contentStoreCopy.listofScoreOnInterfaces.replace(interfaceId, contentStoreCopy.listofScoreOnInterfaces.get(interfaceId) - 1);
-//        }
-//        boolean copyFlag = false;
-//        if (contentStoreCopy.listofScoreOnInterfaces.get(interfaceId) == 0) {
-//            copyFlag = true;
-//        }
-//        if (copyFlag) {
-//            return copyContent(contentStoreCopy);
-//        }
-//
-//        return null;
-//    }
-//
-//    /**
-//     * Reply in form of ContentPacket to incoming request
-//     *
-//     * @param fileName - name of the content
-//     * @return ContentPacket
-//     */
-//    public ContentPacket replyContentRequest(String fileName) {
-//
-//        return new ContentPacket(1, store.get(fileName));
-//    }
-//
-//    /**
-//     * send content in the form of content packet
-//     *
-//     * @param content - content requested
-//     * @return
-//     */
-//    private Content copyContent(Content content) {
-//        return content;
-//    }
-//
-//    /**
-//     * delete content from current content store
-//     *
-//     * @param content - content requested
-//     * @return
-//     */
-//    public boolean deleteContent(Content content) {
-//        if (store.remove(content.getContentName()) != null) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//
-//    }
 
 }
 
