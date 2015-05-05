@@ -44,16 +44,20 @@ public class ProcessData extends Thread {
 
     public void processIntrestObj(IntrestObj intrestObj, String receivedFromNode) {
         String contentName = null;
+        boolean copyFlag = false;
         if (intrestObj != null) {
             contentName = intrestObj.getContentName();
             Content requestedContent = ServerLFS.serveRequest(contentName);
             if (requestedContent != null) {
                 try {
                     ServerLFS.updateScoreOnIterface(requestedContent, receivedFromNode);
+                    if (ServerLFS.shouldCopy(requestedContent, receivedFromNode)) {
+                        copyFlag = true;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                ServerLFS.sendDataObj(requestedContent, receivedFromNode, intrestObj.getOriginRouterName());
+                ServerLFS.sendDataObj(requestedContent, receivedFromNode, intrestObj.getOriginRouterName(), copyFlag);
 
             }
 

@@ -4,6 +4,8 @@ import overlay.Message;
 import overlay.ServerLinks;
 import overlay.SocketContainer;
 import packetObjects.DataObj;
+import packetObjects.PrefixListObj;
+import packetObjects.PrefixObj;
 import topology.GeneralQueueHandler;
 import topology.PacketQueue2;
 import topology.SendPacket;
@@ -28,6 +30,7 @@ public class ServerLFS implements Serializable {
     public static ArrayList<String> storeList;
     public static SendPacket sendPacketObj;
     public static String ID;
+    public static String serverNameID;
     public static HashMap<String, String> idIPMap;
     public static GeneralQueueHandler gqh;
     public static PacketQueue2 pq2;
@@ -38,6 +41,11 @@ public class ServerLFS implements Serializable {
 
     public static void main(String args[]) {
         ServerLFS s1 = new ServerLFS();
+        try {
+            serverNameID = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         s1.fillStore();
         s1.initialize();
         s1.connectNetwork();
@@ -110,66 +118,23 @@ public class ServerLFS implements Serializable {
 //
         } else {
             System.out.println("Request content not found on server. sending 404");
-            return store.get("404");
+            return null;
         }
 
 
     }
 
-    public static void sendDataObj(Content sendingContent, String fromNode, String receivedFromNode) {
+    public static void sendDataObj(Content sendingContent, String fromNode, String receivedFromNode, boolean copyFlag) {
         System.out.println("Sending requested content");
-        DataObj dataObj = new DataObj(sendingContent.getContentName(), fromNode, (byte) 1, convertContentToString(sendingContent), (byte) 1, true);
+        byte copyFlagValue;
+        if (copyFlag) {
+            copyFlagValue = (byte) 2;
+        } else {
+            copyFlagValue = (byte) 1;
+        }
+        DataObj dataObj = new DataObj(sendingContent.getContentName(), fromNode, (byte) 1, convertContentToString(sendingContent), copyFlagValue, true);
         sendPacketObj.createDataPacket(dataObj);
         sendPacketObj.forwardPacket(dataObj.getOriginalPacket(), receivedFromNode);
-    }
-
-    /**
-     * When incoming packet have content which to be stored in content store than check the size of the the store
-     * if store has required size then place it in store else replace.
-     *
-     * @param packet - incoming packet
-     * @param packet
-     * @return
-     */
-    public static boolean incomingContent(String packet) {
-
-        Content receivedContent = convertStringToContent(packet);
-        if (receivedContent.getSizeInBytes() <= r.freeMemory()) {
-            return place(receivedContent);
-        } else {
-            return replace(receivedContent);
-        }
-    }
-
-    /**
-     * If content store has no space then replace the least recently used content from content store with new content
-     *
-     * @param receivedContent
-     * @return
-     */
-    private static boolean replace(Content receivedContent) {
-        return false;
-    }
-
-    /**
-     * Place the incoming content in the store. If content is in the store than replace the content else just add the
-     * content in the store
-     *
-     * @param receivedContent - incoming content
-     * @return
-     */
-    public static boolean place(Content receivedContent) {
-        if (!store.containsKey(receivedContent.getContentName())) {
-            store.put(receivedContent.getContentName(), receivedContent);
-            return true;
-        } else {
-            if (store.replace(receivedContent.getContentName(), receivedContent) != null) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
     }
 
     /**
@@ -187,13 +152,14 @@ public class ServerLFS implements Serializable {
         } else {
             contentStoreCopy.listofScoreOnInterfaces.replace(interfaceId, contentStoreCopy.listofScoreOnInterfaces.get(interfaceId) - 1);
         }
-//        boolean copyFlag = false;
-//        if (contentStoreCopy.listofScoreOnInterfaces.get(interfaceId) == 0) {
-//            copyFlag = true;
-//        }
-//        if (copyFlag) {
-//            return copyContent(contentStoreCopy);
-//        }
+    }
+
+    public static boolean shouldCopy(Content contentStoreCopy, String interfaceId) {
+        boolean copyFlag = false;
+        if (contentStoreCopy.listofScoreOnInterfaces.get(interfaceId) == 0) {
+            copyFlag = true;
+        }
+        return copyFlag;
     }
 
     public static String convertContentToString(Content myObject) {
@@ -226,54 +192,35 @@ public class ServerLFS implements Serializable {
         return contentObj;
     }
 
+    /**
+     * When incoming packet have content which to be stored in content store than check the size of the the store
+     * if store has required size then place it in store else replace.
+     *
+     * @param packet - incoming packet
+     * @param packet
+     * @return
+     */
+    public static boolean incomingContent(String packet) {
 
-    ///only required for content server
-
-    private void fillStore() {
-
+        Content receivedContent = convertStringToContent(packet);
+        if (receivedContent.getSizeInBytes() <= r.freeMemory()) {
+            return place(receivedContent);
+        } else {
+            return replace(receivedContent);
+        }
     }
 
-    private void addContentToStore(String key, String value) {
-        long size = value.length();
-        ArrayList<Integer> trail = new ArrayList<Integer>();
-        trail.add(-1);
-        Content contentToBeInserted = new Content(key, trail, size, value);
-        store.put(key, contentToBeInserted);
-        storeList.add(key);
-        advertiseNewlyAdded(key);
+    /**
+     * If content store has no space then replace the least recently used content from content store with new content
+     *
+     * @param receivedContent
+     * @return
+     */
+    private static boolean replace(Content receivedContent) {
+        return false;
     }
 
-    private void advertiseNewlyAdded(String key) {
-        //write code to advertize single prefixObj
-    }
 
-    private void initialize() {
-        listOfConnection = new HashMap<String, SocketContainer>();
-        isConnected = new HashMap<String, SocketContainer>();
-        deadCacheNodes = new ArrayList<String>();
-    }
-//
-//    /**
-//     * Reply in form of ContentPacket to incoming request
-//     *
-//     * @param fileName - name of the content
-//     * @return ContentPacket
-//     */
-//    public ContentPacket replyContentRequest(String fileName) {
-//
-//        return new ContentPacket(1, store.get(fileName));
-//    }
-//
-//    /**
-//     * send content in the form of content packet
-//     *
-//     * @param content - content requested
-//     * @return
-//     */
-//    private Content copyContent(Content content) {
-//        return content;
-//    }
-//
 //    /**
 //     * delete content from current content store
 //     *
@@ -288,6 +235,76 @@ public class ServerLFS implements Serializable {
 //        }
 //
 //    }
+
+    /**
+     * Place the incoming content in the store. If content is in the store than replace the content else just add the
+     * content in the store
+     *
+     * @param receivedContent - incoming content
+     * @return
+     */
+    public static boolean place(Content receivedContent) {
+        if (!store.containsKey(receivedContent.getContentName())) {
+            store.put(receivedContent.getContentName(), receivedContent);
+            return true;
+        } else {
+            if (store.replace(receivedContent.getContentName(), receivedContent) != null) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+    }
+
+    private void fillStore() {
+        Content c1 = new Content("firstContent", null, 200, "updatedSecondContent1");
+        Content c2 = new Content("secondContent", null, 200, "updatedSecondContent2");
+        Content c3 = new Content("thirdContent", null, 200, "updatedSecondContent3");
+        Content c4 = new Content("forthContent", null, 200, "updatedSecondContent4");
+        store.put(c1.getContentName(), c1);
+        store.put(c2.getContentName(), c2);
+        store.put(c3.getContentName(), c3);
+        store.put(c4.getContentName(), c4);
+    }
+
+    private void addContentToStore(String key, String value) {
+        long size = value.length();
+        ArrayList<Integer> trail = new ArrayList<Integer>();
+        trail.add(-1);
+        Content contentToBeInserted = new Content(key, trail, size, value);
+        store.put(key, contentToBeInserted);
+        storeList.add(key);
+        advertiseNewlyAdded(contentToBeInserted);
+    }
+
+    private void advertise(ArrayList<String> contentList, String cacheServerAddress) {
+
+        PrefixListObj list = new PrefixListObj(contentList, serverNameID, true, serverNameID + System.nanoTime());
+        sendPacketObj.createPrefixListPacket(list);
+        sendPacketObj.forwardPacket(list.getOriginalPacket(), cacheServerAddress);
+
+    }
+
+    private void advertiseNewlyAdded(Content content) {
+        //write code to advertize single prefixObj
+        PrefixObj list = new PrefixObj(content.getContentName(), serverNameID, serverNameID + System.nanoTime(), true);
+        sendPacketObj.createPrefixPacket(list);
+        for (String e : listOfConnection.keySet()) {
+            sendPacketObj.forwardPacket(list.getOriginalPacket(), e);
+        }
+
+
+    }
+
+
+    ///only required for content server
+
+    private void initialize() {
+        listOfConnection = new HashMap<String, SocketContainer>();
+        isConnected = new HashMap<String, SocketContainer>();
+        deadCacheNodes = new ArrayList<String>();
+    }
 
     private void connectNetwork() {
         Scanner sc = new Scanner(System.in);
@@ -326,38 +343,15 @@ public class ServerLFS implements Serializable {
                     connected = true;
                     // oos.writeObject("joining client");
                     isConnected.put(cacheServerAddress, new SocketContainer(cacheServer, ois, oos, link));
-                    advertise();
+                    advertise(storeList, cacheServerAddress);
                 } catch (UnknownHostException e) {
                     System.out.println("Connection error.. Please try again..");
                 }
             }
-//            System.out.println("Enter content to be fetched(EXIT to exit): ");
-//            String msg = s.nextLine();
-//            IntrestObj intrst = new IntrestObj(msg, "", 1);
-//            sendPacketObj.createIntrestPacket(intrst);
-//            sendPacketObj.forwardPacket(intrst.getOriginalPacket());
         }
-
-//        for (String i : listOfConnection.keySet()) {
-//            try {
-//                Socket s = new Socket(i, 43125);
-//                Message m = new Message(400);
-//                oos = new ObjectOutputStream(s.getOutputStream());
-//                oos.writeObject(m);
-//                ois = new ObjectInputStream(s.getInputStream());
-//                ServerLinks link = new ServerLinks(i, ois);
-//                link.start();
-//                isConnected.put(i, new SocketContainer(s, ois, oos, link));
-//                advertise();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
     }
 
-    private void advertise() {
-        //write advertize code here
-    }
+
 
 }
 
