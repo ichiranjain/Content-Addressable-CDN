@@ -49,7 +49,7 @@ public class ProcessRoutingPackets {
 
 		if(intrestObj.getOriginRouterName().equals("") == true){
 			//this is a client	
-			PITEntry pitEntry = pit.addClientEntryIfItDoesntExist(intrestObj.getContentName(), recievedFromNode);
+			PITEntry pitEntry = pit.addClientEntryIfItDoesntExist(intrestObj.getContentName());
 			if(pitEntry != null){	
 
 				//if the pit entry exists 
@@ -73,7 +73,7 @@ public class ProcessRoutingPackets {
 
 			}else{
 				//add to the router requester list 
-				//pit.addCLientRequester(intrestObj.getContentName(), recievedFromNode);
+				pit.addCLientRequester(intrestObj.getContentName(), recievedFromNode);
 
 				//add to client requesters list
 				intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
@@ -85,7 +85,7 @@ public class ProcessRoutingPackets {
 			//this will add the pit entry if it does not exist
 			//if it doesn't exists the returned value will be null
 			//else it will return the value the hash map has for that key 
-			PITEntry pitEntry = pit.addEntryIfItDoesntExist(intrestObj.getContentName(), recievedFromNode);
+			PITEntry pitEntry = pit.addEntryIfItDoesntExist(intrestObj.getContentName());
 
 			//the pit entry already exists
 			//if the entry is not null, it means someone already requested this content, 
@@ -104,17 +104,17 @@ public class ProcessRoutingPackets {
 					return;				
 				}else{
 					pit.setTime(intrestObj.getContentName());
-					intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
+					//intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
 					sendPacket.createIntrestPacket(intrestObj);
 				}
 
 			}else{
 
 				//add to the router requester list 
-				//pit.addRequester(intrestObj.getContentName(), recievedFromNode);
+				pit.addRequester(intrestObj.getContentName(), recievedFromNode);
 
 				//add to client requesters list
-				intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
+				//intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
 				sendPacket.createIntrestPacket(intrestObj);
 
 			}
@@ -184,14 +184,14 @@ public class ProcessRoutingPackets {
 			}
 
 			ArrayList<String> clientRequesters = pit.getClientRequesters(dataObj.getContentName()).getClientRequesters();
-			System.out.println("clientRequesters: " + clientRequesters);
-			System.out.println("size: " + clientRequesters.size());
+			//System.out.println("clientRequesters: " + clientRequesters);
+			//System.out.println("size: " + clientRequesters.size());
 			for(int i = 0; i < clientRequesters.size(); i++){
 				System.out.println("in for loop");
 				if(directlyConnectedNodes.doesDirectlyConnectedClientExist(clientRequesters.get(i)) == true){
-					System.out.println("client existed");
-					System.out.println(dataObj.getOriginalPacket());
-					System.out.println(clientRequesters.get(i));
+					//System.out.println("client existed");
+					//System.out.println(dataObj.getOriginalPacket());
+					//System.out.println(clientRequesters.get(i));
 					//forward the packet to each of the requester
 					sendPacket.forwardPacket(dataObj.getOriginalPacket(), clientRequesters.get(i));
 

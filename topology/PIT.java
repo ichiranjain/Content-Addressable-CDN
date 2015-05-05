@@ -27,17 +27,17 @@ public class PIT {
 		pit.get(content).addClientRequester(clientRequester);
 	}
 
-	public PITEntry addEntryIfItDoesntExist(String content, String requester){
+	public PITEntry addEntryIfItDoesntExist(String content){
 		long time = System.nanoTime();
 		PITEntry exists = pit.putIfAbsent(content,  new PITEntry(time));
-		pit.get(content).addRequester(requester);
+		//pit.get(content).addRequester(requester);
 		return exists;
 	}
 
-	public PITEntry addClientEntryIfItDoesntExist(String content, String requester){
+	public PITEntry addClientEntryIfItDoesntExist(String content){
 		long time = System.nanoTime();
 		PITEntry exists = pit.putIfAbsent(content,  new PITEntry(time));
-		pit.get(content).addClientRequester(requester);
+		//pit.get(content).addClientRequester(requester);
 		return exists;
 	}
 

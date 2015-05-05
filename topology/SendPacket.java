@@ -294,10 +294,10 @@ public class SendPacket {
 
 		Message<String> packetMessage = new Message<String>(7, packet);
 		Peer.sendMessageToAllBut("", packetMessage);
-		System.out.println("    -Broadcast-");
-		System.out.println("packet: " + packet);
-		System.out.println("-------------------------------------------");
-		System.out.println("");
+		//		System.out.println("    -Broadcast-");
+		//		System.out.println("packet: " + packet);
+		//		System.out.println("-------------------------------------------");
+		//		System.out.println("");
 	}
 
 	public void forwardUpdate(String packet, String doNotSendToNode)
@@ -306,11 +306,11 @@ public class SendPacket {
 		// the function
 		Message<String> packetMessage = new Message<String>(7, packet);
 		Peer.sendMessageToAllBut(doNotSendToNode, packetMessage);
-		System.out.println("    -ForwardUpdate do not send node provided-");
-		System.out.println("packet: " + packet);
-		System.out.println("doNotSendToNode: " + doNotSendToNode);
-		System.out.println("-------------------------------------------");
-		System.out.println("");
+		//		System.out.println("    -ForwardUpdate do not send node provided-");
+		//		System.out.println("packet: " + packet);
+		//		System.out.println("doNotSendToNode: " + doNotSendToNode);
+		//		System.out.println("-------------------------------------------");
+		//		System.out.println("");
 		//boolean true, send to routers 
 	}
 
@@ -329,10 +329,10 @@ public class SendPacket {
 		// this forwards the packet to all routers only
 		Message<String> packetMessage = new Message<String>(7, packet);
 		Peer.sendMessageToAllBut("", packetMessage);
-		System.out.println("    -Forward to all routers no hops provided-");
-		System.out.println("packet: " + packet);
-		System.out.println("-------------------------------------------");
-		System.out.println("");
+		//		System.out.println("    -Forward to all routers no hops provided-");
+		//		System.out.println("packet: " + packet);
+		//		System.out.println("-------------------------------------------");
+		//		System.out.println("");
 		//boolean
 	}
 

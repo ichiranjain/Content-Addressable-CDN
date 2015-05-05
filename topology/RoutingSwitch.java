@@ -104,7 +104,7 @@ public class RoutingSwitch implements Runnable{
 			String[] dataContentNameSplit = dataObj.getContentName().split("/");
 
 			//if(dataObj.getContentName().equals(nodeRepo.getThisMachinesName()) == false){
-			if(dataContentNameSplit[0].equals(nodeRepo.getThisMachinesName()) == false){
+			if(dataObj.getOriginRouterName().equals(nodeRepo.getThisMachinesName()) == false){
 				switch(dataObj.getFlag()){
 				case 0 :
 					process.processData0(dataObj);

@@ -68,7 +68,7 @@ public class GenericParser {
 
 			jsonActionElement = jsonObject.get("action");
 			action = jsonActionElement.getAsString();
-			System.out.println("Update action: " + action);
+			//System.out.println("Update action: " + action);
 
 		}catch(Exception e){
 			action = "dropPacket";
@@ -80,7 +80,7 @@ public class GenericParser {
 		//GenericPacketObj genericPacketObj;
 		ModifyNodeObj modifyNodeObj;
 
-		System.out.println("Parsing update packet now::action::" + action);
+		//System.out.println("Parsing update packet now::action::" + action);
 
 		switch(action){
 
@@ -260,7 +260,7 @@ public class GenericParser {
 	public void parseRoutePacket(JsonObject jsonObject, PacketObj packetObj){
 		JsonElement jsonTypeElement = jsonObject.get("action");
 		String action = jsonTypeElement.getAsString();
-		System.out.println("Routing action::" + action);
+		//System.out.println("Routing action::" + action);
 		//GenericPacketObj genericPacketObj;
 		switch(action){
 

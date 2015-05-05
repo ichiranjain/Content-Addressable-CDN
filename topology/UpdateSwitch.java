@@ -54,7 +54,7 @@ public class UpdateSwitch implements Runnable{
 
 		//String action = parse.parseAction(packetObj.getPacket());
 		String action = genericPacketObj.getAction();
-		System.out.println("update switch action recieved: " + action);
+		//System.out.println("update switch action recieved: " + action);
 		//		LinkObj linkObj;
 		//		boolean addRemove;
 		//		PrefixListObj prefixListObj;
@@ -92,7 +92,7 @@ public class UpdateSwitch implements Runnable{
 			break;
 
 		case "modify" : 
-			System.out.println("--MODIFY MSG RECIEVED IN UPDATE SWITCH--");
+			//System.out.println("--MODIFY MSG RECIEVED IN UPDATE SWITCH--");
 			ModifyNodeObj modifyNodeObj = (ModifyNodeObj) genericPacketObj.getObj();
 			if(doesMsgIDExist(modifyNodeObj.getMsgID()) == false){				
 				try {
@@ -102,7 +102,7 @@ public class UpdateSwitch implements Runnable{
 					e.printStackTrace();
 				}
 			}else{
-				System.out.println("--MODIFY NODE THE NODE DOES NOT EXISTS YET--");
+				//System.out.println("--MODIFY NODE THE NODE DOES NOT EXISTS YET--");
 			}
 			break;
 
