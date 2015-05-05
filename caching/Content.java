@@ -1,5 +1,9 @@
 package caching;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -8,7 +12,7 @@ import java.util.List;
 /**
  * Created by rushabhmehta91 on 4/6/15.
  */
-public class Content {
+public class Content implements Serializable {
     public HashMap<Integer, Integer> listofScoreOnInterfaces;
     private String contentName;
     private int maxNScore;
@@ -98,7 +102,18 @@ public class Content {
         this.contentCache = contentCache;
     }
 
-
     //getter and setters ends
 
+    public byte[] getBytes() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ObjectOutputStream os = new ObjectOutputStream(out);
+        os.writeObject(this);
+        return out.toByteArray();
+    }
+
+//    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+//        ByteArrayInputStream in = new ByteArrayInputStream(data);
+//        ObjectInputStream is = new ObjectInputStream(in);
+//        return is.readObject();
+//    }
 }

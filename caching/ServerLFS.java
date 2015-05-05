@@ -3,14 +3,21 @@ package caching;
 import overlay.Message;
 import overlay.ServerLinks;
 import overlay.SocketContainer;
-import packetObjects.IntrestObj;
+import packetObjects.DataObj;
+import topology.GeneralQueueHandler;
+import topology.PacketQueue2;
+import topology.SendPacket;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 
 /**
@@ -20,29 +27,84 @@ import java.util.HashMap;
 public class ServerLFS implements Serializable {
     public static HashMap<String, SocketContainer> isConnected;
     public static ArrayList<String> deadCacheNodes;
-    static HashMap<String, SocketContainer> listOfConnection;
-    public HashMap<String, Content> store;
-    public ArrayList<String> storeList;
-    private String name;
-    private Socket s;
-    private ObjectOutputStream oos = null;
-    private ObjectInputStream ois = null;
+    public static HashMap<String, SocketContainer> listOfConnection;
+    public static HashMap<String, Content> store;
+    public static ArrayList<String> storeList;
+    private static ObjectOutputStream oos = null;
+    private static ObjectInputStream ois = null;
+    public static SendPacket sendPacketObj;
+    public static String ID;
+    public static HashMap<String, String> idIPMap;
+    public static GeneralQueueHandler gqh;
+    public static PacketQueue2 pq2;
+    public static ProcessData pd;
 
     public static void main(String args[]) {
-
-        Server o1 = new Server();
-        o1.fillStore();
-        o1.initialize();
-        o1.connectNetwork();
-        Server.advertise();
+        ServerLFS s1 = new ServerLFS();
+        s1.fillStore();
+        s1.initialize();
+        s1.connectNetwork();
 
     }
+
+
+    public static long generateID(String IP) throws UnknownHostException {
+        String hostAddress = InetAddress.getLocalHost().getHostAddress();
+        if (!IP.equals("")) {
+            hostAddress = IP;
+        }
+        hostAddress = getIP(hostAddress);
+        System.out.println("Generating ID... (" + hostAddress + ")");
+        long prime1 = 105137;
+        long prime2 = 179422891;
+        long ID = 0;
+        for (int i = 0; i < hostAddress.length(); i++) {
+            char c = hostAddress.charAt(i);
+            if (c != '.') {
+                ID += (prime1 * hostAddress.charAt(i)) % prime2;
+            }
+        }
+        System.out.println("ID: " + ID);
+
+        return ID;
+    }
+
+    public static String getIP(String port) {
+        int i = 0;
+        int slash = 0;
+        int end = port.length();
+        for (; i < port.length(); i++) {
+            if (port.charAt(i) == '/') {
+                slash = i + 1;
+            } else if (port.charAt(i) == ':') {
+                end = i;
+                break;
+            }
+        }
+        return port.substring(slash, end);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static boolean sendMessage(Message m) {
+        try {
+            oos.writeObject(m);
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+
+//
+//
+//
+//
 
     private void fillStore() {
 
     }
 
-    private void addStore(String key, String value) {
+    private void addContent(String key, String value) {
         long size = value.length();
         ArrayList<Integer> trail = new ArrayList<Integer>();
         trail.add(-1);
@@ -58,40 +120,88 @@ public class ServerLFS implements Serializable {
 
     private void initialize() {
         listOfConnection = new HashMap<String, SocketContainer>();
-        //listOfConnection.put("10.0.0.1", new SocketContainer(s,ois,oos));
         isConnected = new HashMap<String, SocketContainer>();
         deadCacheNodes = new ArrayList<String>();
     }
 
 
     private void connectNetwork() {
+        Scanner sc = new Scanner(System.in);
+        sendPacketObj = new SendPacket();
+        boolean serverStarted = true;
+        boolean connected = false;
 
-        for (String i : listOfConnection.keySet()) {
-            try {
-                Socket s = new Socket(i, 43125);
-                Message m = new Message(400);
-                oos = new ObjectOutputStream(s.getOutputStream());
-                oos.writeObject(m);
-                ois = new ObjectInputStream(s.getInputStream());
-                ServerLinks link = new ServerLinks(i, ois);
-                link.start();
-                isConnected.put(i, new SocketContainer(s, ois, oos, link));
-                advertise();
-            } catch (Exception e) {
-                e.printStackTrace();
+        pq2 = new PacketQueue2();
+        gqh = new GeneralQueueHandler(pq2, true);
+        Thread gqhThread = new Thread(gqh);
+        gqhThread.start();
+        pd = new ProcessData();
+        pd.start();
+
+        while (serverStarted) {
+            while (!connected) {
+                try {
+                    System.out.print("Enter cache server to connect to: ");
+                    String cacheServerAddress = sc.nextLine();
+                    Socket cacheServer = null;
+                    try {
+                        cacheServer = new Socket(cacheServerAddress, 43125);
+                        ois = new ObjectInputStream(cacheServer.getInputStream());
+                        oos = new ObjectOutputStream(cacheServer.getOutputStream());
+                        Message<String> joinMessage = new Message<String>(400); // handle
+                        // in
+                        // Peer
+                        oos.writeObject(joinMessage);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    ServerLinks link = new ServerLinks(cacheServerAddress, ois);
+                    link.start();
+                    ID = generateID(getIP(cacheServerAddress)) + "";
+                    connected = true;
+                    // oos.writeObject("joining client");
+                    isConnected.put(cacheServerAddress, new SocketContainer(cacheServer, ois, oos, link));
+                    advertise();
+                } catch (UnknownHostException e) {
+                    System.out.println("Connection error.. Please try again..");
+                }
             }
+//            System.out.println("Enter content to be fetched(EXIT to exit): ");
+//            String msg = s.nextLine();
+//            IntrestObj intrst = new IntrestObj(msg, "", 1);
+//            sendPacketObj.createIntrestPacket(intrst);
+//            sendPacketObj.forwardPacket(intrst.getOriginalPacket());
         }
+
+//        for (String i : listOfConnection.keySet()) {
+//            try {
+//                Socket s = new Socket(i, 43125);
+//                Message m = new Message(400);
+//                oos = new ObjectOutputStream(s.getOutputStream());
+//                oos.writeObject(m);
+//                ois = new ObjectInputStream(s.getInputStream());
+//                ServerLinks link = new ServerLinks(i, ois);
+//                link.start();
+//                isConnected.put(i, new SocketContainer(s, ois, oos, link));
+//                advertise();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     private void advertise() {
         //write advertize code here
     }
 
-    public void serveRequest(IntrestObj packet2) {
-        String fileName = packet2.getContentName();
+    public static Content serveRequest(String fileName) {
+//        String fileName = packet2.getContentName();
 //        Integer interfaceId=packet2;
         if (store.containsKey(fileName)) {
-            sendData(store.get(fileName));
+            System.out.println("Request content found!!!!!");
+            return store.get(fileName);
+//            sendData(store.get(fileName));
 //            try {
 //                //place content returned
 //                Content sendingData = updateScoreOnIterface(store.get(fileName), interfaceId); //packet type : 2 = incoming packet
@@ -103,14 +213,18 @@ public class ServerLFS implements Serializable {
 //            }
 //
         } else {
-            //sendData("Error 404");
+            System.out.println("Request content not found on server");
+            return store.get("404");
         }
 
 
     }
 
-    private void sendData(Content sendingData) {
-        //write function to send data
+    public static void sendDataObj(Content sendingContent, String fromNode, String receivedFromNode) {
+        System.out.println("Sending requested content");
+        DataObj dataObj = new DataObj(sendingContent.getContentName(), fromNode, (byte) 1, sendingContent.toString(), (byte) 1, true);
+        sendPacketObj.createDataPacket(dataObj);
+        sendPacketObj.forwardPacket(dataObj.getOriginalPacket(), receivedFromNode);
     }
 
 //    /**
