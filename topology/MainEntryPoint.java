@@ -197,4 +197,13 @@ public class MainEntryPoint implements Runnable{
 		packetQueue2.addToGeneralQueue(packetObj1);
 	}
 
+	public void ping(String contentName){
+		IntrestObj intrestObj1 = new IntrestObj(contentName+"/ping", nodeRepo.getThisMachinesName(), 12345);
+		SendPacket sendPacket = new SendPacket();
+		sendPacket.createIntrestPacket(intrestObj1);
+		PacketObj packetObj1 = new PacketObj(intrestObj1.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
+		packetQueue2.addToGeneralQueue(packetObj1);
+		//System.out.println("added to general q");
+	}
+
 }

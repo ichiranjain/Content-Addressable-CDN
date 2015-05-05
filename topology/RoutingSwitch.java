@@ -62,34 +62,49 @@ public class RoutingSwitch implements Runnable{
 		switch(action){
 		case "intrest" :
 			IntrestObj intrestObj = (IntrestObj) genericPacketObj.getObj();
-			if(intrestObj.getContentName().equals(nodeRepo.getThisMachinesName()) == false){
+			String[] contentNameSplit = intrestObj.getContentName().split("/");
+
+
+			//if(intrestObj.getContentName().equals(nodeRepo.getThisMachinesName()) == false){
+			if(contentNameSplit[0].equals(nodeRepo.getThisMachinesName()) == false){
 				try {
 					process.processIntrest(intrestObj);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}else{
-				SendPacket sendPacket = new SendPacket();
-				//the packet is for this node
-				//parse the neighbor request 
-				NeighborRequestObj neighborRequestObj = new NeighborRequestObj(genericPacketObj.getRecievedFromNode());
 
-				//create the packet
-				sendPacket.createNeighborRequestPacket(neighborRequestObj);
+				if(contentNameSplit.length == 2){
+					if(contentNameSplit[1].equals("ping") == true){
+						process.preocessPingRequest(intrestObj);
+					}
+				}else{
 
-				//add to the update queue
-				GenericPacketObj<NeighborRequestObj> genericPacketObjUpdate = 
-						new GenericPacketObj<NeighborRequestObj>("neighborRequest", 
-								genericPacketObj.getRecievedFromNode(), 
-								neighborRequestObj);
+					SendPacket sendPacket = new SendPacket();
+					//the packet is for this node
+					//parse the neighbor request 
+					NeighborRequestObj neighborRequestObj = new NeighborRequestObj(genericPacketObj.getRecievedFromNode());
 
-				packetQueue2.addToUpdateQueue(genericPacketObjUpdate);
+					//create the packet
+					sendPacket.createNeighborRequestPacket(neighborRequestObj);
+
+					//add to the update queue
+					GenericPacketObj<NeighborRequestObj> genericPacketObjUpdate = 
+							new GenericPacketObj<NeighborRequestObj>("neighborRequest", 
+									genericPacketObj.getRecievedFromNode(), 
+									neighborRequestObj);
+
+					packetQueue2.addToUpdateQueue(genericPacketObjUpdate);
+				}
 			}
 			break;
 
 		case "data" :
 			DataObj dataObj = (DataObj) genericPacketObj.getObj();
-			if(dataObj.getContentName().equals(nodeRepo.getThisMachinesName()) == false){
+			String[] dataContentNameSplit = dataObj.getContentName().split("/");
+
+			//if(dataObj.getContentName().equals(nodeRepo.getThisMachinesName()) == false){
+			if(dataContentNameSplit[0].equals(nodeRepo.getThisMachinesName()) == false){
 				switch(dataObj.getFlag()){
 				case 0 :
 					process.processData0(dataObj);
@@ -108,71 +123,83 @@ public class RoutingSwitch implements Runnable{
 					break;
 				}
 			}else{
-				//the packet is for this node
-				Gson gson = new Gson();
-				JsonObject jsonObject = gson.fromJson(dataObj.getData(), JsonObject.class);
-				JsonElement jsonActionElement = jsonObject.get("action");
-				String nestedAction = jsonActionElement.getAsString();
-				SendPacket sendPacket = new SendPacket();
 
-				if(nestedAction.equals("prefixResponse") == true){
-					//call prefix function
-					JsonElement jsonIDElement = jsonObject.get("msgID");
-					String msgID = jsonIDElement.getAsString();
-
-
-					JsonElement jsonAdvertiserElement = jsonObject.get("advertiser");
-					String advertiser = jsonAdvertiserElement.getAsString();
-
-					JsonElement JE = jsonObject.get("prefixList");
-					Type TYPE = new TypeToken<ArrayList<String>>(){}.getType();
-					ArrayList<String> prefixList = new Gson().fromJson(JE.getAsString(), TYPE);
-
-					PrefixListObj prefixListObj = new PrefixListObj(prefixList, advertiser, true, msgID);
-
-
-					//create the update packet
-					sendPacket.createPrefixResponsePacket(prefixListObj);
-
-					//add to update queue
-					//packetObj = new PacketObj(prefixListObj.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
-					GenericPacketObj<PrefixListObj> genericPacketObjPrefix = 
-							new GenericPacketObj<PrefixListObj>("prefixResponse", 
-									genericPacketObj.getRecievedFromNode(), 
-									prefixListObj);
-
-					packetQueue2.addToUpdateQueue(genericPacketObjPrefix);
+				if(dataContentNameSplit.length == 2){
+					if(dataContentNameSplit[1].equals("ping") == true){
+						//process ping response
+						process.processPingReply(dataObj);
+					}
 				}else{
-					//call neighbors function
-					//ModifyNodeObj modifyNodeObj = parse.parseModifyNodeJson(dataObj.getData());
 
-					JsonElement jsonNameElement = jsonObject.get("nodeName");
-					String nodeName = jsonNameElement.getAsString();
+					//the packet is for this node
+					Gson gson = new Gson();
+					JsonObject jsonObject = gson.fromJson(dataObj.getData(), JsonObject.class);
+					JsonElement jsonActionElement = jsonObject.get("action");
+					String nestedAction = jsonActionElement.getAsString();
+					SendPacket sendPacket = new SendPacket();
 
-					JsonElement jsonIDElement = jsonObject.get("msgID");
-					String msgID = jsonIDElement.getAsString();
-
-					JsonElement jsonNeighborsElement = jsonObject.get("neighbors");
-					String neighborsString = jsonNeighborsElement.getAsString();
-					Type neighborsType = new TypeToken<ArrayList<NeighborAndCostStrings>>(){}.getType();
-					ArrayList<NeighborAndCostStrings> neighborsList = gson.fromJson(neighborsString, neighborsType);
+					if(nestedAction.equals("prefixResponse") == true){
+						//call prefix function
+						JsonElement jsonIDElement = jsonObject.get("msgID");
+						String msgID = jsonIDElement.getAsString();
 
 
-					ModifyNodeObj modifyNodeObj = new ModifyNodeObj(nodeName, neighborsList, msgID);
-					//create the update packet
-					sendPacket.createNeighborResponsePacket(modifyNodeObj);
+						JsonElement jsonAdvertiserElement = jsonObject.get("advertiser");
+						String advertiser = jsonAdvertiserElement.getAsString();
 
-					//add to update queue
-					//packetObj = new PacketObj(modifyNodeObj.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
-					GenericPacketObj<ModifyNodeObj> genericPacketObjNeighbors = 
-							new GenericPacketObj<ModifyNodeObj>("neighborResponse", 
-									genericPacketObj.getRecievedFromNode(), modifyNodeObj);
-					packetQueue2.addToUpdateQueue(genericPacketObjNeighbors);
+						JsonElement JE = jsonObject.get("prefixList");
+						Type TYPE = new TypeToken<ArrayList<String>>(){}.getType();
+						ArrayList<String> prefixList = new Gson().fromJson(JE.getAsString(), TYPE);
 
-				}
-				break;
-			}
+						PrefixListObj prefixListObj = new PrefixListObj(prefixList, advertiser, true, msgID);
+
+
+						//create the update packet
+						sendPacket.createPrefixResponsePacket(prefixListObj);
+
+						//add to update queue
+						//packetObj = new PacketObj(prefixListObj.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
+						GenericPacketObj<PrefixListObj> genericPacketObjPrefix = 
+								new GenericPacketObj<PrefixListObj>("prefixResponse", 
+										genericPacketObj.getRecievedFromNode(), 
+										prefixListObj);
+
+						packetQueue2.addToUpdateQueue(genericPacketObjPrefix);
+					}else{
+						//call neighbors function
+						//ModifyNodeObj modifyNodeObj = parse.parseModifyNodeJson(dataObj.getData());
+
+						JsonElement jsonNameElement = jsonObject.get("nodeName");
+						String nodeName = jsonNameElement.getAsString();
+
+						JsonElement jsonIDElement = jsonObject.get("msgID");
+						String msgID = jsonIDElement.getAsString();
+
+						JsonElement jsonNeighborsElement = jsonObject.get("neighbors");
+						String neighborsString = jsonNeighborsElement.getAsString();
+						Type neighborsType = new TypeToken<ArrayList<NeighborAndCostStrings>>(){}.getType();
+						ArrayList<NeighborAndCostStrings> neighborsList = gson.fromJson(neighborsString, neighborsType);
+
+
+						ModifyNodeObj modifyNodeObj = new ModifyNodeObj(nodeName, neighborsList, msgID);
+						//create the update packet
+						sendPacket.createNeighborResponsePacket(modifyNodeObj);
+
+						//add to update queue
+						//packetObj = new PacketObj(modifyNodeObj.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
+						GenericPacketObj<ModifyNodeObj> genericPacketObjNeighbors = 
+								new GenericPacketObj<ModifyNodeObj>("neighborResponse", 
+										genericPacketObj.getRecievedFromNode(), modifyNodeObj);
+						packetQueue2.addToUpdateQueue(genericPacketObjNeighbors);
+					}// ends if else neighbors/prefixes
+
+
+
+				}//ends if else for ping/neighbors-prefixes
+				//break;
+			}//ends normal data route or ping
 			break;
+
 		default : 
 			System.out.println("Invalid route action");
 			break;

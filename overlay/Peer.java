@@ -248,6 +248,13 @@ public class Peer { // implements PeerInterface
 				alive = false;
 				System.out.println("killing program");
 				break;
+
+			case "ping":
+				System.out.println("Enter node id to ping:");
+				String pingNode = scanner.next();
+				mep.ping(pingNode);
+				break;
+
 			case "overlay":
 				System.out.println("neighbors: "+neighbors);
 				System.out.println("clients+servers: " + clientServers);

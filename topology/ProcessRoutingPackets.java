@@ -301,4 +301,19 @@ public class ProcessRoutingPackets {
 			//drop the packet
 		}
 	}
+
+	public void preocessPingRequest(IntrestObj intrestObj){
+		byte b = 0;
+		String data = nodeRepo.getThisMachinesName() + "/ping";
+		DataObj dataObj = new DataObj(intrestObj.getContentName(), 
+				intrestObj.getOriginRouterName(), b, data, b, true);
+
+		sendPacket.createDataPacket(dataObj);
+		sendPacket.forwardPacket(dataObj.getOriginalPacket(), recievedFromNode);
+	}
+
+	public void processPingReply(DataObj dataObj){
+		//print data portion of data obj
+		System.out.println("ping response: " + dataObj.getData());
+	}
 }
