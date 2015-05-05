@@ -140,7 +140,7 @@ public class ProcessRoutingPackets {
 		//check the cs flag
 		if(dataObj.getCacheFlag() == 2){
 			//pass to CS
-			return;
+			//return;
 		}
 
 		//check the pit
