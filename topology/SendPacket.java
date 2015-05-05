@@ -1,9 +1,12 @@
 package topology;
 
-
+import caching.ServerLFS;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import overlay.Message;
 import packetObjects.*;
+
+import java.io.IOException;
 
 
 public class SendPacket {
@@ -284,8 +287,10 @@ public class SendPacket {
      * forward function instead of separate forward functions
      */
     public void forwardPacket(String packet, String nextHop) {
-        //call gaurav's function with packet
-        //create
+
+        // this will forward a packet to only the router specified
+        Message<String> packetMessage = new Message<String>(7, packet);
+        ServerLFS.sendMessage(nextHop, packetMessage);
         System.out.println("    -Forward packet next hop provided-");
         System.out.println("packet: " + packet);
         System.out.println("nextHop: " + nextHop);
@@ -293,14 +298,24 @@ public class SendPacket {
         System.out.println("");
     }
 
-    public void broadcast(String packet) {
+    public void broadcast(String packet) throws IOException {
+
+        // this will forward to everyone routers and clients
+
+        Message<String> packetMessage = new Message<String>(7, packet);
+        ServerLFS.sendMessageToAllBut("", packetMessage);
         System.out.println("    -Broadcast-");
         System.out.println("packet: " + packet);
         System.out.println("-------------------------------------------");
         System.out.println("");
     }
 
-    public void forwardUpdate(String packet, String doNotSendToNode) {
+    public void forwardUpdate(String packet, String doNotSendToNode)
+            throws IOException {
+        // this will forward to all routers except the router name passed into
+        // the function
+        Message<String> packetMessage = new Message<String>(7, packet);
+        ServerLFS.sendMessageToAllBut(doNotSendToNode, packetMessage);
         System.out.println("    -ForwardUpdate do not send node provided-");
         System.out.println("packet: " + packet);
         System.out.println("doNotSendToNode: " + doNotSendToNode);
@@ -309,24 +324,28 @@ public class SendPacket {
         //boolean true, send to routers
     }
 
-    //dont use
-    public void forwardToAllRouters(String packet, String[] routers) {
-        System.out.println("    -Forward to all routers[]-");
-        System.out.println("packet: " + packet);
-        for (int i = 0; i < routers.length; i++) {
-            System.out.println("router: " + routers[i]);
-        }
-        System.out.println("-------------------------------------------");
-        System.out.println("");
-    }
+    // //dont use
+    // public void forwardToAllRouters(String packet, String[] routers ){
+    // System.out.println("    -Forward to all routers[]-");
+    // System.out.println("packet: " + packet);
+    // for(int i = 0; i < routers.length; i++){
+    // System.out.println("router: " + routers[i]);
+    // }
+    // System.out.println("-------------------------------------------");
+    // System.out.println("");
+    // }
 
-    public void forwardToAllRouters(String packet) {
+    public void forwardToAllRouters(String packet) throws IOException {
+        // this forwards the packet to all routers only
+        Message<String> packetMessage = new Message<String>(7, packet);
+        ServerLFS.sendMessageToAllBut("", packetMessage);
         System.out.println("    -Forward to all routers no hops provided-");
         System.out.println("packet: " + packet);
         System.out.println("-------------------------------------------");
         System.out.println("");
         //boolean
     }
+
 
 }
 
