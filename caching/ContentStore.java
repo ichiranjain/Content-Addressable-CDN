@@ -46,7 +46,7 @@ public class ContentStore {
      * @return
      * @throws Exception
      */
-    private ContentPacket incomingContentRequest(ContentPacket incomingPacket, int interfaceId) {
+    private ContentPacket incomingContentRequest(ContentPacket incomingPacket, String interfaceId) {
         String fileName = (String) incomingPacket.getData();
         if (store.containsKey(fileName)) {
             try {
