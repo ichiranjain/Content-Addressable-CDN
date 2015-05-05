@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 
@@ -31,7 +32,6 @@ public class ServerLFS implements Serializable {
     public static SendPacket sendPacketObj;
     public static String ID;
     public static String serverNameID;
-    public static HashMap<String, String> idIPMap;
     public static GeneralQueueHandler gqh;
     public static PacketQueue2 pq2;
     public static ProcessData pd;
@@ -98,6 +98,72 @@ public class ServerLFS implements Serializable {
         }
         return true;
     }
+
+    /**
+     * Method to be called by upper layers to send a message to a particular<br/>
+     * neighbor.<br/>
+     * <p/>
+     * Message type should be set to 7.
+     *
+     * @param ID
+     * @param m
+     * @return
+     */
+    public static boolean sendMessage(String ID, Message m) {
+        try {
+            SocketContainer sc = listOfConnection.get(ID);
+            sc.oos.writeObject(m);
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Method to be called by upper layers to send a message to a list of<br/>
+     * neighbors.<br/>
+     * <p/>
+     * Message type should be set to 7.
+     *
+     * @param IDs
+     * @param m
+     * @return
+     * @throws IOException
+     */
+    public static boolean sendMessage(List<String> IDs, Message m)
+            throws IOException {
+        for (String id : IDs) {
+            if (!sendMessage(id, m)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Method to be called by upper layers to send a message to all<br/>
+     * neighbors except ID.<br/>
+     * <p/>
+     * Message type should be set to 7.
+     *
+     * @param ID
+     * @param m
+     * @return
+     * @throws IOException
+     */
+    public static boolean sendMessageToAllBut(String ID, Message m)
+            throws IOException {
+        List<String> IDs = new ArrayList<String>(listOfConnection.keySet());
+        for (String id : IDs) {
+            if (!("" + ID).equals(id)) {
+                if (!sendMessage(id, m)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 
     public static Content serveRequest(String fileName) {
 //        String fileName = packet2.getContentName();
