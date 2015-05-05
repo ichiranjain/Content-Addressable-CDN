@@ -143,7 +143,7 @@ public class ContentStore {
      * @return
      * @throws Exception
      */
-    private ContentPacket updateScoreOnIterface(Content contentStoreCopy, Integer interfaceId) throws Exception {
+    private ContentPacket updateScoreOnIterface(Content contentStoreCopy, String interfaceId) throws Exception {
         if (!contentStoreCopy.listofScoreOnInterfaces.containsKey(interfaceId)) {
             contentStoreCopy.listofScoreOnInterfaces.put(interfaceId, contentStoreCopy.getMaxNScore());
         } else {
@@ -153,7 +153,7 @@ public class ContentStore {
         boolean deleteFlag = true;
         if (contentStoreCopy.listofScoreOnInterfaces.get(interfaceId) == 0) {
             copyFlag = true;
-            for (Integer index : contentStoreCopy.listofScoreOnInterfaces.keySet()) {
+            for (String index : contentStoreCopy.listofScoreOnInterfaces.keySet()) {
                 if (contentStoreCopy.listofScoreOnInterfaces.get(index) < contentStoreCopy.getMaxNScore() / 2) {
                     deleteFlag = false;
                 }
