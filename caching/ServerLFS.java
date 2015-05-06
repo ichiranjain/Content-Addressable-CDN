@@ -36,6 +36,7 @@ public class ServerLFS implements Serializable {
     public static ArrayList<String> storeList;
     public static SendPacket sendPacketObj;
     public static String ID;
+	public static String IP;
     public static String serverNameID;
     public static GeneralQueueHandler gqh;
     public static PacketQueue2 pq2;
@@ -125,7 +126,7 @@ public class ServerLFS implements Serializable {
      */
     public static boolean sendMessage(String ID, Message m) {
         try {
-            SocketContainer sc = listOfConnection.get(ID);
+			SocketContainer sc = isConnected.get(IP);
             sc.oos.writeObject(m);
         } catch (IOException e) {
             return false;
