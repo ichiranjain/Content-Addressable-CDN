@@ -68,6 +68,17 @@ public class ServerLFS implements Serializable {
         fillStore();
         initialize();
         connectNetwork();
+        
+		Scanner s = new Scanner(System.in);
+		System.out.println("server started...");
+        while(true) {
+			System.out.print("Enter prefix to be advertised: ");
+			String str = s.nextLine();
+			advertiseNewlyAdded(new Content(str, null, 0, null));
+			System.out.println("advertised: " + str);
+			System.out.println("content NOT added to content store");
+			System.out.println();
+        }
 
     }
 
@@ -433,16 +444,12 @@ public class ServerLFS implements Serializable {
 		// advertiseNewlyAdded(contentToBeInserted);
     }
 
-    private void advertiseNewlyAdded(Content content) {
+	private static void advertiseNewlyAdded(Content content) {
         //write code to advertize single prefixObj
         PrefixObj list = new PrefixObj(content.getContentName(), serverNameID, serverNameID + System.nanoTime(), true);
         sendPacketObj.createPrefixPacket(list);
         for (String e : listOfConnection.keySet()) {
             sendPacketObj.forwardPacket(list.getOriginalPacket(), e);
         }
-
-
     }
 }
-
-
