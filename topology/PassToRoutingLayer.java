@@ -1,5 +1,6 @@
 package topology;
 
+import packetObjects.LinkObj;
 import packetObjects.PacketObj;
 
 public class PassToRoutingLayer {
@@ -45,26 +46,26 @@ public class PassToRoutingLayer {
 	//		packetQueue2.addToGeneralQueue(packetObj);
 	//	}
 
-    //the cost is not used so it can be any value
-    public void addClient(String nodeName, int nodeCost) {
-        LinkObj addClientLinkObj = new LinkObj(nodeName, nodeCost);
-        //create json
-        sendPacket.createAddClient(addClientLinkObj);
+	//the cost is not used so it can be any value
+	public void addClient(String nodeName, int nodeCost) {
+		LinkObj addClientLinkObj = new LinkObj(nodeName, nodeCost);
+		//create json
+		sendPacket.createAddClient(addClientLinkObj);
 
-        PacketObj packetObj = new PacketObj(addClientLinkObj.getOriginalPacket(), nodeName, true);
-        //add to the queue
-        packetQueue2.addToGeneralQueue(packetObj);
-    }
+		PacketObj packetObj = new PacketObj(addClientLinkObj.getOriginalPacket(), nodeName, true);
+		//add to the queue
+		packetQueue2.addToGeneralQueue(packetObj);
+	}
 
-    public void removeClient(String nodeName, int nodeCost) {
-        LinkObj removeClientLinkObj = new LinkObj(nodeName, nodeCost);
-        //create json
-        sendPacket.createRemoveClient(removeClientLinkObj);
+	public void removeClient(String nodeName, int nodeCost) {
+		LinkObj removeClientLinkObj = new LinkObj(nodeName, nodeCost);
+		//create json
+		sendPacket.createRemoveClient(removeClientLinkObj);
 
-        PacketObj packetObj = new PacketObj(removeClientLinkObj.getOriginalPacket(), nodeName, true);
-        //add to the queue
-        packetQueue2.addToGeneralQueue(packetObj);
-    }
+		PacketObj packetObj = new PacketObj(removeClientLinkObj.getOriginalPacket(), nodeName, true);
+		//add to the queue
+		packetQueue2.addToGeneralQueue(packetObj);
+	}
 
 	public void addPacket(String routingPacket, String fromNode, boolean directlyConnectedUpdate){
 

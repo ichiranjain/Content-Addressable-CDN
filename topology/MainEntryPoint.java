@@ -1,21 +1,12 @@
 package topology;
 
-import packetObjects.DataObj;
-import packetObjects.IntrestObj;
-import packetObjects.PacketObj;
-import packetObjects.PrefixObj;
-
 import java.util.ArrayList;
 import java.util.Scanner;
 
-<<<<<<<HEAD
-        =======
-        >>>>>>>8b161ea6fb9750d8782067f5516503bf65a0557d
-
 public class MainEntryPoint implements Runnable{
 
-    public PacketQueue2 packetQueue2;
-    String thisMachinesName;
+	public PacketQueue2 packetQueue2;
+	String thisMachinesName;
 	boolean running;
 	int pitSleepTime;
 	long pitKeepMsgTime;
@@ -76,28 +67,20 @@ public class MainEntryPoint implements Runnable{
 		generalQueueHandler.start();
 
 
-        //keepMsgTime is a long for the amount nano Time the entry should be kept before it is removed
-        //sleep time is an int for the amount mili seconds the thread should sleep
+		//keepMsgTime is a long for the amount nano Time the entry should be kept before it is removed
+		//sleep time is an int for the amount mili seconds the thread should sleep
 
-        //MsgIds entries
-        //suggested run every 1 minute with a entry keep time of 2 to 3 minutes
-        Thread removeMsgIDs = new Thread(new MsgIDEntryDiscard(updateMsgsSeen, msgIDSleepTime, msgIDKeepMsgTime, running));
+		//MsgIds entries
+		//suggested run every 1 minute with a entry keep time of 2 to 3 minutes
+		Thread removeMsgIDs = new Thread(new MsgIDEntryDiscard(updateMsgsSeen, msgIDSleepTime, msgIDKeepMsgTime, running));
 		// removeMsgIDs.start();
 
 		//PIT entries
-        <<<<<<<HEAD
-        //suggested to have run every 1 minutes with an entry keep time of 30 seconds
-        Thread removePitEntries = new Thread(new PITEntryDiscard(pit, pitSleepTime, pitKeepMsgTime, running));
-        // removePitEntries.start();
-
-        //FIB
-        //suggest to have run every 10 to 15 seconds /// 20,000 milliseconds  == 20 seconds
-        Thread removeFibEntries = new Thread(new FIBEntryDiscard(fib, nodeRepo, fibSleepTime, running));
-        // removeFibEntries.start();
-        =======
-        //Thread removePitEntries = new Thread(new PITEntryDiscard(pit, pitSleepTime, pitKeepMsgTime, running));
+		//suggested to have run every 1 minutes with an entry keep time of 30 seconds
+		//Thread removePitEntries = new Thread(new PITEntryDiscard(pit, pitSleepTime, pitKeepMsgTime, running));
 		// removePitEntries.start();
-        >>>>>>>8 b161ea6fb9750d8782067f5516503bf65a0557d
+
+
 
 
 
@@ -134,38 +117,6 @@ public class MainEntryPoint implements Runnable{
 		}
 	}
 
-    <<<<<<<HEAD
-
-    public void intrestPacket(String contentName) {
-        IntrestObj intrestObj1 = new IntrestObj(contentName, "", 12345);
-        SendPacket sendPacket = new SendPacket();
-        sendPacket.createIntrestPacket(intrestObj1);
-        PacketObj packetObj1 = new PacketObj(intrestObj1.getOriginalPacket(), "53830144", false);
-        packetQueue2.addToGeneralQueue(packetObj1);
-        //System.out.println("added to general q");
-    }
-
-    public void dataPacket(String contentName, String originRouter, String fromNode) {
-        SendPacket sendPacket = new SendPacket();
-        byte b = 0;
-        DataObj dataObj = new DataObj(contentName, originRouter, b, "data data", b, true);
-        sendPacket.createDataPacket(dataObj);
-        PacketObj packetObj1 = new PacketObj(dataObj.getOriginalPacket(), fromNode, false);
-        packetQueue2.addToGeneralQueue(packetObj1);
-    }
-
-    public void prefix(String prefix, boolean addRemove) {
-        String msgID = nodeRepo.thisMachinesName + System.nanoTime();
-        PrefixObj prefixObj4 = new PrefixObj(prefix, msgID, nodeRepo.thisMachinesName, addRemove);
-        SendPacket sendPacket = new SendPacket();
-        sendPacket.createPrefixPacket(prefixObj4);
-        PacketObj packetObj1 = new PacketObj(prefixObj4.getOriginalPacket(), nodeRepo.thisMachinesName, false);
-        packetQueue2.addToGeneralQueue(packetObj1);
-    }
-
-    =======
-
-            >>>>>>>8b161ea6fb9750d8782067f5516503bf65a0557d
 
 	//	public void prefix(String prefix, boolean addRemove){
 	//		String msgID = nodeRepo.thisMachinesName + System.nanoTime();
@@ -188,14 +139,5 @@ public class MainEntryPoint implements Runnable{
 	//		PacketObj packetObj1 = new PacketObj(prefixListObj3.getOriginalPacket(), nodeRepo.thisMachinesName, false);
 	//		packetQueue2.addToGeneralQueue(packetObj1);
 	//	}
-
-    public void ping(String contentName) {
-        IntrestObj intrestObj1 = new IntrestObj(contentName + "/ping", nodeRepo.getThisMachinesName(), 12345);
-        SendPacket sendPacket = new SendPacket();
-        sendPacket.createIntrestPacket(intrestObj1);
-        PacketObj packetObj1 = new PacketObj(intrestObj1.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
-        packetQueue2.addToGeneralQueue(packetObj1);
-        //System.out.println("added to general q");
-    }
 
 }
