@@ -1,16 +1,16 @@
 package topology;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-
-import packetObjects.DataObj;
-import packetObjects.IntrestObj;
-import packetObjects.PrefixListObj;
-import packetObjects.PrefixObj;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import packetObjects.DataObj;
+import packetObjects.IntrestObj;
+import packetObjects.PrefixListObj;
+import packetObjects.PrefixObj;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 
 public class Parse2 {
@@ -21,7 +21,67 @@ public class Parse2 {
 
 	}
 
-	public PrefixObj parsePrefixJson(JsonObject jsonObject, String originalPacket){
+    <<<<<<<HEAD
+
+    public AddNodeObj parseAddNodeJson(JsonObject jsonObject, String originalPacket) throws Exception {
+
+        JsonElement jsonNameElement = jsonObject.get("nodeName");
+        String nodeName = jsonNameElement.getAsString();
+
+
+        JsonElement jsonIDElement = jsonObject.get("msgID");
+        String msgID = jsonIDElement.getAsString();
+
+
+        JsonElement jsonNeighborsElement = jsonObject.get("neighbors");
+        String neighborsString = jsonNeighborsElement.getAsString();
+        Type neighborsType = new TypeToken<ArrayList<NeighborAndCostStrings>>() {
+        }.getType();
+        ArrayList<NeighborAndCostStrings> neighborsList = gson.fromJson(neighborsString, neighborsType);
+
+
+        AddNodeObj addNodeInfo = new AddNodeObj(nodeName, neighborsList, msgID, originalPacket);
+
+        return addNodeInfo;
+    }
+
+    public ModifyNodeObj parseModifyNodeJson(JsonObject jsonObject, String originalPacket) throws Exception {
+
+        //JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+        JsonElement jsonNameElement = jsonObject.get("nodeName");
+        String nodeName = jsonNameElement.getAsString();
+
+        JsonElement jsonIDElement = jsonObject.get("msgID");
+        String msgID = jsonIDElement.getAsString();
+
+        JsonElement jsonNeighborsElement = jsonObject.get("neighbors");
+        String neighborsString = jsonNeighborsElement.getAsString();
+        Type neighborsType = new TypeToken<ArrayList<NeighborAndCostStrings>>() {
+        }.getType();
+        ArrayList<NeighborAndCostStrings> neighborsList = gson.fromJson(neighborsString, neighborsType);
+
+
+        ModifyNodeObj modifyNodeInfo = new ModifyNodeObj(nodeName, neighborsList, msgID, originalPacket);
+        return modifyNodeInfo;
+    }
+
+    public RemoveNodeObj parseRemoveNodeJson(JsonObject jsonObject, String originalPacket) throws Exception {
+
+        //JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+        JsonElement jsonNameElement = jsonObject.get("removeNodeName");
+        String removeNodeName = jsonNameElement.getAsString();
+
+        JsonElement jsonIDElement = jsonObject.get("msgID");
+        String msgID = jsonIDElement.getAsString();
+
+        RemoveNodeObj removeNodeInfo = new RemoveNodeObj(removeNodeName, msgID, originalPacket);
+        return removeNodeInfo;
+    }
+
+    public PrefixObj parsePrefixJson(JsonObject jsonObject, String originalPacket) throws Exception {
+        =======
+        public PrefixObj parsePrefixJson(JsonObject jsonObject, String originalPacket){
+            >>>>>>>8 b161ea6fb9750d8782067f5516503bf65a0557d
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 		JsonElement jsonContentNameElement = jsonObject.get("prefix");
@@ -40,7 +100,7 @@ public class Parse2 {
 		return prefixInfo;
 	}
 
-	public IntrestObj parseIntrestJson(JsonObject jsonObject, String originalPacket){
+    public IntrestObj parseIntrestJson(JsonObject jsonObject, String originalPacket) throws Exception {
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 		JsonElement jsonContentNameElement = jsonObject.get("contentName");
@@ -56,7 +116,7 @@ public class Parse2 {
 		return intrestInfo;
 	}
 
-	public DataObj parseDataJson(JsonObject jsonObject, String originalPacket){
+    public DataObj parseDataJson(JsonObject jsonObject, String originalPacket) throws Exception {
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 		JsonElement jsonContentNameElement = jsonObject.get("contentName");
@@ -81,8 +141,8 @@ public class Parse2 {
 		return dataInfo; 
 	}
 
-	public PrefixListObj parsePrefixListJson(JsonObject jsonObject){
-		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+    public PrefixListObj parsePrefixListJson(JsonObject jsonObject) throws Exception {
+        //JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
 		JsonElement jsonIDElement = jsonObject.get("msgID");
 		String msgID = jsonIDElement.getAsString();
@@ -101,6 +161,84 @@ public class Parse2 {
 		return prefixListObj;
 	}
 
+    <<<<<<<HEAD
 
+    public LinkObj parseClientAddNodeJson(JsonObject jsonObject) throws Exception {
+
+        //JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+        JsonElement jsonNameElement = jsonObject.get("nodeName");
+        String nodeName = jsonNameElement.getAsString();
+
+        JsonElement jsonCostElement = jsonObject.get("cost");
+        int cost = jsonCostElement.getAsInt();
+
+        LinkObj linkObjInfo = new LinkObj(nodeName, cost);
+
+        return linkObjInfo;
+
+    }
+
+    public LinkObj parseClientRemoveNodeJson(JsonObject jsonObject) throws Exception {
+        //JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+        JsonElement jsonNameElement = jsonObject.get("nodeName");
+        String removeNodeName = jsonNameElement.getAsString();
+
+        JsonElement jsonCostElement = jsonObject.get("cost");
+        int cost = jsonCostElement.getAsInt();
+
+        LinkObj linkObjInfo = new LinkObj(removeNodeName, cost);
+
+        return linkObjInfo;
+    }
+
+    public LinkObj parseAddLink(JsonObject jsonObject) throws Exception {
+        //JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+
+        JsonElement jsonNodeNameElement = jsonObject.get("nodeName");
+        String nodeName = jsonNodeNameElement.getAsString();
+
+        JsonElement jsonCostElement = jsonObject.get("cost");
+        int cost = jsonCostElement.getAsInt();
+
+        return new LinkObj(nodeName, cost);
+    }
+
+    public LinkObj parseRemoveLink(JsonObject jsonObject) throws Exception {
+        //JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+
+        JsonElement jsonNodeNameElement = jsonObject.get("nodeName");
+        String nodeName = jsonNodeNameElement.getAsString();
+
+        JsonElement jsonCostElement = jsonObject.get("cost");
+        int cost = jsonCostElement.getAsInt();
+
+        return new LinkObj(nodeName, cost);
+    }
+
+    public LinkObj parseModifyLink(JsonObject jsonObject, String originalPacket) throws Exception {
+        //JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+
+        JsonElement jsonNodeNameElement = jsonObject.get("nodeName");
+        String nodeName = jsonNodeNameElement.getAsString();
+
+        JsonElement jsonCostElement = jsonObject.get("cost");
+        int cost = jsonCostElement.getAsInt();
+
+        return new LinkObj(nodeName, cost);
+    }
+
+    public NeighborRequestObj parseRequestNeighbors(JsonObject jsonObject) throws Exception {
+
+        //JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+
+        JsonElement jsonNodeNameElement = jsonObject.get("nodeName");
+        String nodeName = jsonNodeNameElement.getAsString();
+
+        return new NeighborRequestObj(nodeName);
+    }
+
+    =======
+
+            >>>>>>>8b161ea6fb9750d8782067f5516503bf65a0557d
 
 }

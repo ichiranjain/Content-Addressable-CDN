@@ -1,15 +1,12 @@
 package topology;
 
-import overlay.Message;
-import packetObjects.DataObj;
-import packetObjects.IntrestObj;
-import packetObjects.LinkObj;
-import packetObjects.PrefixListObj;
-import packetObjects.PrefixObj;
 import caching.ServerLFS;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import overlay.Message;
+import packetObjects.*;
+
+import java.io.IOException;
 
 public class SendPacket {
 
@@ -151,31 +148,33 @@ public class SendPacket {
 		System.out.println("");
 	}
 
-	//	public void broadcast(String packet) throws IOException {
-	//
-	//		// this will forward to everyone routers and clients
-	//
-	//		Message<String> packetMessage = new Message<String>(7, packet);
-	//		ServerLFS.sendMessageToAllBut("", packetMessage);
-	//		System.out.println("    -Broadcast-");
-	//		System.out.println("packet: " + packet);
-	//		System.out.println("-------------------------------------------");
-	//		System.out.println("");
-	//	}
 
-	//	public void forwardUpdate(String packet, String doNotSendToNode)
-	//			throws IOException {
-	//		// this will forward to all routers except the router name passed into
-	//		// the function
-	//		Message<String> packetMessage = new Message<String>(7, packet);
-	//		ServerLFS.sendMessageToAllBut(doNotSendToNode, packetMessage);
-	//		System.out.println("    -ForwardUpdate do not send node provided-");
-	//		System.out.println("packet: " + packet);
-	//		System.out.println("doNotSendToNode: " + doNotSendToNode);
-	//		System.out.println("-------------------------------------------");
-	//		System.out.println("");
-	//		//boolean true, send to routers
-	//	}
+    public void broadcast(String packet) throws IOException {
+
+        // this will forward to everyone routers and clients
+
+        Message<String> packetMessage = new Message<String>(7, packet);
+        ServerLFS.sendMessageToAllBut("", packetMessage);
+        //		System.out.println("    -Broadcast-");
+        //		System.out.println("packet: " + packet);
+        //		System.out.println("-------------------------------------------");
+        //		System.out.println("");
+    }
+
+    public void forwardUpdate(String packet, String doNotSendToNode)
+            throws IOException {
+        // this will forward to all routers except the router name passed into
+        // the function
+        Message<String> packetMessage = new Message<String>(7, packet);
+        ServerLFS.sendMessageToAllBut(doNotSendToNode, packetMessage);
+        //		System.out.println("    -ForwardUpdate do not send node provided-");
+        //		System.out.println("packet: " + packet);
+        //		System.out.println("doNotSendToNode: " + doNotSendToNode);
+        //		System.out.println("-------------------------------------------");
+        //		System.out.println("");
+        //boolean true, send to routers
+    }
+
 
 	// //dont use
 	// public void forwardToAllRouters(String packet, String[] routers ){
@@ -188,16 +187,17 @@ public class SendPacket {
 	// System.out.println("");
 	// }
 
-	//	public void forwardToAllRouters(String packet) throws IOException {
-	//		// this forwards the packet to all routers only
-	//		Message<String> packetMessage = new Message<String>(7, packet);
-	//		ServerLFS.sendMessageToAllBut("", packetMessage);
-	//		System.out.println("    -Forward to all routers no hops provided-");
-	//		System.out.println("packet: " + packet);
-	//		System.out.println("-------------------------------------------");
-	//		System.out.println("");
-	//		//boolean
-	//	}
+
+    public void forwardToAllRouters(String packet) throws IOException {
+        // this forwards the packet to all routers only
+        Message<String> packetMessage = new Message<String>(7, packet);
+        ServerLFS.sendMessageToAllBut("", packetMessage);
+        //		System.out.println("    -Forward to all routers no hops provided-");
+        //		System.out.println("packet: " + packet);
+        //		System.out.println("-------------------------------------------");
+        //		System.out.println("");
+        //boolean
+    }
 
 
 }
