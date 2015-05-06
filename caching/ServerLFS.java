@@ -47,11 +47,15 @@ public class ServerLFS implements Serializable {
 
 	static
 	{
+		storeList = new ArrayList<String>();
+		// storeList.add("/directory/subDirectory/file1");
+		// storeList.add("/directory/subDirectory/file2");
+		// storeList.add("/directory/subDirectory/file3");
+		// storeList.add("/directory/subDirectory/file4");
 		store = new HashMap<String, Content>();
 		listOfConnection = new HashMap<String, SocketContainer>();
 		deadCacheNodes = new ArrayList<String>();
 		isConnected = new HashMap<String, SocketContainer>();
-		store = new HashMap<String, Content>();
 	}
 
     public static void main(String args[]) {
@@ -126,6 +130,8 @@ public class ServerLFS implements Serializable {
      */
     public static boolean sendMessage(String ID, Message m) {
         try {
+			System.out.println("IP: " + IP);
+			System.out.println("isConnected: " + isConnected);
 			SocketContainer sc = isConnected.get(IP);
             sc.oos.writeObject(m);
         } catch (IOException e) {
@@ -381,6 +387,7 @@ public class ServerLFS implements Serializable {
                 try {
                     System.out.print("Enter cache server to connect to: ");
                     String cacheServerAddress = sc.nextLine();
+					IP = cacheServerAddress;
                     Socket cacheServer = null;
                     try {
                         cacheServer = new Socket(cacheServerAddress, 43125);
@@ -412,14 +419,14 @@ public class ServerLFS implements Serializable {
 
     ///only required for content server
 
-    private void addContentToStore(String key, String value) {
-        long size = value.length();
-        ArrayList<Integer> trail = new ArrayList<Integer>();
-        trail.add(-1);
-        Content contentToBeInserted = new Content(key, trail, size, value);
-        store.put(key, contentToBeInserted);
-        storeList.add(key);
-        advertiseNewlyAdded(contentToBeInserted);
+	private void addContentToStore(Content content) {
+		// long size = value.length();
+		// ArrayList<Integer> trail = new ArrayList<Integer>();
+		// trail.add(-1);
+		// Content contentToBeInserted = new Content(key, trail, size, value);
+		store.put(content.getContentName(), content);
+		storeList.add(content.getContentName());
+		// advertiseNewlyAdded(contentToBeInserted);
     }
 
     private void advertiseNewlyAdded(Content content) {
