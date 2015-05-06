@@ -1,9 +1,10 @@
 package overlay;
 
-import caching.ServerLFS;
-import packetObjects.PacketObj;
-
 import java.io.ObjectInputStream;
+import java.net.UnknownHostException;
+
+import packetObjects.PacketObj;
+import caching.ServerLFS;
 
 /**
  * Created by Chiran on 4/26/15.
@@ -48,7 +49,7 @@ public class ServerLinks extends Thread {
 
 	}
 
-	private void handleUpdate(Message m) {
+	private void handleUpdate(Message m) throws UnknownHostException {
 
 		if (m.type == 7) {
 			Message<String> m2 = m;
@@ -57,7 +58,9 @@ public class ServerLinks extends Thread {
 			 * with out it, packets can not be routed
 			 * change "" to a node ID
 			 */
-            PacketObj pObj = new PacketObj(m2.packet, nodeConnected, true);
+			PacketObj pObj = new PacketObj(m2.packet,
+					ServerLFS.generateID(ServerLFS.getIP(nodeConnected)) + "",
+					true);
             ServerLFS.pq2.addToGeneralQueue(pObj);
 		}
 
