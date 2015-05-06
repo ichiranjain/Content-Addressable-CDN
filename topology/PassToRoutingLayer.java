@@ -1,6 +1,5 @@
 package topology;
 
-import packetObjects.LinkObj;
 import packetObjects.PacketObj;
 
 public class PassToRoutingLayer {
@@ -13,38 +12,38 @@ public class PassToRoutingLayer {
 		this.sendPacket = new SendPacket();
 	}
 
-	public void addLink(String nodeName, int nodeCost){
-		System.out.println("New link to: " + nodeName);
-		//System.out.println("creating add link obj");
-		//make the obj
-		LinkObj addlinkObj = new LinkObj(nodeName, nodeCost);
-		//create json
-		sendPacket.createAddLinkPacket(addlinkObj);
+	//	public void addLink(String nodeName, int nodeCost){
+	//		System.out.println("New link to: " + nodeName);
+	//		//System.out.println("creating add link obj");
+	//		//make the obj
+	//		LinkObj addlinkObj = new LinkObj(nodeName, nodeCost);
+	//		//create json
+	//		sendPacket.createAddLinkPacket(addlinkObj);
+	//
+	//		PacketObj packetObj = new PacketObj(addlinkObj.getOriginalPacket(), nodeName, true);
+	//		//add to the queue
+	//		packetQueue2.addToGeneralQueue(packetObj);
+	//	}
 
-		PacketObj packetObj = new PacketObj(addlinkObj.getOriginalPacket(), nodeName, true);
-		//add to the queue
-		packetQueue2.addToGeneralQueue(packetObj);
-	}
+	//	public void removeLink(String nodeName, int nodeCost){
+	//		LinkObj removelinkObj = new LinkObj(nodeName, nodeCost);
+	//		//create json
+	//		sendPacket.createRemoveLinkPacket(removelinkObj);
+	//
+	//		PacketObj packetObj = new PacketObj(removelinkObj.getOriginalPacket(), nodeName, true);
+	//		//add to the queue
+	//		packetQueue2.addToGeneralQueue(packetObj);
+	//	}
 
-	public void removeLink(String nodeName, int nodeCost){
-		LinkObj removelinkObj = new LinkObj(nodeName, nodeCost);
-		//create json
-		sendPacket.createRemoveLinkPacket(removelinkObj);
-
-		PacketObj packetObj = new PacketObj(removelinkObj.getOriginalPacket(), nodeName, true);
-		//add to the queue
-		packetQueue2.addToGeneralQueue(packetObj);
-	}
-
-	public void modifyLink(String nodeName, int nodeCost){
-		LinkObj modifylinkObj = new LinkObj(nodeName, nodeCost);
-		//create json
-		sendPacket.createModifyLinkPacket(modifylinkObj);
-
-		PacketObj packetObj = new PacketObj(modifylinkObj.getOriginalPacket(), nodeName, true);
-		//add to the queue
-		packetQueue2.addToGeneralQueue(packetObj);
-	}
+	//	public void modifyLink(String nodeName, int nodeCost){
+	//		LinkObj modifylinkObj = new LinkObj(nodeName, nodeCost);
+	//		//create json
+	//		sendPacket.createModifyLinkPacket(modifylinkObj);
+	//
+	//		PacketObj packetObj = new PacketObj(modifylinkObj.getOriginalPacket(), nodeName, true);
+	//		//add to the queue
+	//		packetQueue2.addToGeneralQueue(packetObj);
+	//	}
 
 	public void addPacket(String routingPacket, String fromNode, boolean directlyConnectedUpdate){
 
