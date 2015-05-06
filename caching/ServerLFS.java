@@ -1,5 +1,19 @@
 package caching;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
+
 import overlay.Message;
 import overlay.ServerLinks;
 import overlay.SocketContainer;
@@ -9,15 +23,6 @@ import packetObjects.PrefixObj;
 import topology.GeneralQueueHandler;
 import topology.PacketQueue2;
 import topology.SendPacket;
-
-import java.io.*;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
 
 
 /**
@@ -31,6 +36,7 @@ public class ServerLFS implements Serializable {
     public static ArrayList<String> storeList;
     public static SendPacket sendPacketObj;
     public static String ID;
+	public static String IP;
     public static String serverNameID;
     public static GeneralQueueHandler gqh;
     public static PacketQueue2 pq2;
@@ -39,16 +45,29 @@ public class ServerLFS implements Serializable {
     private static ObjectOutputStream oos = null;
     private static ObjectInputStream ois = null;
 
+	static
+	{
+		storeList = new ArrayList<String>();
+		// storeList.add("/directory/subDirectory/file1");
+		// storeList.add("/directory/subDirectory/file2");
+		// storeList.add("/directory/subDirectory/file3");
+		// storeList.add("/directory/subDirectory/file4");
+		store = new HashMap<String, Content>();
+		listOfConnection = new HashMap<String, SocketContainer>();
+		deadCacheNodes = new ArrayList<String>();
+		isConnected = new HashMap<String, SocketContainer>();
+	}
+
     public static void main(String args[]) {
-        ServerLFS s1 = new ServerLFS();
+        //ServerLFS s1 = new ServerLFS();
         try {
             serverNameID = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        s1.fillStore();
-        s1.initialize();
-        s1.connectNetwork();
+        fillStore();
+        initialize();
+        connectNetwork();
 
     }
 
@@ -111,7 +130,9 @@ public class ServerLFS implements Serializable {
      */
     public static boolean sendMessage(String ID, Message m) {
         try {
-            SocketContainer sc = listOfConnection.get(ID);
+			System.out.println("IP: " + IP);
+			System.out.println("isConnected: " + isConnected);
+			SocketContainer sc = isConnected.get(IP);
             sc.oos.writeObject(m);
         } catch (IOException e) {
             return false;
@@ -323,28 +344,22 @@ public class ServerLFS implements Serializable {
 
     }
 
-    private void fillStore() {
+    private static void fillStore() {
         Content c1 = new Content("firstContent", null, 200, "updatedSecondContent1");
         Content c2 = new Content("secondContent", null, 200, "updatedSecondContent2");
         Content c3 = new Content("thirdContent", null, 200, "updatedSecondContent3");
         Content c4 = new Content("forthContent", null, 200, "updatedSecondContent4");
+		storeList.add(c1.getContentName());
+		storeList.add(c2.getContentName());
+		storeList.add(c3.getContentName());
+		storeList.add(c4.getContentName());
         store.put(c1.getContentName(), c1);
         store.put(c2.getContentName(), c2);
         store.put(c3.getContentName(), c3);
         store.put(c4.getContentName(), c4);
     }
 
-    private void addContentToStore(String key, String value) {
-        long size = value.length();
-        ArrayList<Integer> trail = new ArrayList<Integer>();
-        trail.add(-1);
-        Content contentToBeInserted = new Content(key, trail, size, value);
-        store.put(key, contentToBeInserted);
-        storeList.add(key);
-        advertiseNewlyAdded(contentToBeInserted);
-    }
-
-    private void advertise(ArrayList<String> contentList, String cacheServerAddress) {
+    private static void advertise(ArrayList<String> contentList, String cacheServerAddress) {
 
         PrefixListObj list = new PrefixListObj(contentList, serverNameID, true, serverNameID + System.nanoTime());
         sendPacketObj.createPrefixListPacket(list);
@@ -352,27 +367,13 @@ public class ServerLFS implements Serializable {
 
     }
 
-    private void advertiseNewlyAdded(Content content) {
-        //write code to advertize single prefixObj
-        PrefixObj list = new PrefixObj(content.getContentName(), serverNameID, serverNameID + System.nanoTime(), true);
-        sendPacketObj.createPrefixPacket(list);
-        for (String e : listOfConnection.keySet()) {
-            sendPacketObj.forwardPacket(list.getOriginalPacket(), e);
-        }
-
-
-    }
-
-
-    ///only required for content server
-
-    private void initialize() {
+    private static void initialize() {
         listOfConnection = new HashMap<String, SocketContainer>();
         isConnected = new HashMap<String, SocketContainer>();
         deadCacheNodes = new ArrayList<String>();
     }
 
-    private void connectNetwork() {
+    private static void connectNetwork() {
         Scanner sc = new Scanner(System.in);
         sendPacketObj = new SendPacket();
         boolean serverStarted = true;
@@ -390,6 +391,7 @@ public class ServerLFS implements Serializable {
                 try {
                     System.out.print("Enter cache server to connect to: ");
                     String cacheServerAddress = sc.nextLine();
+					IP = cacheServerAddress;
                     Socket cacheServer = null;
                     try {
                         cacheServer = new Socket(cacheServerAddress, 43125);
@@ -408,6 +410,7 @@ public class ServerLFS implements Serializable {
                     ID = generateID(getIP(cacheServerAddress)) + "";
                     connected = true;
                     // oos.writeObject("joining client");
+					System.out.println("oos: " + oos);
                     isConnected.put(cacheServerAddress, new SocketContainer(cacheServer, ois, oos, link));
                     advertise(storeList, cacheServerAddress);
                 } catch (UnknownHostException e) {
@@ -418,7 +421,28 @@ public class ServerLFS implements Serializable {
     }
 
 
+    ///only required for content server
 
+	private void addContentToStore(Content content) {
+		// long size = value.length();
+		// ArrayList<Integer> trail = new ArrayList<Integer>();
+		// trail.add(-1);
+		// Content contentToBeInserted = new Content(key, trail, size, value);
+		store.put(content.getContentName(), content);
+		storeList.add(content.getContentName());
+		// advertiseNewlyAdded(contentToBeInserted);
+    }
+
+    private void advertiseNewlyAdded(Content content) {
+        //write code to advertize single prefixObj
+        PrefixObj list = new PrefixObj(content.getContentName(), serverNameID, serverNameID + System.nanoTime(), true);
+        sendPacketObj.createPrefixPacket(list);
+        for (String e : listOfConnection.keySet()) {
+            sendPacketObj.forwardPacket(list.getOriginalPacket(), e);
+        }
+
+
+    }
 }
 
 
