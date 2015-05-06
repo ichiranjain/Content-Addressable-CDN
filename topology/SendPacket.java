@@ -8,7 +8,6 @@ import packetObjects.*;
 
 import java.io.IOException;
 
-
 public class SendPacket {
 
     Gson gson = new Gson();
