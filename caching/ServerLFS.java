@@ -1,5 +1,19 @@
 package caching;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
+
 import overlay.Message;
 import overlay.ServerLinks;
 import overlay.SocketContainer;
@@ -9,15 +23,6 @@ import packetObjects.PrefixObj;
 import topology.GeneralQueueHandler;
 import topology.PacketQueue2;
 import topology.SendPacket;
-
-import java.io.*;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
 
 
 /**
@@ -38,6 +43,15 @@ public class ServerLFS implements Serializable {
     static Runtime r = Runtime.getRuntime();
     private static ObjectOutputStream oos = null;
     private static ObjectInputStream ois = null;
+
+	static
+	{
+		store = new HashMap<String, Content>();
+		listOfConnection = new HashMap<String, SocketContainer>();
+		deadCacheNodes = new ArrayList<String>();
+		isConnected = new HashMap<String, SocketContainer>();
+		store = new HashMap<String, Content>();
+	}
 
     public static void main(String args[]) {
         //ServerLFS s1 = new ServerLFS();

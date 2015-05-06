@@ -13,7 +13,7 @@ import java.net.Socket;
 public class SocketContainer {
 	Socket socket;
 	ObjectInputStream ois;
-	ObjectOutputStream oos;
+	public ObjectOutputStream oos;
 	ServerLinks link;
 
 	public SocketContainer(Socket socket, ObjectInputStream ois,
