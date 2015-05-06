@@ -82,7 +82,12 @@ public class ServerLFS implements Serializable {
 			while (true) {
 				System.out.print("Enter prefix to be advertised: ");
 				String str = s.nextLine();
-				advertiseNewlyAdded(new Content(str, null, 0, null));
+				try {
+					advertiseNewlyAdded(new Content(str, null, 0, null));
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				System.out.println("advertised: " + str);
 				System.out.println("content NOT added to content store");
 				System.out.println();
@@ -377,9 +382,12 @@ public class ServerLFS implements Serializable {
         store.put(c4.getContentName(), c4);
     }
 
-    private static void advertise(ArrayList<String> contentList, String cacheServerAddress) {
+	private static void advertise(ArrayList<String> contentList,
+			String cacheServerAddress) throws UnknownHostException {
 
-        PrefixListObj list = new PrefixListObj(contentList, serverNameID, true, serverNameID + System.nanoTime());
+		PrefixListObj list = new PrefixListObj(contentList,
+				generateID(getIP(serverNameID)) + "", true,
+				generateID(getIP(serverNameID)) + System.nanoTime() + "");
         sendPacketObj.createPrefixListPacket(list);
         sendPacketObj.forwardPacket(list.getOriginalPacket(), cacheServerAddress);
 
@@ -454,9 +462,12 @@ public class ServerLFS implements Serializable {
 		// advertiseNewlyAdded(contentToBeInserted);
     }
 
-	private static void advertiseNewlyAdded(Content content) {
+	private static void advertiseNewlyAdded(Content content)
+			throws UnknownHostException {
         //write code to advertize single prefixObj
-        PrefixObj list = new PrefixObj(content.getContentName(), serverNameID, serverNameID + System.nanoTime(), true);
+		PrefixObj list = new PrefixObj(content.getContentName(),
+				generateID(getIP(serverNameID)) + System.nanoTime() + "",
+				generateID(getIP(serverNameID)) + "", true);
         sendPacketObj.createPrefixPacket(list);
         for (String e : listOfConnection.keySet()) {
             sendPacketObj.forwardPacket(list.getOriginalPacket(), e);
