@@ -349,6 +349,10 @@ public class ServerLFS implements Serializable {
         Content c2 = new Content("secondContent", null, 200, "updatedSecondContent2");
         Content c3 = new Content("thirdContent", null, 200, "updatedSecondContent3");
         Content c4 = new Content("forthContent", null, 200, "updatedSecondContent4");
+		storeList.add(c1.getContentName());
+		storeList.add(c2.getContentName());
+		storeList.add(c3.getContentName());
+		storeList.add(c4.getContentName());
         store.put(c1.getContentName(), c1);
         store.put(c2.getContentName(), c2);
         store.put(c3.getContentName(), c3);
