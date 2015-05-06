@@ -276,7 +276,7 @@ public class ProcessRoutingPackets {
 
 			for(int i = 0; i < requesters.size(); i++){
 				if(nodeRepo.HMdoesNodeExist(requesters.get(i)) == true){
-
+					dataObj.setFlag((byte)0);
 					sendPacket.createDataPacket(dataObj);
 					sendPacket.forwardPacket(dataObj.getOriginalPacket(), requesters.get(i));
 				}
@@ -284,7 +284,7 @@ public class ProcessRoutingPackets {
 
 			for(int i = 0; i < clientRequesters.size(); i++){
 				if(directlyConnectedNodes.doesDirectlyConnectedClientExist(clientRequesters.get(i)) == true){
-
+					dataObj.setFlag((byte)0);
 					sendPacket.createDataPacket(dataObj);
 					sendPacket.forwardPacket(dataObj.getOriginalPacket(), requesters.get(i));
 				}
@@ -295,6 +295,7 @@ public class ProcessRoutingPackets {
 			//String nextHop = checkFIB(dataObj.getContentName());
 			String nextHop = fib.searchFIB(dataObj.getContentName());
 			//sendPacket
+			dataObj.setFlag((byte)2);
 			sendPacket.createDataPacket(dataObj);
 			sendPacket.forwardPacket(dataObj.getOriginalPacket(), nextHop);
 
