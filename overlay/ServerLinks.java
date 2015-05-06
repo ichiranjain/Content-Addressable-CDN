@@ -1,5 +1,8 @@
 package overlay;
 
+import caching.ServerLFS;
+import packetObjects.PacketObj;
+
 import java.io.ObjectInputStream;
 
 /**
@@ -47,9 +50,9 @@ public class ServerLinks extends Thread {
     private void handleUpdate(Message m) {
 
         if (m.type == 7) {
-            if (m.packet instanceof String) {
-                //Server.serveRequest();
-            }
+            Message<String> m2 = m;
+            PacketObj pObj = new PacketObj(m2.packet, "", true);
+            ServerLFS.pq2.addToGeneralQueue(pObj);
         }
 
     }
