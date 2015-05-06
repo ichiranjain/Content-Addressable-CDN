@@ -49,6 +49,6 @@ public class Message<K> implements Serializable {
 	}
 
 	private long requestNumberGenerator() {
-		return System.currentTimeMillis();
-	}
+        return System.nanoTime();
+    }
 }
