@@ -295,6 +295,7 @@ public class ProcessRoutingPackets {
 			//String nextHop = checkFIB(dataObj.getContentName());
 			String nextHop = fib.searchFIB(dataObj.getContentName());
 			//sendPacket
+			sendPacket.createDataPacket(dataObj);
 			sendPacket.forwardPacket(dataObj.getOriginalPacket(), nextHop);
 
 		}else{
