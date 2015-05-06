@@ -1,9 +1,9 @@
 package overlay;
 
-import java.io.ObjectInputStream;
-
-import packetObjects.PacketObj;
 import caching.ServerLFS;
+import packetObjects.PacketObj;
+
+import java.io.ObjectInputStream;
 
 /**
  * Created by Chiran on 4/26/15.
@@ -57,8 +57,8 @@ public class ServerLinks extends Thread {
 			 * with out it, packets can not be routed
 			 * change "" to a node ID
 			 */
-			PacketObj pObj = new PacketObj(m2.packet, "", true);
-			ServerLFS.pq2.addToGeneralQueue(pObj);
+            PacketObj pObj = new PacketObj(m2.packet, nodeConnected, true);
+            ServerLFS.pq2.addToGeneralQueue(pObj);
 		}
 
 	}
