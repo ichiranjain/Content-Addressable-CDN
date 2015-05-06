@@ -398,6 +398,7 @@ public class ServerLFS implements Serializable {
                     ID = generateID(getIP(cacheServerAddress)) + "";
                     connected = true;
                     // oos.writeObject("joining client");
+					System.out.println("oos: " + oos);
                     isConnected.put(cacheServerAddress, new SocketContainer(cacheServer, ois, oos, link));
                     advertise(storeList, cacheServerAddress);
                 } catch (UnknownHostException e) {
