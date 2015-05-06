@@ -65,23 +65,30 @@ public class ServerLFS implements Serializable {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+
         fillStore();
         initialize();
         connectNetwork();
         
-		Scanner s = new Scanner(System.in);
-		System.out.println("server started...");
-        while(true) {
-			System.out.print("Enter prefix to be advertised: ");
-			String str = s.nextLine();
-			advertiseNewlyAdded(new Content(str, null, 0, null));
-			System.out.println("advertised: " + str);
-			System.out.println("content NOT added to content store");
-			System.out.println();
-        }
+	}
 
+	static class A extends Thread {
+		A() {
+
+		}
+		public void run() {
+			Scanner s = new Scanner(System.in);
+			System.out.println("server started...");
+			while (true) {
+				System.out.print("Enter prefix to be advertised: ");
+				String str = s.nextLine();
+				advertiseNewlyAdded(new Content(str, null, 0, null));
+				System.out.println("advertised: " + str);
+				System.out.println("content NOT added to content store");
+				System.out.println();
+			}
+		}
     }
-
 
     public static long generateID(String IP) throws UnknownHostException {
         String hostAddress = InetAddress.getLocalHost().getHostAddress();
@@ -396,6 +403,9 @@ public class ServerLFS implements Serializable {
         gqhThread.start();
         pd = new ProcessData();
         pd.start();
+
+		A a = new A();
+		a.start();
 
         while (serverStarted) {
             while (!connected) {
