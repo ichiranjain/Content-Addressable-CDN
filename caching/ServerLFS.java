@@ -40,15 +40,15 @@ public class ServerLFS implements Serializable {
     private static ObjectInputStream ois = null;
 
     public static void main(String args[]) {
-        ServerLFS s1 = new ServerLFS();
+        //ServerLFS s1 = new ServerLFS();
         try {
             serverNameID = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        s1.fillStore();
-        s1.initialize();
-        s1.connectNetwork();
+        fillStore();
+        initialize();
+        connectNetwork();
 
     }
 
@@ -323,7 +323,7 @@ public class ServerLFS implements Serializable {
 
     }
 
-    private void fillStore() {
+    private static void fillStore() {
         Content c1 = new Content("firstContent", null, 200, "updatedSecondContent1");
         Content c2 = new Content("secondContent", null, 200, "updatedSecondContent2");
         Content c3 = new Content("thirdContent", null, 200, "updatedSecondContent3");
@@ -334,17 +334,7 @@ public class ServerLFS implements Serializable {
         store.put(c4.getContentName(), c4);
     }
 
-    private void addContentToStore(String key, String value) {
-        long size = value.length();
-        ArrayList<Integer> trail = new ArrayList<Integer>();
-        trail.add(-1);
-        Content contentToBeInserted = new Content(key, trail, size, value);
-        store.put(key, contentToBeInserted);
-        storeList.add(key);
-        advertiseNewlyAdded(contentToBeInserted);
-    }
-
-    private void advertise(ArrayList<String> contentList, String cacheServerAddress) {
+    private static void advertise(ArrayList<String> contentList, String cacheServerAddress) {
 
         PrefixListObj list = new PrefixListObj(contentList, serverNameID, true, serverNameID + System.nanoTime());
         sendPacketObj.createPrefixListPacket(list);
@@ -352,27 +342,13 @@ public class ServerLFS implements Serializable {
 
     }
 
-    private void advertiseNewlyAdded(Content content) {
-        //write code to advertize single prefixObj
-        PrefixObj list = new PrefixObj(content.getContentName(), serverNameID, serverNameID + System.nanoTime(), true);
-        sendPacketObj.createPrefixPacket(list);
-        for (String e : listOfConnection.keySet()) {
-            sendPacketObj.forwardPacket(list.getOriginalPacket(), e);
-        }
-
-
-    }
-
-
-    ///only required for content server
-
-    private void initialize() {
+    private static void initialize() {
         listOfConnection = new HashMap<String, SocketContainer>();
         isConnected = new HashMap<String, SocketContainer>();
         deadCacheNodes = new ArrayList<String>();
     }
 
-    private void connectNetwork() {
+    private static void connectNetwork() {
         Scanner sc = new Scanner(System.in);
         sendPacketObj = new SendPacket();
         boolean serverStarted = true;
@@ -418,7 +394,28 @@ public class ServerLFS implements Serializable {
     }
 
 
+    ///only required for content server
 
+    private void addContentToStore(String key, String value) {
+        long size = value.length();
+        ArrayList<Integer> trail = new ArrayList<Integer>();
+        trail.add(-1);
+        Content contentToBeInserted = new Content(key, trail, size, value);
+        store.put(key, contentToBeInserted);
+        storeList.add(key);
+        advertiseNewlyAdded(contentToBeInserted);
+    }
+
+    private void advertiseNewlyAdded(Content content) {
+        //write code to advertize single prefixObj
+        PrefixObj list = new PrefixObj(content.getContentName(), serverNameID, serverNameID + System.nanoTime(), true);
+        sendPacketObj.createPrefixPacket(list);
+        for (String e : listOfConnection.keySet()) {
+            sendPacketObj.forwardPacket(list.getOriginalPacket(), e);
+        }
+
+
+    }
 }
 
 
