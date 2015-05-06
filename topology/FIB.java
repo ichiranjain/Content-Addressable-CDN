@@ -472,8 +472,13 @@ public class FIB{
 					//if best cost == error the node does not exist 
 					if(bestCostNode.equals("error") == false){
 
-						// there was no error
-						nextHop = nodeRepo.HMgetNode(bestCostNode).getOriginNextHop();
+
+						if(directlyConnectedNodes.doesDirectlyConnectedClientExist(bestCostNode) == true){
+							nextHop = bestCostNode;
+						}else{	
+							// there was no error
+							nextHop = nodeRepo.HMgetNode(bestCostNode).getOriginNextHop();
+						}
 
 						if(nextHop.equals("")){
 							nextHop = "broadCast";
