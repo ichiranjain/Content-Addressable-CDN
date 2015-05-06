@@ -11,10 +11,10 @@ public class Main {
     public static void main(String[] args) {
 
         storeObj.store = new HashMap<String, Content>();
-        Content c1 = new Content(1, "firstContent", null, 200, new Object());
-        Content c2 = new Content(2, "secondContent", null, 200, new Object());
-        Content c3 = new Content(3, "secondContent", null, 200, "updatedSecondContent");
-        Content c4 = new Content(4, "thirdContent", null, 200, new Object());
+        Content c1 = new Content("firstContent", null, 200, "updatedSecondContent1");
+        Content c2 = new Content("secondContent", null, 200, "updatedSecondContent2");
+        Content c3 = new Content("thirdContent", null, 200, "updatedSecondContent3");
+        Content c4 = new Content("forthContent", null, 200, "updatedSecondContent4");
         m.fillContentStore(c1);
         m.fillContentStore(c2);
         m.printStore();

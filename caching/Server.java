@@ -4,24 +4,24 @@ import overlay.Message;
 import overlay.ServerLinks;
 import overlay.SocketContainer;
 
-import java.io.*;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import packetObjects.IntrestObj;
 
 /**
  * Created by Chiran on 4/26/15.
  */
 public class Server implements Serializable{
+    public static HashMap<String, SocketContainer> isConnected;
+    public static ArrayList<String> deadCacheNodes;
+    static HashMap<String, SocketContainer> listOfConnection;
+    public HashMap<String, Content> store;
     private Socket s;
     private ObjectOutputStream oos = null;
     private ObjectInputStream ois = null;
-    static  HashMap<String, SocketContainer> listOfConnection;
-    public static HashMap<String, SocketContainer> isConnected;
-    public static ArrayList<String> deadCacheNodes;
-    public HashMap<String, Content> store;
 
     public static void main(String args[]){
 
@@ -33,21 +33,20 @@ public class Server implements Serializable{
 
     }
 
+    private static void advertise() {
+
+
+    }
+
     private void fillStore() {
-		
-	}
+
+    }
 
 	private void initialize() {
         listOfConnection = new HashMap<String, SocketContainer>();
         //listOfConnection.put("10.0.0.1", new SocketContainer(s,ois,oos));
         isConnected = new HashMap<String, SocketContainer>();
         deadCacheNodes = new ArrayList<String>();
-    }
-
-    private static void advertise() {
-
-        
-
     }
 
     private void connectNetwork() {
@@ -68,26 +67,6 @@ public class Server implements Serializable{
                 e.printStackTrace();
             }
         }
-    }
-
-    public void serveRequest(IntrestObj packet2){
-    	  String fileName = packet2.getContentName();
-          if (store.containsKey(fileName)) {
-              try {
-                  //place content returned
-                  ContentPacket packet = updateScoreOnIterface(store.get(fileName), interfaceId); //packet type : 2 = incoming packet
-                  if (packet != null) {
-                      return packet;
-                  }
-              } catch (Exception e) {
-                  e.printStackTrace();
-              }
-              return replyContentRequest(fileName);//packet type : 1 = reply
-          } else {
-              return null;
-          }
-    	
-
     }
 
 
