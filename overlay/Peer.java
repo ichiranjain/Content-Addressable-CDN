@@ -282,9 +282,10 @@ public class Peer { // implements PeerInterface
 		// }
 	}
 
+	//1,000,000,000 nano time == 1 second
 	public static MainEntryPoint startRouting() {
-		MainEntryPoint mep = new MainEntryPoint(ID + "", 300000, 86400000,
-				86400000, 86400000, 20000);
+		MainEntryPoint mep = new MainEntryPoint(ID + "", 10000, 7000000000L,
+				20000, 60000000000L, 20000);
 		routing = new PassToRoutingLayer(mep.packetQueue2);
 
 		return mep;

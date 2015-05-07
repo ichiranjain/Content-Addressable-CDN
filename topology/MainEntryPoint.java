@@ -90,12 +90,12 @@ public class MainEntryPoint implements Runnable{
 		//MsgIds entries 
 		//suggested run every 1 minute with a entry keep time of 2 to 3 minutes 
 		Thread removeMsgIDs = new Thread(new MsgIDEntryDiscard(updateMsgsSeen, msgIDSleepTime, msgIDKeepMsgTime, running));
-		// removeMsgIDs.start();
+		removeMsgIDs.start();
 
 		//PIT entries
 		//suggested to have run every 1 minutes with an entry keep time of 30 seconds
 		Thread removePitEntries = new Thread(new PITEntryDiscard(pit, pitSleepTime, pitKeepMsgTime, running));
-		// removePitEntries.start();
+		removePitEntries.start();
 
 		//FIB
 		//suggest to have run every 10 to 15 seconds /// 20,000 milliseconds  == 20 seconds
