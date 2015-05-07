@@ -389,7 +389,8 @@ public class ServerLFS implements Serializable {
 		PrefixListObj list = new PrefixListObj(contentList,
 				generateID(getIP(serverNameID)) + "", true,
 				generateID(getIP(serverNameID)) + System.nanoTime() + "");
-		sendPacketObj.createPrefixListPacket(list);
+		//sendPacketObj.createPrefixListPacket(list);
+		sendPacketObj.createClientPrefixList(list);
 		sendPacketObj.forwardPacket(list.getOriginalPacket(), cacheServerAddress);
 
 	}
@@ -470,7 +471,8 @@ public class ServerLFS implements Serializable {
 		PrefixObj list = new PrefixObj(content.getContentName(),
 				generateID(getIP(serverNameID)) + System.nanoTime() + "",
 				generateID(getIP(serverNameID)) + "", true);
-		sendPacketObj.createPrefixPacket(list);
+		//sendPacketObj.createPrefixPacket(list);
+		sendPacketObj.createClientPrefix(list);
 		for (String e : listOfConnection.keySet()) {
 			sendPacketObj.forwardPacket(list.getOriginalPacket(), e);
 		}
