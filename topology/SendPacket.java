@@ -240,7 +240,8 @@ public class SendPacket {
 
 		packet.addProperty("type", "update");
 		packet.addProperty("action", "neighborRequest");
-		packet.addProperty("nodeName", neighborRequestObj.getFromName());
+		packet.addProperty("contentName", neighborRequestObj.getContentName());
+		packet.addProperty("originRouter", neighborRequestObj.getOriginRouter());
 
 		String pkt  = packet.toString();
 		neighborRequestObj.setOriginalPacket(pkt);

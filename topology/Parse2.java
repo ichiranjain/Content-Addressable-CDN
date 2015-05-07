@@ -227,10 +227,12 @@ public class Parse2 {
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
-		JsonElement jsonNodeNameElement = jsonObject.get("nodeName");
-		String nodeName = jsonNodeNameElement.getAsString();
+		JsonElement jsonContentNameElement = jsonObject.get("contentName");
+		String nodeName = jsonContentNameElement.getAsString();
+		JsonElement jsonOriginRouterElement = jsonObject.get("originRouter");
+		String originRouter = jsonOriginRouterElement.getAsString();
 
-		return new NeighborRequestObj(nodeName);
+		return new NeighborRequestObj(nodeName, originRouter);
 	}
 
 }

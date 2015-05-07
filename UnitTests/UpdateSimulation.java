@@ -7,7 +7,6 @@ import packetObjects.DataObj;
 import packetObjects.IntrestObj;
 import packetObjects.LinkObj;
 import packetObjects.ModifyNodeObj;
-import packetObjects.NeighborRequestObj;
 import packetObjects.PrefixListObj;
 import packetObjects.PrefixObj;
 import topology.DirectlyConnectedNodes;
@@ -101,8 +100,8 @@ public class UpdateSimulation {
 
 		//Receive request for neighbors and prefixes 
 		//send neighbors data packet and prefix data packet
-		NeighborRequestObj neighborRequestObj = new NeighborRequestObj("B");
-		process.processIntrestRequestForNeighbors(neighborRequestObj);
+		//NeighborRequestObj neighborRequestObj = new NeighborRequestObj("B");
+		//process.processIntrestRequestForNeighbors(neighborRequestObj);
 	}
 
 	public void neighborsAndPrefixResponse(){

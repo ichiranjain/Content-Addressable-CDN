@@ -83,7 +83,9 @@ public class RoutingSwitch implements Runnable{
 					SendPacket sendPacket = new SendPacket();
 					//the packet is for this node
 					//parse the neighbor request 
-					NeighborRequestObj neighborRequestObj = new NeighborRequestObj(genericPacketObj.getRecievedFromNode());
+					//NeighborRequestObj neighborRequestObj = new NeighborRequestObj(genericPacketObj.getRecievedFromNode());
+					NeighborRequestObj neighborRequestObj = new NeighborRequestObj(intrestObj.getContentName(), intrestObj.getOriginRouterName());
+
 
 					//create the packet
 					sendPacket.createNeighborRequestPacket(neighborRequestObj);
@@ -104,9 +106,18 @@ public class RoutingSwitch implements Runnable{
 
 			DataObj dataObj = (DataObj) genericPacketObj.getObj();
 			String[] dataContentNameSplit = dataObj.getContentName().split("/");
+			boolean packetIsForMe = false;
+			if(dataContentNameSplit.length == 2){
+				if(dataObj.getOriginRouterName().equals(nodeRepo.getThisMachinesName())){
+
+					if(dataContentNameSplit[1].equals("np") || dataContentNameSplit[1].equals("ping")){
+						packetIsForMe = true;
+					}
+				}
+			}
 
 			//if(dataObj.getContentName().equals(nodeRepo.getThisMachinesName()) == false){
-			if(dataContentNameSplit[0].equals(nodeRepo.getThisMachinesName()) == false){
+			if(packetIsForMe == false){
 				switch(dataObj.getFlag()){
 				case 0 :
 					process.processData0(dataObj);

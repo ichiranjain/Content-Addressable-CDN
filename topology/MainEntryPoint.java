@@ -100,7 +100,7 @@ public class MainEntryPoint implements Runnable{
 		//FIB
 		//suggest to have run every 10 to 15 seconds /// 20,000 milliseconds  == 20 seconds
 		Thread removeFibEntries = new Thread(new FIBEntryDiscard(fib, nodeRepo, fibSleepTime, running));
-		// removeFibEntries.start();
+		removeFibEntries.start();
 
 
 

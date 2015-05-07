@@ -259,14 +259,16 @@ public class ProcessUpdates {
 		}//end for loop	
 
 		//forward the prefixList update using this router name, because it was a client prefix 
-		prefixListObj.setAdvertiser(nodeRepo.getThisMachinesName());
+		//prefixListObj.setAdvertiser(nodeRepo.getThisMachinesName());
 
+		PrefixListObj sendPrefixListObj = new PrefixListObj(prefixList, nodeRepo.getThisMachinesName(),
+				prefixListObj.getAddRemoveFlag(), nodeRepo.getThisMachinesName() + System.nanoTime());
 		//send the packet update to the rest of the graph 
-		sendPacket.createPrefixListPacket(prefixListObj);
+		sendPacket.createPrefixListPacket(sendPrefixListObj);
 
-		upDatesSeen.addMsgID(prefixListObj.getMsgID(), System.nanoTime());
+		upDatesSeen.addMsgID(sendPrefixListObj.getMsgID(), System.nanoTime());
 
-		sendPacket.forwardUpdate(prefixListObj.getOriginalPacket(), doNotSendToNode);
+		sendPacket.forwardUpdate(sendPrefixListObj.getOriginalPacket(), doNotSendToNode);
 	}
 
 	public void removeClientPrefix(PrefixObj prefixObj, String doNotSendToNode)
@@ -428,7 +430,7 @@ public class ProcessUpdates {
 	public void requestNeighbors(String sendToNode){
 		//TODO
 		//send request for neighbors 
-		IntrestObj intrestObj = new IntrestObj(sendToNode, nodeRepo.getThisMachinesName(), 0);
+		IntrestObj intrestObj = new IntrestObj(sendToNode + "/np", nodeRepo.getThisMachinesName(), 0);
 		sendPacket.createRequestNeighborsIntrestPacket(intrestObj);
 
 		//		//find a next hop to send the packet to 
@@ -581,8 +583,8 @@ public class ProcessUpdates {
 		PrefixListObj prefixListObj = getMyDirectlyConnectedPrefixes();
 
 		byte b = 0;
-		DataObj dataObj = new DataObj(neighborRequestObj.getFromName(), 
-				neighborRequestObj.getFromName(), 
+		DataObj dataObj = new DataObj(neighborRequestObj.getContentName(), 
+				neighborRequestObj.getOriginRouter(),
 				b, 
 				modifyNodeObj.getOriginalPacket(), 
 				"",
@@ -591,13 +593,13 @@ public class ProcessUpdates {
 
 		sendPacket.createDataPacket(dataObj);
 		//send out 1 neighbors data packet
-		sendPacket.forwardPacket(dataObj.getOriginalPacket(), neighborRequestObj.getFromName());
+		sendPacket.forwardPacket(dataObj.getOriginalPacket(), neighborRequestObj.getContentName());
 
 
 		dataObj.setData(prefixListObj.getOriginalPacket());
 		sendPacket.createDataPacket(dataObj);
 		//send out 1 prefix data packet 
-		sendPacket.forwardPacket(dataObj.getOriginalPacket(), neighborRequestObj.getFromName());
+		sendPacket.forwardPacket(dataObj.getOriginalPacket(), neighborRequestObj.getContentName());
 	}
 
 	public void addPrefix(PrefixObj prefixObj, String doNotSendToNode)
