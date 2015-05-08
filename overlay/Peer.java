@@ -255,6 +255,27 @@ public class Peer { // implements PeerInterface
 				mep.ping(pingNode);
 				break;
 
+			case "tp":
+				System.out.println("Enter node id to ping:");
+				String timePingNodeID = scanner.next();
+				System.out.println("Enter the amount of pings to send:");
+				int timePingCount = scanner.nextInt();
+				mep.timedPing(timePingNodeID, timePingCount);
+				break;
+
+			case "ap":
+				System.out.println("Enter node id to ping:");
+				String autoPingNodeID = scanner.next();
+				System.out.println("Enter the amount of pings to send:");
+				int autoPingCount = scanner.nextInt();
+				mep.autoPing(autoPingNodeID, autoPingCount);
+				break;
+
+			case "conv":
+				System.out.println("Printing convergence times: ");
+				mep.convergenceTime();
+				break;
+
 			case "overlay":
 				System.out.println("neighbors: "+neighbors);
 				System.out.println("clients+servers: " + clientServers);

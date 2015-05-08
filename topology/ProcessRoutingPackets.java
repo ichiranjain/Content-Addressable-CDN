@@ -63,7 +63,7 @@ public class ProcessRoutingPackets {
 
 				//30000000000L == 30sec in nano time 
 				//if 20 seconds has not elapsed do not re send
-				if(System.nanoTime() - pit.getTime(intrestObj.getContentName()) < 20000000000L ){
+				if(System.nanoTime() - pit.getTime(intrestObj.getContentName()) < 5000000000L ){
 					return;				
 				}else{
 					pit.setTime(intrestObj.getContentName());
@@ -100,7 +100,7 @@ public class ProcessRoutingPackets {
 
 				//30000000000L == 30sec in nano time 
 				//if 20 seconds has not elapsed do not re send
-				if(System.nanoTime() - pit.getTime(intrestObj.getContentName()) < 20000000000L ){
+				if(System.nanoTime() - pit.getTime(intrestObj.getContentName()) < 5000000000L ){
 					return;				
 				}else{
 					pit.setTime(intrestObj.getContentName());

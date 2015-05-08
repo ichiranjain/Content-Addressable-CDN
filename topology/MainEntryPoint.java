@@ -197,13 +197,38 @@ public class MainEntryPoint implements Runnable{
 		packetQueue2.addToGeneralQueue(packetObj1);
 	}
 
-	public void ping(String contentName){
-		IntrestObj intrestObj1 = new IntrestObj(contentName+"/ping", nodeRepo.getThisMachinesName(), 12345);
+	public void ping(String nodeID){
+		IntrestObj intrestObj1 = new IntrestObj(nodeID+"/ping", nodeRepo.getThisMachinesName(), 12345);
 		SendPacket sendPacket = new SendPacket();
 		sendPacket.createIntrestPacket(intrestObj1);
 		PacketObj packetObj1 = new PacketObj(intrestObj1.getOriginalPacket(), nodeRepo.getThisMachinesName(), false);
 		packetQueue2.addToGeneralQueue(packetObj1);
 		//System.out.println("added to general q");
+	}
+
+	public void autoPing(String nodeID, int pingCount){
+		for(int i = 0; i < pingCount; i++){			
+			ping(nodeID);
+		}
+	}
+
+	public void timedPing(String nodeID, int pingCount){
+		for(int i = 0; i < pingCount; i++){			
+			ping(nodeID);
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void convergenceTime(){
+		int nodeCounter = nodeRepo.nodeCounter;
+		for(int i = 0; i < nodeCounter; i++){
+			System.out.println("Node: " + i + " time:"+ (nodeRepo.convergenceHM.get(i) - nodeRepo.convergenceHM.get(0)) );
+		}
 	}
 
 }

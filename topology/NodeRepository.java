@@ -9,9 +9,14 @@ public class NodeRepository {
 	ConcurrentHashMap<String, Node> graph;
 	String thisMachinesName;
 
+	int nodeCounter;
+	ConcurrentHashMap<Integer, Long> convergenceHM;
+
 	public NodeRepository(String thisMachinesName){
 		this.thisMachinesName = thisMachinesName;
 		graph = new ConcurrentHashMap<String, Node>();
+		convergenceHM = new ConcurrentHashMap<Integer, Long>();
+		nodeCounter = 0;
 	}
 
 	public boolean HMdoesNodeExist(String nodeName){
@@ -25,6 +30,8 @@ public class NodeRepository {
 	//add the node if it does not exist
 	public void HMaddNode(String nodeName){
 		graph.putIfAbsent(nodeName, new Node(nodeName));
+		nodeCounter++;
+		convergenceHM.putIfAbsent(nodeCounter, System.currentTimeMillis());
 	}
 
 	//remove the node if it exists, else this method does nothing
