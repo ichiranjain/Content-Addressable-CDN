@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 
 import packetObjects.IntrestObj;
 import topology.GeneralQueueHandler;
@@ -24,19 +25,24 @@ public class Client {
 	static GeneralQueueHandler gqh;
 	static PacketQueue2 pq2;
 	static ProcessData pd;
+	//used to get rtt, can be removed
+	static ConcurrentHashMap<String, Long> rtt;
 
 	public static void main(String[] args) throws UnknownHostException,
-			IOException {
+	IOException {
 		Scanner s = new Scanner(System.in);
 		sendPacketObj = new SendPacket();
 		boolean clientStarted = true;
 		boolean connected = false;
 
+		//used for rtt, can be removed
+		rtt = new ConcurrentHashMap<String, Long>();
+
 		pq2 = new PacketQueue2();
 		gqh = new GeneralQueueHandler(pq2, true);
 		Thread gqhThread = new Thread(gqh);
 		gqhThread.start();
-		pd = new ProcessData();
+		pd = new ProcessData(rtt);
 		pd.start();
 
 		while (clientStarted) {
@@ -48,8 +54,8 @@ public class Client {
 					ois = new ObjectInputStream(cacheServer.getInputStream());
 					oos = new ObjectOutputStream(cacheServer.getOutputStream());
 					Message<String> joinMessage = new Message<String>(11); // handle
-																			// in
-																			// Peer
+					// in
+					// Peer
 					oos.writeObject(joinMessage);
 					link = new Link(cacheServerAddress, ois);
 					link.start();
@@ -65,6 +71,7 @@ public class Client {
 			IntrestObj intrst = new IntrestObj(msg, "", 1);
 			sendPacketObj.createIntrestPacket(intrst);
 			sendPacketObj.forwardPacket(intrst.getOriginalPacket());
+			rtt.put(msg, System.currentTimeMillis());
 		}
 	}
 
