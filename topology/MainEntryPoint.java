@@ -226,8 +226,8 @@ public class MainEntryPoint implements Runnable{
 
 	public void convergenceTime(){
 		int nodeCounter = nodeRepo.nodeCounter;
-		for(int i = 0; i < nodeCounter; i++){
-			System.out.println("Node: " + i + " time:"+ (nodeRepo.convergenceHM.get(i) - nodeRepo.convergenceHM.get(0)) );
+		for(int i = 1; i <= nodeCounter; i++){
+			System.out.println("Node: " + i + " time:"+ (nodeRepo.convergenceHM.get(i) - nodeRepo.convergenceHM.get(1)) );
 		}
 	}
 
