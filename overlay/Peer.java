@@ -196,7 +196,7 @@ public class Peer { // implements PeerInterface
 			}
 		});
 		a.start();
-		while (!alive) {
+		while (alive) {
 
 			// add functions here to get node repo
 			// Fib data
