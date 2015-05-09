@@ -330,7 +330,7 @@ public class Peer { // implements PeerInterface
 	public static void addPeer(JoinPacket packet, Socket peerSocket,
 			ObjectOutputStream oos, ObjectInputStream ois, Link link)
 					throws IOException {
-		System.out.println("addPeer called");
+		// System.out.println("addPeer called");
 		String peer = getIP(peerSocket.getRemoteSocketAddress().toString());
 		neighbors.put(peer,
 				new SocketContainer(peerSocket, ois, oos, link));
@@ -464,7 +464,7 @@ public class Peer { // implements PeerInterface
 	@SuppressWarnings("rawtypes")
 	public static boolean sendMessage(String ID, Message m) {
 		try {
-			System.out.println(":::ID::: " + ID);
+			// System.out.println(":::ID::: " + ID);
 			SocketContainer sc = neighbors.get(idIPMap.get(ID));
 			if (sc == null) {
 				sc = clientServers.get(idIPMap.get(ID));
@@ -575,7 +575,7 @@ public class Peer { // implements PeerInterface
 			hostAddress = IP;
 		}
 		hostAddress = getIP(hostAddress);
-		System.out.println("Generating ID... (" + hostAddress + ")");
+		// System.out.println("Generating ID... (" + hostAddress + ")");
 		long prime1 = 105137;
 		long prime2 = 179422891;
 		long ID = 0;
