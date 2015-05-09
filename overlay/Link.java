@@ -160,6 +160,8 @@ public class Link extends Thread {
 		else if (m.type == 102) {
 			Peer.allNodes.add(m.packet.toString());
 		} else if (m.type == 7) {
+			System.out.println("Instance of message with type 7: "
+					+ m.packet.getClass());
 			Message<String> m2 = m;
 			Peer.routing.addPacket(m2.packet, ID, false);
 		}
