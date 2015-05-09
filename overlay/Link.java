@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 /**
- * Receive message objects from neighbors and process them.
+ * This is a live link between two nodes. For multiple connections there would
+ * be multiple Link threads running. The thread actively listens for incoming
+ * objects from the other end of the link.
  * 
  * @author Gaurav Komera
  *
@@ -36,10 +38,9 @@ public class Link extends Thread {
 		while (running) {
 			try {
 				m = (Message) ois.readObject();
-				System.out.println(System.currentTimeMillis()
-						+ "Message received from: " + connectedTo);
-				System.out.println("Message type: " + m.type);
-				System.out.println("Request no: " + m.requestNo);
+				// System.out.print(System.currentTimeMillis()
+				// + "Message received from: " + connectedTo);
+				// System.out.println("\tMessage type: " + m.type);
 				attempt = 0;
 				// handle updates if not previously seen
 				if (!Peer.requests.contains(m.requestNo)) {
@@ -49,7 +50,7 @@ public class Link extends Thread {
 					Peer.requests.add(m.requestNo);
 					handleUpdate(m);
 				} else {
-					System.out.println("KYABAATKYABAATKYABAAT!");
+					System.out.println("Packet discarded(repeated request no)");
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
@@ -60,6 +61,7 @@ public class Link extends Thread {
 				if (attempt == 3) {
 					try {
 						ois.close();
+						// broadcast force remove
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -67,7 +69,6 @@ public class Link extends Thread {
 				}
 			}
 			catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				running = false;
 			} finally {
@@ -75,13 +76,18 @@ public class Link extends Thread {
 					if (type == 1 || type == 2) {
 						Peer.clientServers.remove(ID);
 						Peer.routing.removeClient(ID, -1);
-						System.out.println("Link: remove client");
 					} else {
 						Peer.neighbors.remove(connectedTo);
 						Peer.allNodes.remove(connectedTo);
-						// inform neighbors about dropped node
+						// broadcast to remove neighbor
+						Message<String> forceRemove = new Message<String>(999,
+								ID);
+						try {
+							Peer.sendMessageToAllButX("", forceRemove);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 						Peer.routing.removeLink(ID, -1);
-						System.out.println("Link: remove link");
 					}
 				}
 			}
@@ -94,15 +100,6 @@ public class Link extends Thread {
 		if (m.type == 50) {
 			JoinPacket jp = (JoinPacket) m.packet;
 			Peer.allNodes.addAll(jp.allNodes);
-			// connect to neighbors in jp except for doNotConnect
-			// if (!Peer.linksSatisfied()) {
-			// for (String neighbor : jp.neighbors) {
-			// if (!neighbor.equals(jp.doNotConnect)) {
-			// Peer.join(neighbor, false);
-			// break;
-			// }
-			// }
-			// }
 		} else if (m.type == 3) {
 			running = false;
 			Peer.neighbors.remove(connectedTo);
@@ -136,14 +133,14 @@ public class Link extends Thread {
 
 			if(previousCost < 0) {
 				Peer.routing.modifyLink(Peer.generateID(connectedTo) + "",
-						(int) (endTime - startTime));				
+						(int) (endTime - startTime));
 				previousCost = (int) (endTime - startTime);				
 			}
 			double change =(double) previousCost/(endTime - startTime);
 			change *= 100;
 			if (Math.abs(change - 100) > 30) {
 				Peer.routing.modifyLink(Peer.generateID(connectedTo) + "",
-						(int) (endTime - startTime));				
+						(int) (endTime - startTime));
 				previousCost = (int) (endTime - startTime);
 			}
 		}
@@ -157,7 +154,7 @@ public class Link extends Thread {
 		} // routing and other packets
 		else if (m.type == 402 /* or anything else */) {
 			Peer.clientServers.get(connectedTo).oos
-			.writeObject(new Message(403));
+					.writeObject(new Message<String>(403));
 		}
 		// new node added notification
 		else if (m.type == 102) {
@@ -165,6 +162,11 @@ public class Link extends Thread {
 		} else if (m.type == 7) {
 			Message<String> m2 = m;
 			Peer.routing.addPacket(m2.packet, ID, false);
+		}
+		// force remove dropped neighbor
+		else if (m.type == 999) {
+			Peer.allNodes.remove((String) m.packet);
+			Peer.sendMessageX(connectedTo, m);
 		}
 	}
 }

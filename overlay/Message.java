@@ -48,6 +48,12 @@ public class Message<K> implements Serializable {
 		this.packet = packet;
 	}
 
+	// constructor with custom request number
+	public Message(int type, int requestNumber) {
+		this.type = type;
+		requestNo = requestNumberGenerator();
+	}
+
 	private long requestNumberGenerator() {
 		return System.nanoTime();
 	}

@@ -4,8 +4,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 
+/**
+ * Packet class for join and join acknowledgement messages
+ * 
+ * @author Gaurav
+ *
+ */
 @SuppressWarnings("serial")
 public class JoinPacket implements Serializable {
 	// map of neighboring sockets
@@ -23,15 +28,20 @@ public class JoinPacket implements Serializable {
 	// Peer that was recently connected and should not be sent a request again
 	List<String> doNotConnect;
 
+	/**
+	 * Initialize the instance variables with the current view of the Peer
+	 * contents
+	 */
 	public JoinPacket() {
-		neighbors = new HashSet<String>();
-		for (Entry<String, SocketContainer> entry : Peer.neighbors.entrySet()) {
-			neighbors.add(entry.getKey());
-		}
-		vacancies = Peer.vacancies;
-		allNodes = Peer.allNodes;
+		neighbors = new HashSet<String>(Peer.neighbors.keySet());
+		allNodes = new HashSet<String>(Peer.allNodes);
 	}
 
+	/**
+	 * Special constructor to set values for doNotConnect list
+	 * 
+	 * @param doNotConnect
+	 */
 	public JoinPacket(List<String> doNotConnect) {
 		this();
 		this.doNotConnect = doNotConnect;

@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -23,8 +24,6 @@ public class Listen extends Thread {
 	ObjectOutputStream oos;
 	boolean running;
 
-	// Socket peerSocket;
-
 	/**
 	 * Constructor for initializing peer.
 	 * 
@@ -33,9 +32,6 @@ public class Listen extends Thread {
 	 */
 	public Listen(Peer p) {
 		this.p = p;
-		// this.serverSocket = serverSocket;
-		//
-		// p.peerSocket = null;
 		running = true;
 	}
 
@@ -56,7 +52,6 @@ public class Listen extends Thread {
 				System.out.println("Sending acknowledgement");
 				Message<JoinPacket> mReply = new Message<JoinPacket>(2,
 						replyPacket);
-
 
 				// code 11 for client join
 				// code 400 for server join
@@ -87,12 +82,13 @@ public class Listen extends Thread {
 
 					Peer.addPeer(m.packet, Peer.peerSocket, oos, ois, link);
 
-					if (Peer.nodeDropRequired(Peer.peerSocket)) {
+					if (Peer.nodeDropRequired()) {
 						mReply.type = -2;
-						System.out.println("Neighbor drop required");
+						System.out.println("Dropping neighbor...");
 						String dropped = dropNeighbor(Peer
 								.getIP(Peer.peerSocket.getRemoteSocketAddress()
-										.toString()));
+.toString()),
+								m.packet.neighbors);
 						mReply.packet.dropped = dropped;
 						oos.writeObject(mReply);
 						oos.flush();
@@ -130,13 +126,17 @@ public class Listen extends Thread {
 		}
 	}
 
-	public String dropNeighbor(String except) throws IOException {
+	public String dropNeighbor(String except, HashSet<String> exceptNeighbors)
+			throws IOException {
 		// randomly select neighbor to be dropped
 		Random r = new Random();
 		int d = r.nextInt(Peer.neighbors.size());
 		String dropped = null;
 		List<String> neighbors = new ArrayList<String>(Peer.neighbors.keySet());
-		while (neighbors.get(d).equals(except)) {
+		// Node to be dropped should not be the newly connected node or any of
+		// its new neighbors
+		while (neighbors.get(d).equals(except)
+				|| exceptNeighbors.contains(neighbors.get(d))) {
 			d = r.nextInt(Peer.neighbors.size());
 		}
 		dropped = neighbors.get(d);
@@ -156,7 +156,6 @@ public class Listen extends Thread {
 
 		// INFORM ROUTING ABOUT LINK DROP!
 		Peer.routing.removeLink(Peer.generateID(dropped) + "", 0);
-
 
 		return dropped;
 	}

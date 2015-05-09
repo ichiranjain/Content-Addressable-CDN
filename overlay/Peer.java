@@ -31,6 +31,8 @@ public class Peer { // implements PeerInterface
 
 	// ID of this node
 	static String ID;
+	// IP of this node
+	static String IP;
 	// serverSocket to listen on
 	static ServerSocket serverSocket;
 	// map of neighboring cacheServers
@@ -80,6 +82,7 @@ public class Peer { // implements PeerInterface
 	 */
 	public Peer() {
 		try {
+			IP = getIP(InetAddress.getLocalHost().getHostAddress());
 			ID = generateID("") + ""; // unique ID based on IP address
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -92,7 +95,14 @@ public class Peer { // implements PeerInterface
 	ClassNotFoundException, InterruptedException {
 		MainEntryPoint mep = null;
 		Peer p = new Peer();
-		if (args.length == 1) {
+		if (args.length == 0) {
+			System.out.println("Please pass command line arguments "
+					+ "suggesting the mode in which the node is to "
+					+ "be started.");
+			System.out.println("Suggestion:\n\n\t type 'java Peer man' on "
+					+ "the command line");
+			return;
+		} else if (args.length == 1) {
 			if (args[0].equals("man")) {
 				System.out.println("To start a new network");
 				System.out.println("\n\tjava Peer start new\n");
@@ -104,23 +114,16 @@ public class Peer { // implements PeerInterface
 				return;
 			} else if (args[0].toLowerCase().equals("start")) {
 				p.start();
-
 				// Start listening on server socket for new connections
 				p.listen();
+				// start routing layer threads
 				mep = startRouting();
 				Thread mepThread = new Thread(mep);
 				mepThread.start();
-
-			} else {
-				System.out.println("Please pass command line arguments "
-						+ "suggesting the mode in which the node is to "
-						+ "be started.");
-				System.out.println("Suggestion:\n\n\t type 'java Peer man' on "
-						+ "the command line");
-				return;
 			}
 		} else if (args.length == 2) {
 			if (args[0].toLowerCase().equals("join")) {
+				long startTime = System.nanoTime();
 				String server = args[1].toLowerCase();
 
 				// Start listening on server socket
@@ -130,31 +133,36 @@ public class Peer { // implements PeerInterface
 				mepThread.start();
 
 				// join node
-				Message<JoinPacket> m = Peer.join(server, true);
-
-				List<String> neighborsOfPeer = new ArrayList<String>(
+				Message<JoinPacket> m = Peer.join(server);
+				List<String> potentialNeighbors = new ArrayList<String>(
 						m.packet.neighbors);
-				System.out.println("neighborsOfPeer: " + neighborsOfPeer);
 
 				// connect to node that was dropped by peer
 				if (!linksSatisfied() && m.type == -2) {
-					Peer.join(m.packet.dropped, false);
+					m = Peer.join(m.packet.dropped);
+					potentialNeighbors.clear();
+					potentialNeighbors.addAll(m.packet.neighbors);
 				}
 				// connecting to more neighbors to satisfy log n condition for
 				// this node
 				int i = 0;
-				while (!linksSatisfied() && i < neighborsOfPeer.size()) {
+				while (!linksSatisfied() && i < potentialNeighbors.size()) {
 					// do not send request to already connected neighbor
-					while (Peer.neighbors.containsKey(neighborsOfPeer.get(i))) {
+					while (i < potentialNeighbors.size()
+							&& Peer.neighbors.containsKey(potentialNeighbors
+									.get(i))) {
 						i++;
 					}
-					System.out
-					.println("Joining peer " + neighborsOfPeer.get(0));
-					m = Peer.join(neighborsOfPeer.get(i), false);
-					neighborsOfPeer.clear();
-					neighborsOfPeer.addAll(m.packet.neighbors);
+					if (i == potentialNeighbors.size()) {
+						break;
+					}
+					m = Peer.join(potentialNeighbors.get(i));
+					potentialNeighbors.clear();
+					potentialNeighbors.addAll(m.packet.neighbors);
 					i = 0;
 				}
+				System.out.println("Node joined in: "
+						+ (System.nanoTime() - startTime));
 			}
 		}
 
@@ -171,7 +179,24 @@ public class Peer { // implements PeerInterface
 
 		boolean alive = true;
 		String action = "";
-		while (alive) {
+		Thread a = new Thread(new Runnable() {
+			boolean alive = true;
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				while (alive) {
+					System.out.println("neighbors: " + neighbors);
+					System.out.println("allNodes : " + allNodes);
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		a.start();
+		while (!alive) {
 
 			// add functions here to get node repo
 			// Fib data
@@ -287,20 +312,6 @@ public class Peer { // implements PeerInterface
 
 		}
 		System.out.println("program terminating");
-
-		// share general messages with neighbors
-		// while (true) {
-		// try {
-		//
-		// Thread.sleep(1500);
-		// System.out.println("Neighbors: " + neighbors);
-		// System.out.println("allNodes: " + allNodes);
-		//
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// System.out.println("");
-		// }
-		// }
 	}
 
 	//1,000,000,000 nano time == 1 second
@@ -319,12 +330,13 @@ public class Peer { // implements PeerInterface
 	public static void addPeer(JoinPacket packet, Socket peerSocket,
 			ObjectOutputStream oos, ObjectInputStream ois, Link link)
 					throws IOException {
+		System.out.println("addPeer called");
 		String peer = getIP(peerSocket.getRemoteSocketAddress().toString());
 		neighbors.put(peer,
 				new SocketContainer(peerSocket, ois, oos, link));
 		allNodes.add(peer);
 		allNodes.addAll(packet.allNodes);
-		// notify neighbors about new node
+		System.out.println("New allNodes: " + allNodes);
 	}
 
 	public static String getIP(String port) {
@@ -373,37 +385,24 @@ public class Peer { // implements PeerInterface
 
 	public void start() throws IOException {
 		System.out.println("Starting node...");
-		System.out
-		.println("IP: " + InetAddress.getLocalHost().getHostAddress());
-		// creating peer
+		System.out.println("IP: " + IP);
 		System.out.println("Waiting for client peer...");
-		allNodes.add(getIP(InetAddress.getLocalHost().getHostAddress()));
-		// peerSocket = serverSocket.accept();
-		// this.addPeer(null);
-		//
-		// System.out.println("Client peer now connected... IP: "
-		// + peerSocket.getRemoteSocketAddress());
+		allNodes.add(getIP(IP));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Message<JoinPacket> join(String peer, boolean recurse)
+	public static Message<JoinPacket> join(String peer)
 			throws IOException,
 			ClassNotFoundException, InterruptedException {
-		// ArrayList<String> connectedTo = new ArrayList<String>();
 		long joinStartTime = System.currentTimeMillis();
+		allNodes.add(getIP(IP));
 		peerSocket = new Socket(peer, 43125);
 
-		Message<String> newNodeMsg = new Message<String>(102, peer);
-		sendMessageToAllButX("", newNodeMsg);
-
-		// connectedTo.add(getIP(peer));
-		//
 		JoinPacket packet = new JoinPacket();
 		Message<JoinPacket> joinMessage = new Message<JoinPacket>(1, packet);
 
 		ObjectOutputStream oos = new ObjectOutputStream(
 				peerSocket.getOutputStream());
-		// Thread.sleep(100);
 		ObjectInputStream ois = new ObjectInputStream(
 				peerSocket.getInputStream());
 
@@ -411,16 +410,16 @@ public class Peer { // implements PeerInterface
 		oos.flush();
 		System.out.println("Join message sent");
 		System.out.println("Waiting for acknowledgement");
-		Message<JoinPacket> m = (Message) ois.readObject();
+		Message<JoinPacket> mAck = (Message) ois.readObject();
 		long joinStartFinish = System.currentTimeMillis();
 
-		System.out.println("Acknowledgement type: " + m.type);
+		System.out.println("Acknowledgement type: " + mAck.type);
 
 		// start listening to connected peer for any future communication
 		Link link = new Link(peerSocket.getRemoteSocketAddress() + "", ois, 3);
 		link.start();
 		//
-		addPeer(m.packet, peerSocket, oos, ois, link);
+		addPeer(mAck.packet, peerSocket, oos, ois, link);
 		// System.out.println("all links up.. now contacting neighbors");
 		// updateNeighbors(connectedTo, m.packet, 50);
 
@@ -429,9 +428,9 @@ public class Peer { // implements PeerInterface
 				+ generateID(peerSocket.getRemoteSocketAddress().toString())
 				+ " cost::" + (joinStartFinish - joinStartTime));
 		routing.addLink(generateID(peerSocket.getRemoteSocketAddress()
-				.toString()) + "",(int) (joinStartFinish - joinStartTime));
+				.toString()) + "", (int) (joinStartFinish - joinStartTime));
 
-		return m;
+		return mAck;
 	}
 
 	/**
@@ -470,7 +469,12 @@ public class Peer { // implements PeerInterface
 			if (sc == null) {
 				sc = clientServers.get(idIPMap.get(ID));
 			}
-			sc.oos.writeObject(m);
+			if (sc != null) {
+				sc.oos.writeObject(m);
+			} else {
+				System.out.println("Message not sent.. neighbor with ID: " + ID
+						+ "not found.");
+			}
 		} catch (IOException e) {
 			return false;
 		}
@@ -480,8 +484,8 @@ public class Peer { // implements PeerInterface
 	@SuppressWarnings("rawtypes")
 	public static boolean sendMessageX(String IP, Message m) {
 		try {
-			System.out.println("SendMessageX::" + IP + " looking in "
-					+ neighbors.keySet());
+			// System.out.println("SendMessageX::" + IP + " looking in "
+			// + neighbors.keySet());
 			SocketContainer sc = neighbors.get(IP);
 			sc.oos.writeObject(m);
 		} catch (IOException e) {
@@ -595,13 +599,15 @@ public class Peer { // implements PeerInterface
 	 * @param peerSocket
 	 * @return
 	 */
-	public static boolean nodeDropRequired(Socket peerSocket) {
+	public static boolean nodeDropRequired() {
 		int newNetworkSize = Peer.allNodes.size();
 		int presentNeighbors = Peer.neighbors.size();
+		System.out.println("newNetworkSize: " + newNetworkSize);
+		System.out.println("presentNeighbors: " + presentNeighbors);
 		int requiredNeighbors = (int) Math.ceil(Math.log(newNetworkSize)
 				/ Math.log(2));
-		System.out.println("presentNeighbors: " + presentNeighbors
-				+ " requiredNeighbors: " + requiredNeighbors);
+		System.out.println("Neighbors present: " + presentNeighbors
+				+ "\nNeighbors required: " + requiredNeighbors);
 		if (presentNeighbors > requiredNeighbors) {
 			return true;
 		} else {
@@ -619,8 +625,6 @@ public class Peer { // implements PeerInterface
 				/ Math.log(2));
 		System.out.println("linksPresent: " + linksPresent);
 		System.out.println("linksRequired: " + linksRequired);
-		System.out
-		.println("linksSatisfied: " + (linksPresent == linksRequired));
 		return linksPresent == linksRequired;
 	}
 }
