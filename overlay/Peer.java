@@ -185,8 +185,8 @@ public class Peer { // implements PeerInterface
 			public void run() {
 				// TODO Auto-generated method stub
 				while (alive) {
-					System.out.println("neighbors: " + neighbors);
-					System.out.println("allNodes : " + allNodes);
+					System.out.println("neighbors size: " + neighbors.size());
+					System.out.println("allNodes size: " + allNodes.size());
 					try {
 						Thread.sleep(10000);
 					} catch (InterruptedException e) {
