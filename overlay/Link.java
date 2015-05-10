@@ -167,6 +167,8 @@ public class Link extends Thread {
 				e.printStackTrace();
 				System.out.println("Instance of message with type 7: "
 						+ m.packet.getClass());
+				System.out.println("inside message of type 7: "
+						+ ((Message) m.packet).packet);
 			}
 		}
 		// force remove dropped neighbor
