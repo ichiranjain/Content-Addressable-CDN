@@ -82,11 +82,11 @@ public class Link extends Thread {
 						// broadcast to remove neighbor
 						Message<String> forceRemove = new Message<String>(999,
 								ID);
-						try {
-							Peer.sendMessageToAllButX("", forceRemove);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+						// try {
+						// // Peer.sendMessageToAllButX("", forceRemove);
+						// } catch (IOException e) {
+						// e.printStackTrace();
+						// }
 						Peer.routing.removeLink(ID, -1);
 					}
 				}
