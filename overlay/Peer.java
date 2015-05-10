@@ -138,15 +138,18 @@ public class Peer { // implements PeerInterface
 						m.packet.neighbors);
 
 				// connect to node that was dropped by peer
-				if (!linksSatisfied() && m.type == -2) {
+				while (!linksSatisfied() && m.type == -2) {
 					m = Peer.join(m.packet.dropped);
 					potentialNeighbors.clear();
 					potentialNeighbors.addAll(m.packet.neighbors);
 				}
+				
 				// connecting to more neighbors to satisfy log n condition for
 				// this node
 				int i = 0;
 				while (!linksSatisfied() && i < potentialNeighbors.size()) {
+					
+
 					// do not send request to already connected neighbor
 					while (i < potentialNeighbors.size()
 							&& Peer.neighbors.containsKey(potentialNeighbors
@@ -157,8 +160,16 @@ public class Peer { // implements PeerInterface
 						break;
 					}
 					m = Peer.join(potentialNeighbors.get(i));
-					potentialNeighbors.clear();
-					potentialNeighbors.addAll(m.packet.neighbors);
+
+					// connect to node that was dropped by peer
+					while (!linksSatisfied() && m.type == -2) {
+						m = Peer.join(m.packet.dropped);
+						potentialNeighbors.clear();
+						potentialNeighbors.addAll(m.packet.neighbors);
+					}
+
+					// potentialNeighbors.clear();
+					// potentialNeighbors.addAll(m.packet.neighbors);
 					i = 0;
 				}
 				System.out.println("Node joined in: "
