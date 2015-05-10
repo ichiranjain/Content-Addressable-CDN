@@ -78,7 +78,7 @@ public class Link extends Thread {
 						Peer.routing.removeClient(ID, -1);
 					} else {
 						Peer.neighbors.remove(connectedTo);
-						Peer.allNodes.remove(connectedTo);
+						// Peer.allNodes.remove(connectedTo);
 						// broadcast to remove neighbor
 						Message<String> forceRemove = new Message<String>(999,
 								ID);
@@ -110,7 +110,7 @@ public class Link extends Thread {
 		else if (m.type == 100) {
 			// process neighbors and vacancies
 			JoinPacket pollPakcet = (JoinPacket) m.packet;
-			Peer.allNodes.addAll(pollPakcet.neighbors);
+			Peer.allNodes.addAll(pollPakcet.allNodes);
 			// if busy don't do anything
 
 			// else send reply with neighbors
