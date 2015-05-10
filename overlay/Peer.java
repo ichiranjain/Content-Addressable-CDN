@@ -188,7 +188,7 @@ public class Peer { // implements PeerInterface
 					System.out.println("neighbors size: " + neighbors.size());
 					System.out.println("allNodes size: " + allNodes.size());
 					try {
-						Thread.sleep(10000);
+						Thread.sleep(3000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -463,22 +463,24 @@ public class Peer { // implements PeerInterface
 	 */
 	@SuppressWarnings("rawtypes")
 	public static boolean sendMessage(String ID, Message m) {
-		try {
-			// System.out.println(":::ID::: " + ID);
-			SocketContainer sc = neighbors.get(idIPMap.get(ID));
-			if (sc == null) {
-				sc = clientServers.get(idIPMap.get(ID));
+		synchronized (neighbors.get(idIPMap.get(ID))) {
+			try {
+				// System.out.println(":::ID::: " + ID);
+				SocketContainer sc = neighbors.get(idIPMap.get(ID));
+				if (sc == null) {
+					sc = clientServers.get(idIPMap.get(ID));
+				}
+				if (sc != null) {
+					sc.oos.writeObject(m);
+				} else {
+					System.out.println("Message not sent.. neighbor with ID: " + ID
+							+ "not found.");
+				}
+			} catch (IOException e) {
+				return false;
 			}
-			if (sc != null) {
-				sc.oos.writeObject(m);
-			} else {
-				System.out.println("Message not sent.. neighbor with ID: " + ID
-						+ "not found.");
-			}
-		} catch (IOException e) {
-			return false;
+			return true;
 		}
-		return true;
 	}
 
 	@SuppressWarnings("rawtypes")

@@ -20,7 +20,7 @@ public class Polling extends Thread {
 	public void run() {
 		while (polling) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(5000);
 				if (Peer.neighbors.size() > 0) {
 					// poll neighbors by sending own neighbors
 					JoinPacket jp = new JoinPacket();
