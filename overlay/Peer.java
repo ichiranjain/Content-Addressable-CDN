@@ -582,7 +582,7 @@ public class Peer { // implements PeerInterface
 		for (int i = 0; i < hostAddress.length(); i++) {
 			char c = hostAddress.charAt(i);
 			if (c != '.') {
-				ID += (prime1 * hostAddress.charAt(i)) % prime2;
+				ID += (prime1 * (hostAddress.charAt(i) + i)) % prime2;
 			}
 		}
 		System.out.println("ID: " + ID);
