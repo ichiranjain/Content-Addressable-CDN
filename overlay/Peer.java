@@ -585,7 +585,7 @@ public class Peer { // implements PeerInterface
 				ID += (prime1 * (hostAddress.charAt(i) * i)) % prime2;
 			}
 		}
-		System.out.println("ID: " + ID);
+		// System.out.println("ID: " + ID);
 		idIPMap.put(ID + "", hostAddress);
 
 		return ID;
