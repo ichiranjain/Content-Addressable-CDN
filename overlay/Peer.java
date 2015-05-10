@@ -499,8 +499,10 @@ public class Peer { // implements PeerInterface
 		try {
 			// System.out.println("SendMessageX::" + IP + " looking in "
 			// + neighbors.keySet());
-			SocketContainer sc = neighbors.get(IP);
-			sc.oos.writeObject(m);
+			synchronized (neighbors.get(IP)) {
+				SocketContainer sc = neighbors.get(IP);
+				sc.oos.writeObject(m);
+			}
 		} catch (IOException e) {
 			return false;
 		}
