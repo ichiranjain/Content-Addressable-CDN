@@ -92,12 +92,13 @@ public class Client {
             }
         }
         // System.out.println("ID: " + ID);
-        idIPMap.put(ID + "", hostAddress);
+        //idIPMap.put(ID + "", hostAddress);
 
         return ID;
     }
 
-	public static String getIP(String port) {
+
+    public static String getIP(String port) {
 		int i = 0;
 		int slash = 0;
 		int end = port.length();
