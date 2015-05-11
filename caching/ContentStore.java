@@ -86,7 +86,7 @@ public class ContentStore {
         return copyFlag;
     }
 
-    public static boolean shouldDelete(Content contentStoreCopy, String interfaceId) {
+    public static boolean shouldDelete(Content contentStoreCopy) {
         boolean deleteFlag = true;
         for (String index : contentStoreCopy.listofScoreOnInterfaces.keySet()) {
             if (contentStoreCopy.listofScoreOnInterfaces.get(index) < contentStoreCopy.getMaxNScore() / 2) {
@@ -227,7 +227,7 @@ public class ContentStore {
      * @param content - content requested
      * @return
      */
-    public boolean deleteContent(Content content) {
+    public static boolean deleteContent(Content content) {
         if (store.remove(content.getContentName()) != null) {
             return true;
         } else {
