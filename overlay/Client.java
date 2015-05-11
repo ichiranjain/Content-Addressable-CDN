@@ -1,5 +1,10 @@
 package overlay;
 
+import packetObjects.IntrestObj;
+import topology.GeneralQueueHandler;
+import topology.PacketQueue2;
+import topology.SendPacket;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -9,11 +14,6 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
-
-import packetObjects.IntrestObj;
-import topology.GeneralQueueHandler;
-import topology.PacketQueue2;
-import topology.SendPacket;
 
 public class Client {
 	static ObjectInputStream ois;
@@ -28,9 +28,9 @@ public class Client {
 	//used to get rtt, can be removed
 	static ConcurrentHashMap<String, Long> rtt;
 
-	public static void main(String[] args) throws UnknownHostException,
-	IOException {
-		Scanner s = new Scanner(System.in);
+    public static void main(String[] args) throws
+            IOException {
+        Scanner s = new Scanner(System.in);
 		sendPacketObj = new SendPacket();
 		boolean clientStarted = true;
 		boolean connected = false;
@@ -75,26 +75,27 @@ public class Client {
 		}
 	}
 
-	public static long generateID(String IP) throws UnknownHostException {
-		String hostAddress = InetAddress.getLocalHost().getHostAddress();
-		if (!IP.equals("")) {
-			hostAddress = IP;
-		}
-		hostAddress = getIP(hostAddress);
-		System.out.println("Generating ID... (" + hostAddress + ")");
-		long prime1 = 105137;
-		long prime2 = 179422891;
-		long ID = 0;
-		for (int i = 0; i < hostAddress.length(); i++) {
-			char c = hostAddress.charAt(i);
-			if (c != '.') {
-				ID += (prime1 * hostAddress.charAt(i)) % prime2;
-			}
-		}
-		System.out.println("ID: " + ID);
+    public static long generateID(String IP) throws UnknownHostException {
+        String hostAddress = InetAddress.getLocalHost().getHostAddress();
+        if (!IP.equals("")) {
+            hostAddress = IP;
+        }
+        hostAddress = getIP(hostAddress);
+        // System.out.println("Generating ID... (" + hostAddress + ")");
+        long prime1 = 105137;
+        long prime2 = 179422891;
+        long ID = 0;
+        for (int i = 0; i < hostAddress.length(); i++) {
+            char c = hostAddress.charAt(i);
+            if (c != '.') {
+                ID += (prime1 * (hostAddress.charAt(i) * i)) % prime2;
+            }
+        }
+        // System.out.println("ID: " + ID);
+        idIPMap.put(ID + "", hostAddress);
 
-		return ID;
-	}
+        return ID;
+    }
 
 	public static String getIP(String port) {
 		int i = 0;
