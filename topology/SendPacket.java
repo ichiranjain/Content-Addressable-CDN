@@ -281,6 +281,7 @@ public class SendPacket {
 
 		// this will forward a packet to only the router specified
 		Message<String> packetMessage = new Message<String>(7, packet);
+		System.out.println("nextHop: " + nextHop);
 		Peer.sendMessage(nextHop, packetMessage);
 		System.out.println("    -Forward packet next hop provided-");
 		System.out.println("packet: " + packet);
