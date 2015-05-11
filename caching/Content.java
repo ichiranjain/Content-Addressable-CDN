@@ -27,7 +27,7 @@ public class Content implements Serializable {
         this.contentName = contentName;
 //        this.lastUsed = now;
         this.contentCache = contentCache;
-        this.maxNScore = 100;
+        this.maxNScore = 3;
         this.timeToLive = 999999;
         this.trail = trail;
         this.sizeInBytes = sizeInBytes;
