@@ -460,13 +460,13 @@ public class Peer { // implements PeerInterface
 		System.out.println("ID: " + ID);
 		System.out.println("idipmap: " + idIPMap.get(ID));
 		System.out.println("neighbors: " + neighbors.get(idIPMap.get(ID)));
-		synchronized (neighbors.get(idIPMap.get(ID))) {
+		SocketContainer sc = neighbors.get(idIPMap.get(ID));
+		if (sc == null) {
+			sc = clientServers.get(idIPMap.get(ID));
+		}
+		synchronized (sc) {
 			try {
 				// System.out.println(":::ID::: " + ID);
-				SocketContainer sc = neighbors.get(idIPMap.get(ID));
-				if (sc == null) {
-					sc = clientServers.get(idIPMap.get(ID));
-				}
 				if (sc != null) {
 					sc.oos.writeObject(m);
 				} else {
@@ -485,9 +485,16 @@ public class Peer { // implements PeerInterface
 		try {
 			// System.out.println("SendMessageX::" + IP + " looking in "
 			// + neighbors.keySet());
-			synchronized (neighbors.get(IP)) {
-				SocketContainer sc = neighbors.get(IP);
-				sc.oos.writeObject(m);
+			if (neighbors.get(IP) != null) {
+				synchronized (neighbors.get(IP)) {
+					SocketContainer sc = neighbors.get(IP);
+					sc.oos.writeObject(m);
+				}
+			} else {
+				synchronized (clientServers.get(IP)) {
+					SocketContainer sc = clientServers.get(IP);
+					sc.oos.writeObject(m);
+				}
 			}
 		} catch (IOException e) {
 			return false;
