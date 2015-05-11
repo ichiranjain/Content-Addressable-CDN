@@ -48,8 +48,8 @@ public class Peer { // implements PeerInterface
 
 	// static block for initializing static content
 	// like serverSocket used for listening
-	{
-		while (true) {
+    static {
+        while (true) {
 			try {
 				serverSocket = new ServerSocket(43125);
 				break;

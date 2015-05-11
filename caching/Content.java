@@ -13,13 +13,13 @@ public class Content {
     private String contentName;
     private int maxNScore;
     private int timeToLive;
-    private List<Integer> trail;
+    public List<String> trail;
     private long sizeInBytes;
     private Date lastUsed;
     private Object contentCache;
 
     // constructors start
-    public Content(String contentName, List<Integer> trail, long sizeInBytes, Object contentCache) {
+    public Content(String contentName, List<String> trail, long sizeInBytes, Object contentCache) {
         this.contentName = contentName;
 //        this.lastUsed = now;
         this.contentCache = contentCache;
@@ -29,7 +29,7 @@ public class Content {
         this.sizeInBytes = sizeInBytes;
     }
 
-    public Content(String contentName, int maxNScore, int timeToLive, List<Integer> trail, long sizeInBytes, Object contentCache) {
+    public Content(String contentName, int maxNScore, int timeToLive, List<String> trail, long sizeInBytes, Object contentCache) {
         this.contentName = contentName;
         this.maxNScore = maxNScore;
         this.timeToLive = timeToLive;
@@ -74,11 +74,11 @@ public class Content {
         this.listofScoreOnInterfaces = listofScoreOnInterfaces;
     }
 
-    public List<Integer> getTrail() {
+    public List<String> getTrail() {
         return trail;
     }
 
-    public void setTrail(List<Integer> trail) {
+    public void setTrail(List<String> trail) {
         this.trail = trail;
     }
 
