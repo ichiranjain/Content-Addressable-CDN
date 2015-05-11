@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import packetObjects.DataObj;
-import packetObjects.IntrestObj;
 import packetObjects.LinkObj;
 import packetObjects.ModifyNodeObj;
 import packetObjects.PrefixListObj;
@@ -283,48 +282,48 @@ public class UpdateSimulation {
 	 * removing a node does not require an update be sent
 	 */
 
-	public void intrestPacket() throws IOException {
-		System.out.println("-IntrestPacket-");
-		//forward interest packet
-		System.out.println("does bloom filter contain prefix5B/video: " + fib.doesBloomFilterConteinPrefix(2, "prefix5B/video"));
-		System.out.println("B's next hop node: " + nodeRepo.HMgetNode("B").getOriginNextHop());
-		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video", "D", 1234);
-		sendPacket.createIntrestPacket(intrestObj1);
-		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
-		processRouting.processIntrest(intrestObj1);
+	//	public void intrestPacket() throws IOException {
+	//		System.out.println("-IntrestPacket-");
+	//		//forward interest packet
+	//		System.out.println("does bloom filter contain prefix5B/video: " + fib.doesBloomFilterConteinPrefix(2, "prefix5B/video"));
+	//		System.out.println("B's next hop node: " + nodeRepo.HMgetNode("B").getOriginNextHop());
+	//		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video", "D", 1234);
+	//		sendPacket.createIntrestPacket(intrestObj1);
+	//		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
+	//		processRouting.processIntrest(intrestObj1);
+	//
+	//	}
 
-	}
-
-	public void intrestPacketNoPrefix() throws IOException {
-		System.out.println("-IntrestPacketNoPrefix-");
-		//forward interest packet with no prefix
-		IntrestObj intrestObj1 = new IntrestObj("noPrefix", "D", 1234);
-		sendPacket.createIntrestPacket(intrestObj1);
-		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
-		processRouting.processIntrest(intrestObj1);
-		System.out.println("no prefix packet dropped");
-
-	}
-
-	public void intrestPacketPITentry() throws IOException {
-		System.out.println("-IntrestPacketPITEntry-");
-		//receive interest packet with pit entry already in pit table
-		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video", "D", 1234);
-		sendPacket.createIntrestPacket(intrestObj1);
-		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
-		processRouting.processIntrest(intrestObj1);
-		System.out.println("PIT entry already exists packet dropped");
-
-	}
-
-	public void intrestLongPrefix() throws IOException {
-		System.out.println("-IntrestPacketPrefix-");
-		//longer prefix being looked for, should match a smaller prefix in fib
-		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video/one", "D", 1234);
-		sendPacket.createIntrestPacket(intrestObj1);
-		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "D");
-		processRouting.processIntrest(intrestObj1);
-	}
+	//	public void intrestPacketNoPrefix() throws IOException {
+	//		System.out.println("-IntrestPacketNoPrefix-");
+	//		//forward interest packet with no prefix
+	//		IntrestObj intrestObj1 = new IntrestObj("noPrefix", "D", 1234);
+	//		sendPacket.createIntrestPacket(intrestObj1);
+	//		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
+	//		processRouting.processIntrest(intrestObj1);
+	//		System.out.println("no prefix packet dropped");
+	//
+	//	}
+	//
+	//	public void intrestPacketPITentry() throws IOException {
+	//		System.out.println("-IntrestPacketPITEntry-");
+	//		//receive interest packet with pit entry already in pit table
+	//		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video", "D", 1234);
+	//		sendPacket.createIntrestPacket(intrestObj1);
+	//		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "G");
+	//		processRouting.processIntrest(intrestObj1);
+	//		System.out.println("PIT entry already exists packet dropped");
+	//
+	//	}
+	//
+	//	public void intrestLongPrefix() throws IOException {
+	//		System.out.println("-IntrestPacketPrefix-");
+	//		//longer prefix being looked for, should match a smaller prefix in fib
+	//		IntrestObj intrestObj1 = new IntrestObj("prefix5B/video/one", "D", 1234);
+	//		sendPacket.createIntrestPacket(intrestObj1);
+	//		//processRouting = new ProcessRoutingPackets(intrestObj1.getOriginalPacket(), nodeRepo, fib, pit, directlyConnectedNodes, "D");
+	//		processRouting.processIntrest(intrestObj1);
+	//	}
 
 	public void dataPacket(){
 		System.out.println("-DataPacket-");
