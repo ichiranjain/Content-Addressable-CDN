@@ -1,19 +1,5 @@
 package caching;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
-
 import overlay.Message;
 import overlay.ServerLinks;
 import overlay.SocketContainer;
@@ -23,6 +9,15 @@ import packetObjects.PrefixObj;
 import topology.GeneralQueueHandler;
 import topology.PacketQueue2;
 import topology.SendPacket;
+
+import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 
 /**
@@ -72,114 +67,90 @@ public class ServerLFS implements Serializable {
 
 	}
 
-	static class A extends Thread {
-		A() {
+    public static long generateID(String IP) throws UnknownHostException {
+        String hostAddress = InetAddress.getLocalHost().getHostAddress();
+        if (!IP.equals("")) {
+            hostAddress = IP;
+        }
+        hostAddress = getIP(hostAddress);
+        System.out.println("Generating ID... (" + hostAddress + ")");
+        long prime1 = 105137;
+        long prime2 = 179422891;
+        long ID = 0;
+        for (int i = 0; i < hostAddress.length(); i++) {
+            char c = hostAddress.charAt(i);
+            if (c != '.') {
+                ID += (prime1 * hostAddress.charAt(i)) % prime2;
+            }
+        }
+        System.out.println("ID: " + ID);
 
-		}
-		@Override
-		public void run() {
-			Scanner s = new Scanner(System.in);
-			System.out.println("server started...");
-			while (true) {
-				System.out.print("Enter prefix to be advertised: ");
-				String str = s.nextLine();
-				try {
-					advertiseNewlyAdded(new Content(str, null, 0, null));
-				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				System.out.println("advertised: " + str);
-				System.out.println("content NOT added to content store");
-				System.out.println();
-			}
-		}
-	}
+        return ID;
+    }
 
-	public static long generateID(String IP) throws UnknownHostException {
-		String hostAddress = InetAddress.getLocalHost().getHostAddress();
-		if (!IP.equals("")) {
-			hostAddress = IP;
+    public static String getIP(String port) {
+        int i = 0;
+        int slash = 0;
+        int end = port.length();
+        for (; i < port.length(); i++) {
+            if (port.charAt(i) == '/') {
+                slash = i + 1;
+            } else if (port.charAt(i) == ':') {
+                end = i;
+                break;
+            }
 		}
-		hostAddress = getIP(hostAddress);
-		System.out.println("Generating ID... (" + hostAddress + ")");
-		long prime1 = 105137;
-		long prime2 = 179422891;
-		long ID = 0;
-		for (int i = 0; i < hostAddress.length(); i++) {
-			char c = hostAddress.charAt(i);
-			if (c != '.') {
-				ID += (prime1 * hostAddress.charAt(i)) % prime2;
-			}
-		}
-		System.out.println("ID: " + ID);
+        return port.substring(slash, end);
+    }
 
-		return ID;
-	}
+    @SuppressWarnings("rawtypes")
+    public static boolean sendMessage(Message m) {
+        try {
+            oos.writeObject(m);
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
 
-	public static String getIP(String port) {
-		int i = 0;
-		int slash = 0;
-		int end = port.length();
-		for (; i < port.length(); i++) {
-			if (port.charAt(i) == '/') {
-				slash = i + 1;
-			} else if (port.charAt(i) == ':') {
-				end = i;
-				break;
-			}
-		}
-		return port.substring(slash, end);
-	}
-
-	@SuppressWarnings("rawtypes")
-	public static boolean sendMessage(Message m) {
-		try {
-			oos.writeObject(m);
+    /**
+     * Method to be called by upper layers to send a message to a particular<br/>
+     * neighbor.<br/>
+     * <p/>
+     * Message type should be set to 7.
+     *
+     * @param ID
+     * @param m
+     * @return
+     */
+    public static boolean sendMessage(String ID, Message m) {
+        try {
+            System.out.println("IP: " + IP);
+            System.out.println("isConnected: " + isConnected);
+            SocketContainer sc = isConnected.get(IP);
+            sc.oos.writeObject(m);
 		} catch (IOException e) {
 			return false;
-		}
-		return true;
-	}
+        }
+        return true;
+    }
 
-	/**
-	 * Method to be called by upper layers to send a message to a particular<br/>
-	 * neighbor.<br/>
+    /**
+     * Method to be called by upper layers to send a message to a list of<br/>
+     * neighbors.<br/>
 	 * <p/>
 	 * Message type should be set to 7.
 	 *
-	 * @param ID
-	 * @param m
-	 * @return
-	 */
-	public static boolean sendMessage(String ID, Message m) {
-		try {
-			System.out.println("IP: " + IP);
-			System.out.println("isConnected: " + isConnected);
-			SocketContainer sc = isConnected.get(IP);
-			sc.oos.writeObject(m);
-		} catch (IOException e) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Method to be called by upper layers to send a message to a list of<br/>
-	 * neighbors.<br/>
-	 * <p/>
-	 * Message type should be set to 7.
-	 *
-	 * @param IDs
-	 * @param m
-	 * @return
-	 * @throws IOException
-	 */
-	public static boolean sendMessage(List<String> IDs, Message m)
-			throws IOException {
-		for (String id : IDs) {
-			if (!sendMessage(id, m)) {
-				return false;
+     * @param IDs
+     * @param m
+     * @return
+     * @throws IOException
+     */
+    public static boolean sendMessage(List<String> IDs, Message m)
+            throws IOException {
+        for (String id : IDs) {
+            if (!sendMessage(id, m)) {
+                return false;
 			}
 		}
 		return true;
@@ -208,7 +179,6 @@ public class ServerLFS implements Serializable {
 		}
 		return true;
 	}
-
 
 	public static Content serveRequest(String fileName) {
 		//        String fileName = packet2.getContentName();
@@ -298,37 +268,58 @@ public class ServerLFS implements Serializable {
 			ObjectInputStream si = new ObjectInputStream(bi);
 			contentObj = (Content) si.readObject();
 		} catch (Exception e) {
-			System.out.println(e);
+            System.out.println(e);
+        }
+        return contentObj;
+    }
+
+    /**
+     * When incoming packet have content which to be stored in content store than check the size of the the store
+     * if store has required size then place it in store else replace.
+     *
+     * @param packet - incoming packet
+     * @param packet
+     * @return
+     */
+    public static boolean incomingContent(String packet) {
+
+        Content receivedContent = convertStringToContent(packet);
+        if (receivedContent.getSizeInBytes() <= r.freeMemory()) {
+            return place(receivedContent);
+        } else {
+            return replace(receivedContent);
+        }
+    }
+
+    /**
+     * If content store has no space then replace the least recently used content from content store with new content
+     *
+     * @param receivedContent
+     * @return
+     */
+    private static boolean replace(Content receivedContent) {
+        return false;
+    }
+
+    /**
+     * Place the incoming content in the store. If content is in the store than replace the content else just add the
+     * content in the store
+     *
+     * @param receivedContent - incoming content
+     * @return
+     */
+    public static boolean place(Content receivedContent) {
+        if (!store.containsKey(receivedContent.getContentName())) {
+            store.put(receivedContent.getContentName(), receivedContent);
+            return true;
+        } else {
+            if (store.replace(receivedContent.getContentName(), receivedContent) != null) {
+                return true;
+            } else {
+				return false;
+			}
 		}
-		return contentObj;
-	}
 
-	/**
-	 * When incoming packet have content which to be stored in content store than check the size of the the store
-	 * if store has required size then place it in store else replace.
-	 *
-	 * @param packet - incoming packet
-	 * @param packet
-	 * @return
-	 */
-	public static boolean incomingContent(String packet) {
-
-		Content receivedContent = convertStringToContent(packet);
-		if (receivedContent.getSizeInBytes() <= r.freeMemory()) {
-			return place(receivedContent);
-		} else {
-			return replace(receivedContent);
-		}
-	}
-
-	/**
-	 * If content store has no space then replace the least recently used content from content store with new content
-	 *
-	 * @param receivedContent
-	 * @return
-	 */
-	private static boolean replace(Content receivedContent) {
-		return false;
 	}
 
 
@@ -346,27 +337,6 @@ public class ServerLFS implements Serializable {
 	//        }
 	//
 	//    }
-
-	/**
-	 * Place the incoming content in the store. If content is in the store than replace the content else just add the
-	 * content in the store
-	 *
-	 * @param receivedContent - incoming content
-	 * @return
-	 */
-	public static boolean place(Content receivedContent) {
-		if (!store.containsKey(receivedContent.getContentName())) {
-			store.put(receivedContent.getContentName(), receivedContent);
-			return true;
-		} else {
-			if (store.replace(receivedContent.getContentName(), receivedContent) != null) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-	}
 
 	private static void fillStore() {
 		Content c1 = new Content("firstContent", null, 200, "updatedSecondContent1");
@@ -447,9 +417,22 @@ public class ServerLFS implements Serializable {
 					advertise(storeList, ServerLFS.generateID(ServerLFS.getIP(cacheServerAddress)) + "");
 				} catch (UnknownHostException e) {
 					System.out.println("Connection error.. Please try again..");
-				}
-			}
-		}
+                }
+            }
+        }
+    }
+
+    private static void advertiseNewlyAdded(Content content)
+            throws UnknownHostException {
+        //write code to advertize single prefixObj
+        PrefixObj list = new PrefixObj(content.getContentName(),
+                generateID(getIP(serverNameID)) + System.nanoTime() + "",
+                generateID(getIP(serverNameID)) + "", true);
+        //sendPacketObj.createPrefixPacket(list);
+        sendPacketObj.createClientPrefix(list);
+        for (String e : listOfConnection.keySet()) {
+            sendPacketObj.forwardPacket(list.getOriginalPacket(), e);
+        }
 	}
 
 
@@ -463,18 +446,30 @@ public class ServerLFS implements Serializable {
 		store.put(content.getContentName(), content);
 		storeList.add(content.getContentName());
 		// advertiseNewlyAdded(contentToBeInserted);
-	}
+    }
 
-	private static void advertiseNewlyAdded(Content content)
-			throws UnknownHostException {
-		//write code to advertize single prefixObj
-		PrefixObj list = new PrefixObj(content.getContentName(),
-				generateID(getIP(serverNameID)) + System.nanoTime() + "",
-				generateID(getIP(serverNameID)) + "", true);
-		//sendPacketObj.createPrefixPacket(list);
-		sendPacketObj.createClientPrefix(list);
-		for (String e : listOfConnection.keySet()) {
-			sendPacketObj.forwardPacket(list.getOriginalPacket(), e);
+    static class A extends Thread {
+        A() {
+
+        }
+
+        @Override
+        public void run() {
+            Scanner s = new Scanner(System.in);
+            System.out.println("server started...");
+            while (true) {
+                //System.out.print("Enter prefix to be advertised: ");
+                String str = s.nextLine();
+                try {
+                    advertiseNewlyAdded(new Content(str, null, 0, null));
+                } catch (UnknownHostException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                System.out.println("advertised: " + str);
+                System.out.println("content NOT added to content store");
+                System.out.println();
+			}
 		}
 	}
 }
