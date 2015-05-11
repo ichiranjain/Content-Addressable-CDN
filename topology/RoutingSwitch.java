@@ -1,20 +1,14 @@
 package topology;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-
-import packetObjects.DataObj;
-import packetObjects.GenericPacketObj;
-import packetObjects.IntrestObj;
-import packetObjects.ModifyNodeObj;
-import packetObjects.NeighborRequestObj;
-import packetObjects.PrefixListObj;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import packetObjects.*;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 
 public class RoutingSwitch implements Runnable{
@@ -68,8 +62,8 @@ public class RoutingSwitch implements Runnable{
 			//if(intrestObj.getContentName().equals(nodeRepo.getThisMachinesName()) == false){
 			if(contentNameSplit[0].equals(nodeRepo.getThisMachinesName()) == false){
 				try {
-					process.processIntrest(intrestObj);
-				} catch (IOException e) {
+                    process.processIntrest(intrestObj, this.recievedFromNode);
+                } catch (IOException e) {
 					e.printStackTrace();
 				}
 			}else{
