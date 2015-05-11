@@ -54,7 +54,7 @@ public class Link extends Thread {
 				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
-				running = false;
+				// running = false;
 			} catch (IOException e) {
 				attempt++;
 				e.printStackTrace();
@@ -69,24 +69,38 @@ public class Link extends Thread {
 				}
 			}
 			catch (InterruptedException e) {
-				e.printStackTrace();
-				running = false;
+				// e.printStackTrace();
+				// running = false;
 			} finally {
 				if (!running) {
 					if (type == 1 || type == 2) {
+						try {
+							Peer.clientServers.get(ID).socket.close();
+						} catch (IOException e) {
+							System.out.println("Error when closing "
+									+ "client or server socket");
+							e.printStackTrace();
+						}
 						Peer.clientServers.remove(ID);
 						Peer.routing.removeClient(ID, -1);
 					} else {
+						try {
+							Peer.neighbors.remove(connectedTo).socket.close();
+						} catch (IOException e) {
+							System.out.println("Error when closing "
+									+ "cache server socket");
+							e.printStackTrace();
+						}
 						Peer.neighbors.remove(connectedTo);
-						Peer.allNodes.remove(connectedTo);
+						// Peer.allNodes.remove(connectedTo);
 						// broadcast to remove neighbor
 						Message<String> forceRemove = new Message<String>(999,
 								ID);
-						try {
-							Peer.sendMessageToAllButX("", forceRemove);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+						// try {
+						// // Peer.sendMessageToAllButX("", forceRemove);
+						// } catch (IOException e) {
+						// e.printStackTrace();
+						// }
 						Peer.routing.removeLink(ID, -1);
 					}
 				}
@@ -110,7 +124,7 @@ public class Link extends Thread {
 		else if (m.type == 100) {
 			// process neighbors and vacancies
 			JoinPacket pollPakcet = (JoinPacket) m.packet;
-			Peer.allNodes.addAll(pollPakcet.neighbors);
+			Peer.allNodes.addAll(pollPakcet.allNodes);
 			// if busy don't do anything
 
 			// else send reply with neighbors
@@ -160,10 +174,16 @@ public class Link extends Thread {
 		else if (m.type == 102) {
 			Peer.allNodes.add(m.packet.toString());
 		} else if (m.type == 7) {
-			System.out.println("Instance of message with type 7: "
-					+ m.packet.getClass());
-			Message<String> m2 = m;
-			Peer.routing.addPacket(m2.packet, ID, false);
+			try {
+				Message<String> m2 = m;
+				Peer.routing.addPacket(m2.packet, ID, false);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("Instance of message with type 7: "
+						+ m.packet.getClass());
+				System.out.println("inside message of type 7: "
+						+ ((Message) m.packet).packet);
+			}
 		}
 		// force remove dropped neighbor
 		else if (m.type == 999) {
