@@ -9,8 +9,7 @@ import java.util.List;
  * Created by rushabhmehta91 on 4/6/15.
  */
 public class Content {
-    public HashMap<Integer, Integer> listofScoreOnInterfaces;
-    private int contentId;
+    public HashMap<String, Integer> listofScoreOnInterfaces;
     private String contentName;
     private int maxNScore;
     private int timeToLive;
@@ -20,8 +19,7 @@ public class Content {
     private Object contentCache;
 
     // constructors start
-    public Content(int contentId, String contentName, List<Integer> trail, long sizeInBytes, Object contentCache) {
-        this.contentId = contentId;
+    public Content(String contentName, List<Integer> trail, long sizeInBytes, Object contentCache) {
         this.contentName = contentName;
 //        this.lastUsed = now;
         this.contentCache = contentCache;
@@ -31,8 +29,7 @@ public class Content {
         this.sizeInBytes = sizeInBytes;
     }
 
-    public Content(int contentId, String contentName, int maxNScore, int timeToLive, List<Integer> trail, long sizeInBytes, Object contentCache) {
-        this.contentId = contentId;
+    public Content(String contentName, int maxNScore, int timeToLive, List<Integer> trail, long sizeInBytes, Object contentCache) {
         this.contentName = contentName;
         this.maxNScore = maxNScore;
         this.timeToLive = timeToLive;
@@ -44,13 +41,6 @@ public class Content {
     // constructors ends
 
     //getter and setters starts
-    public int getContentId() {
-        return contentId;
-    }
-
-    public void setContentId(int contentId) {
-        this.contentId = contentId;
-    }
 
     public String getContentName() {
         return contentName;
@@ -76,11 +66,11 @@ public class Content {
         this.timeToLive = timeToLive;
     }
 
-    public HashMap<Integer, Integer> getListofScoreOnInterfaces() {
+    public HashMap<String, Integer> getListofScoreOnInterfaces() {
         return listofScoreOnInterfaces;
     }
 
-    public void setListofScoreOnInterfaces(HashMap<Integer, Integer> listofScoreOnInterfaces) {
+    public void setListofScoreOnInterfaces(HashMap<String, Integer> listofScoreOnInterfaces) {
         this.listofScoreOnInterfaces = listofScoreOnInterfaces;
     }
 

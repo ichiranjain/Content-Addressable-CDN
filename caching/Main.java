@@ -10,11 +10,11 @@ public class Main {
 
     public static void main(String[] args) {
 
-        storeObj.store = new HashMap<String, Content>();
-        Content c1 = new Content(1, "firstContent", null, 200, new Object());
-        Content c2 = new Content(2, "secondContent", null, 200, new Object());
-        Content c3 = new Content(3, "secondContent", null, 200, "updatedSecondContent");
-        Content c4 = new Content(4, "thirdContent", null, 200, new Object());
+        ContentStore.store = new HashMap<String, Content>();
+        Content c1 = new Content("firstContent", null, 200, new Object());
+        Content c2 = new Content("secondContent", null, 200, new Object());
+        Content c3 = new Content("secondContent", null, 200, "updatedSecondContent");
+        Content c4 = new Content("thirdContent", null, 200, new Object());
         m.fillContentStore(c1);
         m.fillContentStore(c2);
         m.printStore();
@@ -35,7 +35,7 @@ public class Main {
 
     private void fillContentStore(Content c) {
         if (c != null)
-            storeObj.store.put(c.getContentName(), c);
+            ContentStore.store.put(c.getContentName(), c);
 
     }
 
@@ -45,8 +45,8 @@ public class Main {
 
 
     private void printStore() {
-        for (String s : storeObj.store.keySet()) {
-            System.out.println(s + " " + storeObj.store.get(s));
+        for (String s : ContentStore.store.keySet()) {
+            System.out.println(s + " " + ContentStore.store.get(s));
         }
     }
 
@@ -58,7 +58,7 @@ public class Main {
     }
 
     private void testPlace(Content receivedContent) {
-        if (storeObj.place(receivedContent)) {
+        if (ContentStore.place(receivedContent)) {
             m.printStore();
             System.out.println();
         } else {
@@ -67,7 +67,7 @@ public class Main {
     }
 
     private void testIncomingContent(ContentPacket cp) {
-        if (storeObj.incomingContent(cp)) {
+        if (ContentStore.incomingContent(cp)) {
             m.printStore();
             System.out.println();
         }
