@@ -131,16 +131,16 @@ public class ContentStore {
      * if store has required size then place it in store else replace.
      *
      * @param packet - incoming packet
-     * @param packet
+     * @param recievedFromNode
      * @return
      */
-    public static boolean incomingContent(String packet) {
+    public static boolean incomingContent(String packet, String recievedFromNode) {
         System.out.println("incoming content received");
         Content receivedContent = convertStringToContent(packet);
         if (receivedContent.getSizeInBytes() <= r.freeMemory()) {
-            return place(receivedContent);
+            return place(receivedContent, recievedFromNode);
         } else {
-            return replace(receivedContent);
+            return replace(receivedContent, recievedFromNode);
         }
     }
 
@@ -148,9 +148,10 @@ public class ContentStore {
      * If content store has no space then replace the least recently used content from content store with new content
      *
      * @param receivedContent
+     * @param recievedFromNode
      * @return
      */
-    private static boolean replace(Content receivedContent) {
+    private static boolean replace(Content receivedContent, String recievedFromNode) {
         return false;
     }
 
@@ -159,11 +160,13 @@ public class ContentStore {
      * content in the store
      *
      * @param receivedContent - incoming content
+     * @param recievedFromNode
      * @return
      */
-    public static boolean place(Content receivedContent) {
+    public static boolean place(Content receivedContent, String recievedFromNode) {
         if (!store.containsKey(receivedContent.getContentName())) {
             store.put(receivedContent.getContentName(), receivedContent);
+            store.get(receivedContent.getContentName()).trail.add(recievedFromNode);
             System.out.println("content placed");
             try {
                 advertiseNewlyAdded(receivedContent);
@@ -181,20 +184,6 @@ public class ContentStore {
 
     }
 
-    private static void fillStore() {
-        Content c1 = new Content("firstContent", null, 200, "updatedSecondContent1");
-        Content c2 = new Content("secondContent", null, 200, "updatedSecondContent2");
-        Content c3 = new Content("thirdContent", null, 200, "updatedSecondContent3");
-        Content c4 = new Content("forthContent", null, 200, "updatedSecondContent4");
-        storeList.add(c1.getContentName());
-        storeList.add(c2.getContentName());
-        storeList.add(c3.getContentName());
-        storeList.add(c4.getContentName());
-        store.put(c1.getContentName(), c1);
-        store.put(c2.getContentName(), c2);
-        store.put(c3.getContentName(), c3);
-        store.put(c4.getContentName(), c4);
-    }
 
     private static void advertise(ArrayList<String> contentList,
                                   String cacheServerAddress) throws UnknownHostException {
