@@ -1,11 +1,13 @@
 package topology;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
+import caching.Content;
+import caching.ContentStore;
 import packetObjects.DataObj;
 import packetObjects.IntrestObj;
 import packetObjects.PITEntry;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class ProcessRoutingPackets {
 
@@ -36,8 +38,8 @@ public class ProcessRoutingPackets {
 
 	}
 
-	public void processIntrest(IntrestObj intrestObj) throws IOException {
-		//check the cs
+    public void processIntrest(IntrestObj intrestObj, String receivedFromNode) throws IOException {
+        //check the cs
 		//		if( check cs == true ){
 		//			intrestObj.getContentName() need received from node
 		//if the content is in the cs.... send the data out and return 
@@ -45,6 +47,36 @@ public class ProcessRoutingPackets {
 		//sendPacket.createDataPacket();
 		//sendPacket.sendPacket (Received from node);
 		//		}
+
+        String contentName = null;
+        boolean copyFlag = false;
+        boolean deleteFlag = false;
+
+        if (intrestObj != null) {
+            contentName = intrestObj.getContentName();
+            Content requestedContent = ContentStore.serveRequest(contentName);
+            if (requestedContent != null) {
+                try {
+                    ContentStore.updateScoreOnIterface(requestedContent, receivedFromNode);
+                    if (ContentStore.shouldCopy(requestedContent, receivedFromNode)) {
+                        copyFlag = true;
+                    }
+                    if (ContentStore.shouldDelete(requestedContent)) {
+                        deleteFlag = true;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                ContentStore.sendDataObj(requestedContent, intrestObj.getOriginRouterName(), receivedFromNode, copyFlag);
+                if (deleteFlag) {
+                    ContentStore.deleteContent(requestedContent);
+                }
+                return;
+            }
+
+        }
+        System.out.println("Content name: " + contentName);
+
 
 
 		if(intrestObj.getOriginRouterName().equals("") == true){
@@ -136,15 +168,21 @@ public class ProcessRoutingPackets {
 
 	public void processData0(DataObj dataObj){
 
-		//0
-		//check the cs flag
-		if(dataObj.getCacheFlag() == 2){
-			//pass to CS
-			//return;
-		}
+
 
 		//check the pit
 		if(pit.doesEntryExist(dataObj.getContentName()) ==  true){
+
+            //0
+            //check the cs flag
+            if (dataObj != null && dataObj.getCacheFlag() == 2) {
+                String content = dataObj.getData();
+                ContentStore.incomingContent(content);
+                System.out.println("Content with name " + content + "is placed in cached");
+                dataObj.setCacheFlag((byte) 1);
+                sendPacket.createDataPacket(dataObj);
+
+            }
 
 			//update the pit entry time
 			pit.setTime(dataObj.getContentName());
