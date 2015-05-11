@@ -53,7 +53,7 @@ public class Client {
 					Socket cacheServer = new Socket(cacheServerAddress, 43125);
 					ois = new ObjectInputStream(cacheServer.getInputStream());
 					oos = new ObjectOutputStream(cacheServer.getOutputStream());
-					Message<String> joinMessage = new Message<String>(11); // handle
+					Message<JoinPacket> joinMessage = new Message<JoinPacket>(11); // handle
 					// in
 					// Peer
 					oos.writeObject(joinMessage);
