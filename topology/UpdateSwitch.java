@@ -190,6 +190,7 @@ public class UpdateSwitch implements Runnable{
 			try {
 				if (addRemoveClientPrefixList == true) {
 					// add the packet
+					System.out.println("add prefixlist");
 					process.addClientPrefixList(clientPrefixListObj,
 							genericPacketObj.getRecievedFromNode());
 				} else {

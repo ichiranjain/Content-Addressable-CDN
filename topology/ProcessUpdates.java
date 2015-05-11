@@ -249,9 +249,10 @@ public class ProcessUpdates {
 		//for each prefix in the list try to add it 
 		for(int i = 0; i < prefixListObj.getPrefixListLength(); i++){
 
+			System.out.println("in for loop");
 			//try to add the prefix, if the prefix and advertiser already exist, it will return false, else it will be added
 			if(fib.addPrefixToFIB(prefixList.get(i), prefixListObj.getAdvertiser()) == true){
-
+				System.out.println("added the prefix to fib");
 				//add the prefix to the clients list of prefixes 
 				directlyConnectedNodes.getDirectlyConnectedClient(prefixListObj.getAdvertiser()).addPrefix(prefixList.get(i));
 			}
