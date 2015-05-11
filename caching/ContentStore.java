@@ -70,6 +70,7 @@ public class ContentStore {
      * @throws Exception
      */
     public static void updateScoreOnIterface(Content contentStoreCopy, String interfaceId) throws Exception {
+        System.out.println("updating score");
         if (!contentStoreCopy.listofScoreOnInterfaces.containsKey(interfaceId)) {
             contentStoreCopy.listofScoreOnInterfaces.put(interfaceId, contentStoreCopy.getMaxNScore());
         } else {
@@ -134,7 +135,7 @@ public class ContentStore {
      * @return
      */
     public static boolean incomingContent(String packet) {
-
+        System.out.println("incoming content received");
         Content receivedContent = convertStringToContent(packet);
         if (receivedContent.getSizeInBytes() <= r.freeMemory()) {
             return place(receivedContent);
@@ -163,6 +164,7 @@ public class ContentStore {
     public static boolean place(Content receivedContent) {
         if (!store.containsKey(receivedContent.getContentName())) {
             store.put(receivedContent.getContentName(), receivedContent);
+            System.out.println("content placed");
             try {
                 advertiseNewlyAdded(receivedContent);
             } catch (UnknownHostException e) {
@@ -207,6 +209,7 @@ public class ContentStore {
 
     private static void advertiseNewlyAdded(Content content)
             throws UnknownHostException {
+        System.out.println("advertizing newly added content");
         //write code to advertize single prefixObj
         PrefixObj list = new PrefixObj(content.getContentName(),
                 Peer.generateID(Peer.getIP(Peer.IP)) + System.nanoTime() + "",
