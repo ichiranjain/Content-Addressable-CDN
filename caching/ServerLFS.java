@@ -67,23 +67,25 @@ public class ServerLFS implements Serializable {
 
 	}
 
+
     public static long generateID(String IP) throws UnknownHostException {
         String hostAddress = InetAddress.getLocalHost().getHostAddress();
         if (!IP.equals("")) {
             hostAddress = IP;
         }
         hostAddress = getIP(hostAddress);
-        System.out.println("Generating ID... (" + hostAddress + ")");
+        // System.out.println("Generating ID... (" + hostAddress + ")");
         long prime1 = 105137;
         long prime2 = 179422891;
         long ID = 0;
         for (int i = 0; i < hostAddress.length(); i++) {
             char c = hostAddress.charAt(i);
             if (c != '.') {
-                ID += (prime1 * hostAddress.charAt(i)) % prime2;
+                ID += (prime1 * (hostAddress.charAt(i) * i)) % prime2;
             }
         }
-        System.out.println("ID: " + ID);
+        // System.out.println("ID: " + ID);
+        //   idIPMap.put(ID + "", hostAddress);
 
         return ID;
     }
