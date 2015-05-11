@@ -10,11 +10,16 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/gson-1.1.jar!/" />
+          <root url="jar://$USER_HOME$/Downloads/dom4j-1.6.1.jar!/" />
+          <root url="jar://$USER_HOME$/Downloads/gson-2.3.1.jar!/" />
+          <root url="jar://$USER_HOME$/Downloads/bloom-filter-1.0.3.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$" />
+        </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="library" name="gson-2.3.1" level="project" />
   </component>
 </module>
