@@ -43,8 +43,10 @@ public class Link extends Thread {
 				running = false;
 			} catch (IOException e) {
 				e.printStackTrace();
+                running = false;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+                running = false;
 			}
 		}
 		System.out.println("Link to " + connectedTo + " dropped...");
