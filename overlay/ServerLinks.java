@@ -36,7 +36,7 @@ public class ServerLinks extends Thread {
 				handleUpdate(m);
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 				running = false;
 			}
 			if (!running) {
@@ -46,8 +46,8 @@ public class ServerLinks extends Thread {
 
 		}
 
-
-	}
+        System.out.println("Server dropped...");
+    }
 
 	private void handleUpdate(Message m) throws UnknownHostException {
 
