@@ -70,12 +70,14 @@ public class Link extends Thread {
 			}
 			catch (InterruptedException e) {
 				// e.printStackTrace();
-				// running = false;
+				if (type == 1 || type == 2)
+					running = false;
 			} finally {
 				if (!running) {
 					if (type == 1 || type == 2) {
 						try {
-							Peer.clientServers.get(ID).socket.close();
+							Peer.clientServers.get(Peer.idIPMap.get(ID)).socket
+									.close();
 						} catch (IOException e) {
 							System.out.println("Error when closing "
 									+ "client or server socket");
