@@ -13,6 +13,8 @@ import java.io.Serializable;
  */
 @SuppressWarnings("serial")
 public class Message<K> implements Serializable {
+
+    private static final long serialVersionUID = -8921471058085391513L;
 	//
 	// :::: Message types ::::
 	// 1 - add new neighbor
