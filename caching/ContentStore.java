@@ -169,7 +169,7 @@ public class ContentStore {
             store.get(receivedContent.getContentName()).trail.add(recievedFromNode);
             System.out.println("content placed");
             try {
-                advertiseNewlyAdded(receivedContent);
+                advertiseNewlyAdded(receivedContent, true);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
@@ -196,13 +196,13 @@ public class ContentStore {
         sendPacketObj.forwardPacket(list.getOriginalPacket(), cacheServerAddress);
     }
 
-    private static void advertiseNewlyAdded(Content content)
+    private static void advertiseNewlyAdded(Content content, boolean addRemove)
             throws UnknownHostException {
         System.out.println("advertizing newly added content");
         //write code to advertize single prefixObj
         PrefixObj list = new PrefixObj(content.getContentName(),
                 Peer.generateID(Peer.getIP(Peer.IP)) + System.nanoTime() + "",
-                Peer.generateID(Peer.getIP(Peer.IP)) + "", true);
+                Peer.generateID(Peer.getIP(Peer.IP)) + "", addRemove);
         //sendPacketObj.createPrefixPacket(list);
         sendPacketObj.createClientPrefix(list);
         for (String e : Peer.neighbors.keySet()) {
@@ -218,6 +218,12 @@ public class ContentStore {
      */
     public static boolean deleteContent(Content content) {
         if (store.remove(content.getContentName()) != null) {
+        	try {
+				advertiseNewlyAdded(content , false);
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
             return true;
         } else {
             return false;
