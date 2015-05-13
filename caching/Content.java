@@ -31,6 +31,7 @@ public class Content implements Serializable {
         this.timeToLive = 999999;
         this.trail = trail;
         this.sizeInBytes = sizeInBytes;
+        listofScoreOnInterfaces = new HashMap<String, Integer>();
     }
     public Content(String contentName, int maxNScore, int timeToLive, List<Integer> trail, long sizeInBytes, Object contentCache) {
 
@@ -41,6 +42,7 @@ public class Content implements Serializable {
         this.sizeInBytes = sizeInBytes;
 //        this.lastUsed = lastUsed;
         this.contentCache = contentCache;
+        listofScoreOnInterfaces = new HashMap<String, Integer>();
     }
     // constructors ends
 

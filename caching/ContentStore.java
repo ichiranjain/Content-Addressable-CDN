@@ -8,7 +8,9 @@ import java.util.HashMap;
 public class ContentStore {
 	static Runtime r = Runtime.getRuntime();
 	public HashMap<String, Content> store;
-
+	{
+		store = new HashMap<String, Content>();
+	}
 	//    /**
 	//     * Handles different type of incoming packet and behaves accordingly
 	//     *
