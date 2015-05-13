@@ -1,8 +1,5 @@
 package caching;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,18 +9,18 @@ import java.util.List;
 /**
  * Created by rushabhmehta91 on 4/6/15.
  */
-public class Content implements Serializable {
+public class Content implements Serializable{
     public HashMap<String, Integer> listofScoreOnInterfaces;
     private String contentName;
     private int maxNScore;
     private int timeToLive;
-    private List<Integer> trail;
+    public List<String> trail;
     private long sizeInBytes;
     private Date lastUsed;
     private Object contentCache;
 
     // constructors start
-    public Content( String contentName, List<Integer> trail, long sizeInBytes, Object contentCache) {
+    public Content(String contentName, List<String> trail, long sizeInBytes, Object contentCache) {
         this.contentName = contentName;
 //        this.lastUsed = now;
         this.contentCache = contentCache;
@@ -33,8 +30,8 @@ public class Content implements Serializable {
         this.sizeInBytes = sizeInBytes;
         listofScoreOnInterfaces = new HashMap<String, Integer>();
     }
-    public Content(String contentName, int maxNScore, int timeToLive, List<Integer> trail, long sizeInBytes, Object contentCache) {
 
+    public Content(String contentName, int maxNScore, int timeToLive, List<String> trail, long sizeInBytes, Object contentCache) {
         this.contentName = contentName;
         this.maxNScore = maxNScore;
         this.timeToLive = timeToLive;
@@ -80,11 +77,11 @@ public class Content implements Serializable {
         this.listofScoreOnInterfaces = listofScoreOnInterfaces;
     }
 
-    public List<Integer> getTrail() {
+    public List<String> getTrail() {
         return trail;
     }
 
-    public void setTrail(List<Integer> trail) {
+    public void setTrail(List<String> trail) {
         this.trail = trail;
     }
 
@@ -104,18 +101,7 @@ public class Content implements Serializable {
         this.contentCache = contentCache;
     }
 
+
     //getter and setters ends
 
-    public byte[] getBytes() throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ObjectOutputStream os = new ObjectOutputStream(out);
-        os.writeObject(this);
-        return out.toByteArray();
-    }
-
-//    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
-//        ByteArrayInputStream in = new ByteArrayInputStream(data);
-//        ObjectInputStream is = new ObjectInputStream(in);
-//        return is.readObject();
-//    }
 }
