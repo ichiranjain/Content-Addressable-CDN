@@ -1,5 +1,6 @@
 package caching;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.List;
 /**
  * Created by rushabhmehta91 on 4/6/15.
  */
-public class Content {
+public class Content implements Serializable{
     public HashMap<String, Integer> listofScoreOnInterfaces;
     private String contentName;
     private int maxNScore;
@@ -27,6 +28,7 @@ public class Content {
         this.timeToLive = 999999;
         this.trail = trail;
         this.sizeInBytes = sizeInBytes;
+        listofScoreOnInterfaces = new HashMap<String, Integer>();
     }
 
     public Content(String contentName, int maxNScore, int timeToLive, List<String> trail, long sizeInBytes, Object contentCache) {
@@ -37,6 +39,7 @@ public class Content {
         this.sizeInBytes = sizeInBytes;
 //        this.lastUsed = lastUsed;
         this.contentCache = contentCache;
+        listofScoreOnInterfaces = new HashMap<String, Integer>();
     }
     // constructors ends
 

@@ -177,6 +177,7 @@ public class ProcessRoutingPackets {
             //check the cs flag
             if (dataObj != null && dataObj.getCacheFlag() == 2) {
                 String content = dataObj.getData();
+                System.out.println(content);
                 ContentStore.incomingContent(content, recievedFromNode);
                 System.out.println("Content with name " + content + "is placed in cached");
                 dataObj.setCacheFlag((byte) 1);

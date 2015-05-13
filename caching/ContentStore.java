@@ -98,14 +98,15 @@ public class ContentStore {
 
     public static String convertContentToString(Content myObject) {
         String serializedObject = "";
-
+        byte buffer[];
         // serialize the object
         try {
             ByteArrayOutputStream bo = new ByteArrayOutputStream();
             ObjectOutputStream so = new ObjectOutputStream(bo);
             so.writeObject(myObject);
             so.flush();
-            serializedObject = bo.toString();
+            buffer = bo.toByteArray();
+            serializedObject = new String(buffer);
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -122,6 +123,7 @@ public class ContentStore {
             contentObj = (Content) si.readObject();
         } catch (Exception e) {
             System.out.println(e);
+            e.printStackTrace();
         }
         return contentObj;
     }
