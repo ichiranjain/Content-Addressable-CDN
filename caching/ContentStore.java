@@ -105,8 +105,9 @@ public class ContentStore {
             ObjectOutputStream so = new ObjectOutputStream(bo);
             so.writeObject(myObject);
             so.flush();
-            buffer = bo.toByteArray();
-            serializedObject = new String(buffer);
+            //buffer = bo.toByteArray();
+            //serializedObject = new String(buffer);
+            serializedObject = bo.toString("ISO-8859-1");
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -117,7 +118,7 @@ public class ContentStore {
         Content contentObj = null;
         try {
             // deserialize the object
-            byte b[] = serializedObject.getBytes();
+            byte b[] = serializedObject.getBytes("ISO-8859-1");
             ByteArrayInputStream bi = new ByteArrayInputStream(b);
             ObjectInputStream si = new ObjectInputStream(bi);
             contentObj = (Content) si.readObject();
