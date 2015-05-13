@@ -215,6 +215,7 @@ public class ServerLFS implements Serializable {
 		} else {
 			copyFlagValue = (byte) 1;
 		}
+		System.out.println(convertContentToString(sendingContent));
 		DataObj dataObj = new DataObj(sendingContent.getContentName(), originRouter, (byte) 0, convertContentToString(sendingContent), copyFlagValue, true);
 		sendPacketObj.createDataPacket(dataObj);
 		sendPacketObj.forwardPacket(dataObj.getOriginalPacket(), receivedFromNode);
