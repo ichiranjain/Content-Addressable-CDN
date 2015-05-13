@@ -29,6 +29,7 @@ public class ContentStore {
     static {
         storeList = new ArrayList<String>();
         store = new HashMap<String, Content>();
+        sendPacketObj = new SendPacket();
 
     }
 
