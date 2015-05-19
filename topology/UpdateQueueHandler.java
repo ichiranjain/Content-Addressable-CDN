@@ -3,6 +3,12 @@ package topology;
 import packetObjects.GenericPacketObj;
 import packetObjects.PacketObj;
 
+/**
+ * This class pulls update objects from the queue and calls update switch</br>
+ * This thread starts a thread to process the update
+ * @author spufflez
+ *
+ */
 public class UpdateQueueHandler implements Runnable {
 	PacketQueue2 packetQueue2;
 	NodeRepository nodeRepo;
@@ -16,6 +22,15 @@ public class UpdateQueueHandler implements Runnable {
 	@SuppressWarnings("rawtypes")
 	GenericPacketObj genericPacketObj;
 
+	/**
+	 * Constructor
+	 * @param packetQueue2
+	 * @param nodeRepo
+	 * @param fib
+	 * @param directlyConnectedNodes
+	 * @param updateMsgsSeen
+	 * @param running
+	 */
 	public UpdateQueueHandler(PacketQueue2 packetQueue2, 
 			NodeRepository nodeRepo, 
 			FIB fib, 
@@ -46,18 +61,11 @@ public class UpdateQueueHandler implements Runnable {
 			//remove a packet from the queue
 			//because this is a blocking queue, this will block until 
 			//something is placed in the queue
-			//System.out.println("update thread blocking");
 			genericPacketObj = packetQueue2.removeFromUpdateQueue();
 
-			//System.out
-			//	.println("Handling update queue packet::genericPacketObj::"
-			//		+ genericPacketObj);
-
-			//System.out.println("removed packet from update queue");
 			if(genericPacketObj != null){
 				//give to the thread pool for processing 
 				//executer service == java's thread pool
-				//System.out.println("packet recieved in update handler");
 				Thread thread = new Thread(new UpdateSwitch(genericPacketObj, 
 						nodeRepo, 
 						fib, 

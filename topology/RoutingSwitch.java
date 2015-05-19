@@ -17,6 +17,18 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 
+/**
+ * The class decides how to process a routing packet (interest and data packet) </br>
+ * Interest packets are first checked to see if the interest packet is</br>
+ * for the cache server, if it is the packet is processed</br>
+ * If the packet is not for the cache server, it is forwarded.</br>
+ * </br>
+ * Data packets are checked if they are for the server, if it is addressed</br>
+ * to the server, it is processed. If not it is forwarded based on the flag</br>
+ * setting 0,1,2.
+ * @author spufflez
+ *
+ */
 public class RoutingSwitch implements Runnable{
 
 	//String packet;
@@ -32,6 +44,15 @@ public class RoutingSwitch implements Runnable{
 	String recievedFromNode;
 
 
+	/**
+	 * Constructor
+	 * @param genericPacketObj
+	 * @param fib
+	 * @param pit
+	 * @param directlyConnectedNodes
+	 * @param nodeRepo
+	 * @param packetQueue2
+	 */
 	@SuppressWarnings("rawtypes")
 	public RoutingSwitch(GenericPacketObj genericPacketObj,
 			FIB fib,
@@ -179,7 +200,6 @@ public class RoutingSwitch implements Runnable{
 							packetQueue2.addToUpdateQueue(genericPacketObjPrefix);
 						}else{
 							//call neighbors function
-							//ModifyNodeObj modifyNodeObj = parse.parseModifyNodeJson(dataObj.getData());
 
 							JsonElement jsonNameElement = jsonObject.get("nodeName");
 							String nodeName = jsonNameElement.getAsString();

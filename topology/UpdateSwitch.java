@@ -9,6 +9,13 @@ import packetObjects.NeighborRequestObj;
 import packetObjects.PrefixListObj;
 import packetObjects.PrefixObj;
 
+/**
+ * This class decides how to process an update object pulled from the </br>
+ * update queue. The switch decides how to process the object based </br>
+ * on the action in the generic object. 
+ * @author spufflez
+ *
+ */
 public class UpdateSwitch implements Runnable{
 
 	//PacketObj packetObj;
@@ -19,6 +26,14 @@ public class UpdateSwitch implements Runnable{
 	@SuppressWarnings("rawtypes")
 	GenericPacketObj genericPacketObj;
 
+	/**
+	 * Constructor
+	 * @param genericPacketObj
+	 * @param nodeRepo
+	 * @param fib
+	 * @param directlyConnectedNodes
+	 * @param updateMsgsSeen
+	 */
 	@SuppressWarnings("rawtypes")
 	public UpdateSwitch(GenericPacketObj genericPacketObj, 
 			NodeRepository nodeRepo,
@@ -37,30 +52,7 @@ public class UpdateSwitch implements Runnable{
 	@Override
 	public void run() {
 
-		//String msgID = parse.parseMsgID(packetObj.getPacket());
-
-		//		//has the update been seen before
-		//		if(msgsSeen.doesMsgIDExist(msgID) == true){
-		//			//if so do not process the update, drop the packet
-		//			//this update has looped around
-		//			return;
-		//		}else{
-		//			//this is a new msg ... so add it to the msgs seen 
-		//			msgsSeen.addMsgID(msgID, System.nanoTime());
-		//		}
-
-
-		//String type = parse.parseType(packet);
-
-		//String action = parse.parseAction(packetObj.getPacket());
 		String action = genericPacketObj.getAction();
-		//System.out.println("update switch action recieved: " + action);
-		//		LinkObj linkObj;
-		//		boolean addRemove;
-		//		PrefixListObj prefixListObj;
-		//		PrefixObj prefixObj;
-
-		//System.out.println("inside update switch::action::" + action);
 
 		switch(action){
 
@@ -92,7 +84,6 @@ public class UpdateSwitch implements Runnable{
 			break;
 
 		case "modify" : 
-			//System.out.println("--MODIFY MSG RECIEVED IN UPDATE SWITCH--");
 			ModifyNodeObj modifyNodeObj = (ModifyNodeObj) genericPacketObj.getObj();
 			if(doesMsgIDExist(modifyNodeObj.getMsgID()) == false){				
 				try {
@@ -102,12 +93,11 @@ public class UpdateSwitch implements Runnable{
 					e.printStackTrace();
 				}
 			}else{
-				//System.out.println("--MODIFY NODE THE NODE DOES NOT EXISTS YET--");
+
 			}
 			break;
 
 		case "prefix" :
-			//do something
 			PrefixObj prefixObj = (PrefixObj) genericPacketObj.getObj();
 			if(doesMsgIDExist(prefixObj.getMsgID()) == false){				
 				boolean addRemovePrefix = prefixObj.getAddRemoveFlag();
@@ -179,7 +169,6 @@ public class UpdateSwitch implements Runnable{
 							genericPacketObj.getRecievedFromNode());
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			break;
@@ -199,7 +188,6 @@ public class UpdateSwitch implements Runnable{
 							genericPacketObj.getRecievedFromNode());
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			break;
@@ -207,22 +195,17 @@ public class UpdateSwitch implements Runnable{
 		case "neighborRequest" :
 			NeighborRequestObj neighborRequestObj = (NeighborRequestObj) genericPacketObj.getObj();
 			process.processIntrestRequestForNeighbors(neighborRequestObj);
-			//process.requestNeighbors(neighborRequestObj.getFromName());
 			break;
 
 		case "prefixResponse" :
 			PrefixListObj prefixListObjResponse = (PrefixListObj) genericPacketObj.getObj();
-			//if(doesMsgIDExist(prefixListObjResponse.getMsgID()) == false){				
 			process.processPrefixListResponse(prefixListObjResponse);
-			//}
 			break;
 
 		case "neighborResponse" :
 
 			ModifyNodeObj modifyNodeObjResponse = (ModifyNodeObj) genericPacketObj.getObj();
-			//if(doesMsgIDExist(modifyNodeObjResponse.getMsgID()) == false){
 			process.processNeighborsResponse(modifyNodeObjResponse);
-			//}
 			break;
 
 		default :
@@ -232,6 +215,13 @@ public class UpdateSwitch implements Runnable{
 
 	}
 
+	/**
+	 * Check if the message ID exists in the list, </br>
+	 * if it does don't process the update, </br>
+	 * else process the update
+	 * @param msgID
+	 * @return
+	 */
 	public boolean doesMsgIDExist(String msgID){
 		//has the update been seen before
 		if(msgsSeen.doesMsgIDExist(msgID) == true){
