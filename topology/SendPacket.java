@@ -1,21 +1,39 @@
 package topology;
 
+import overlay.Message;
+import packetObjects.DataObj;
+import packetObjects.IntrestObj;
+import packetObjects.LinkObj;
+import packetObjects.PrefixListObj;
+import packetObjects.PrefixObj;
 import caching.ServerLFS;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import overlay.Message;
-import packetObjects.*;
 
-import java.io.IOException;
-
+/**
+ * This class is used to convert an object to json and add the </br>
+ * headers. The packet is saved as a json string and saved to </br>
+ * original packet in the object. 
+ * @author spufflez
+ *
+ */
 public class SendPacket {
 
 	Gson gson = new Gson();
 
+	/**
+	 * Constructor
+	 */
 	public SendPacket() {
 
 	}
 
+	/**
+	 * Creates an add client packet</br>
+	 * called by the overlay, to tell the cache server a client is connecting
+	 * @param linkObj
+	 */
 	public void createAddClient(LinkObj linkObj) {
 		JsonObject packet = new JsonObject();
 
@@ -27,6 +45,11 @@ public class SendPacket {
 		linkObj.setOriginalPacket(packet.toString());
 	}
 
+	/**
+	 * Creates an remove client packet</br>
+	 * called by the overlay, to tell the cache server a client has died
+	 * @param linkObj
+	 */
 	public void createRemoveClient(LinkObj linkObj) {
 		JsonObject packet = new JsonObject();
 
@@ -38,6 +61,11 @@ public class SendPacket {
 		linkObj.setOriginalPacket(packet.toString());
 	}
 
+	/**
+	 * Creates a client prefix packet in json, this is used to send </br>
+	 * one content name to the cache server
+	 * @param prefixObj
+	 */
 	public void createClientPrefix(PrefixObj prefixObj) {
 		JsonObject packet = new JsonObject();
 
@@ -51,6 +79,12 @@ public class SendPacket {
 		prefixObj.setOriginalPacket(packet.toString());
 	}
 
+
+	/**
+	 * Creates a client prefix list packet in json, this is used to send </br>
+	 * a list of content names to the cache server
+	 * @param prefixListObj
+	 */
 	public void createClientPrefixList(PrefixListObj prefixListObj) {
 		JsonObject packet = new JsonObject();
 
@@ -67,6 +101,11 @@ public class SendPacket {
 
 
 
+	/**
+	 * Creates a prefix packet to be sent between cache servers</br>
+	 * This packet will contain content names each server knows about
+	 * @param prefixObj
+	 */
 	public void createPrefixPacket(PrefixObj prefixObj) {
 		JsonObject packet = new JsonObject();
 
@@ -80,6 +119,11 @@ public class SendPacket {
 		prefixObj.setOriginalPacket(packet.toString());
 	}
 
+	/**
+	 * Creates a prefixList packet to be sent between cache servers</br>
+	 * This packet will contain a list content names each server knows about
+	 * @param prefixObj
+	 */
 	public void createPrefixListPacket(PrefixListObj prefixListObj) {
 		JsonObject packet = new JsonObject();
 
@@ -96,7 +140,10 @@ public class SendPacket {
 	}
 
 
-
+	/**
+	 * Creates an interest packet 
+	 * @param intrestObj
+	 */
 	public void createIntrestPacket(IntrestObj intrestObj) {
 
 		JsonObject packet = new JsonObject();
@@ -112,6 +159,10 @@ public class SendPacket {
 
 	}
 
+	/**
+	 * Creates a Data packet
+	 * @param dataObj
+	 */
 	public void createDataPacket(DataObj dataObj) {
 		JsonObject packet = new JsonObject();
 
@@ -131,10 +182,9 @@ public class SendPacket {
 
 
 
-	/*
-	 * Depending on what I need to pass to gurav's function
-	 * if it can be made generic, then use on generic
-	 * forward function instead of separate forward functions
+	/**
+	 * Send a packet to the cache server
+	 * @param packet
 	 */
 	public void forwardPacket(String packet, String nextHop) {
 
@@ -148,80 +198,5 @@ public class SendPacket {
 		System.out.println("");
 	}
 
-
-    public void broadcast(String packet) throws IOException {
-
-        // this will forward to everyone routers and clients
-
-        Message<String> packetMessage = new Message<String>(7, packet);
-        ServerLFS.sendMessageToAllBut("", packetMessage);
-        //		System.out.println("    -Broadcast-");
-        //		System.out.println("packet: " + packet);
-        //		System.out.println("-------------------------------------------");
-        //		System.out.println("");
-    }
-
-    public void forwardUpdate(String packet, String doNotSendToNode)
-            throws IOException {
-        // this will forward to all routers except the router name passed into
-        // the function
-        Message<String> packetMessage = new Message<String>(7, packet);
-        ServerLFS.sendMessageToAllBut(doNotSendToNode, packetMessage);
-        //		System.out.println("    -ForwardUpdate do not send node provided-");
-        //		System.out.println("packet: " + packet);
-        //		System.out.println("doNotSendToNode: " + doNotSendToNode);
-        //		System.out.println("-------------------------------------------");
-        //		System.out.println("");
-        //boolean true, send to routers
-    }
-
-
-	// //dont use
-	// public void forwardToAllRouters(String packet, String[] routers ){
-	// System.out.println("    -Forward to all routers[]-");
-	// System.out.println("packet: " + packet);
-	// for(int i = 0; i < routers.length; i++){
-	// System.out.println("router: " + routers[i]);
-	// }
-	// System.out.println("-------------------------------------------");
-	// System.out.println("");
-	// }
-
-
-    public void forwardToAllRouters(String packet) throws IOException {
-        // this forwards the packet to all routers only
-        Message<String> packetMessage = new Message<String>(7, packet);
-        ServerLFS.sendMessageToAllBut("", packetMessage);
-        //		System.out.println("    -Forward to all routers no hops provided-");
-        //		System.out.println("packet: " + packet);
-        //		System.out.println("-------------------------------------------");
-        //		System.out.println("");
-        //boolean
-    }
-
-
 }
 
-//	public void sendTablePacket(TableObj tableObj){
-//		ArrayList<JsonObject> nodeArray = new ArrayList<JsonObject>();
-//		JsonObject node;
-//
-//
-//		for(int i = 0; i < tableObj.getGraph().size(); i++){
-//
-//			node = new JsonObject();
-//			node.addProperty("neighbors", gson.toJson(tableObj.getGraph().get(i).getNeighbors()));
-//			node.addProperty("name", tableObj.getGraph().get(i).getName());
-//			nodeArray.add(node);
-//
-//		}
-//
-//		JsonObject packet = new JsonObject();
-//		packet.addProperty("type", "update");
-//		packet.addProperty("action", "table");
-//		packet.addProperty("graph", gson.toJson(nodeArray));
-//
-//
-//		String pkt  = packet.toString();
-//		tableObj.setOriginalPacket(pkt);
-//	}

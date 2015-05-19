@@ -7,35 +7,30 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-
+/**
+ * This class parses raw packets into there corresponding object
+ * @author spufflez
+ *
+ */
 public class Parse2 {
 
 	Gson gson = new Gson();
 
+
+	/**
+	 * Constructor
+	 */
 	public Parse2(){
 
 	}
 
-
-	//	public PrefixObj parsePrefixJson(JsonObject jsonObject, String originalPacket) throws Exception {
-	//
-	//		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		JsonElement jsonContentNameElement = jsonObject.get("prefix");
-	//		String contentName = jsonContentNameElement.getAsString();
-	//
-	//		JsonElement jsonIDElement = jsonObject.get("msgID");
-	//		String msgID = jsonIDElement.getAsString();
-	//
-	//		JsonElement jsonAddRemoveElement = jsonObject.get("addRemove");
-	//		boolean addRemove = jsonAddRemoveElement.getAsBoolean();
-	//
-	//		JsonElement jsonAdvertiserElement = jsonObject.get("advertiser");
-	//		String advertiser = jsonAdvertiserElement.getAsString();
-	//
-	//		PrefixObj prefixInfo = new PrefixObj(contentName, msgID, advertiser, addRemove, originalPacket);
-	//		return prefixInfo;
-	//	}
-
+	/**
+	 * Parses an interest packet 
+	 * @param jsonObject
+	 * @param originalPacket
+	 * @return interest object 
+	 * @throws Exception
+	 */
 	public IntrestObj parseIntrestJson(JsonObject jsonObject, String originalPacket) throws Exception {
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
@@ -52,6 +47,13 @@ public class Parse2 {
 		return intrestInfo;
 	}
 
+	/**
+	 * Parses a data packet 
+	 * @param jsonObject
+	 * @param originalPacket
+	 * @return data object 
+	 * @throws Exception
+	 */
 	public DataObj parseDataJson(JsonObject jsonObject, String originalPacket) throws Exception {
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
@@ -76,58 +78,5 @@ public class Parse2 {
 		DataObj dataInfo = new DataObj(contentName, originRouter, flag, data, originalPacket, cacheFlag, lastChunk);
 		return dataInfo; 
 	}
-
-	//	public PrefixListObj parsePrefixListJson(JsonObject jsonObject) throws Exception {
-	//		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//
-	//		JsonElement jsonIDElement = jsonObject.get("msgID");
-	//		String msgID = jsonIDElement.getAsString();
-	//
-	//		JsonElement jsonAddRemoveElement = jsonObject.get("addRemove");
-	//		boolean addRemove = jsonAddRemoveElement.getAsBoolean();
-	//
-	//		JsonElement jsonAdvertiserElement = jsonObject.get("advertiser");
-	//		String advertiser = jsonAdvertiserElement.getAsString();
-	//
-	//		JsonElement JE = jsonObject.get("prefixList");
-	//		Type TYPE = new TypeToken<ArrayList<String>>(){}.getType();
-	//		ArrayList<String> prefixList = new Gson().fromJson(JE.getAsString(), TYPE);
-	//
-	//		PrefixListObj prefixListObj = new PrefixListObj(prefixList, advertiser, addRemove, msgID);
-	//		return prefixListObj;
-	//	}
-
-
-
-	//	public LinkObj parseClientAddNodeJson(JsonObject jsonObject) throws Exception {
-	//
-	//		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		JsonElement jsonNameElement = jsonObject.get("nodeName");
-	//		String nodeName = jsonNameElement.getAsString();
-	//
-	//		JsonElement jsonCostElement = jsonObject.get("cost");
-	//		int cost = jsonCostElement.getAsInt();
-	//
-	//		LinkObj linkObjInfo = new LinkObj(nodeName, cost);
-	//
-	//		return linkObjInfo;
-	//
-	//	}
-	//
-	//	public LinkObj parseClientRemoveNodeJson(JsonObject jsonObject) throws Exception {
-	//		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
-	//		JsonElement jsonNameElement = jsonObject.get("nodeName");
-	//		String removeNodeName = jsonNameElement.getAsString();
-	//
-	//		JsonElement jsonCostElement = jsonObject.get("cost");
-	//		int cost = jsonCostElement.getAsInt();
-	//
-	//		LinkObj linkObjInfo = new LinkObj(removeNodeName, cost);
-	//
-	//		return linkObjInfo;
-	//	}
-
-
-
 
 }

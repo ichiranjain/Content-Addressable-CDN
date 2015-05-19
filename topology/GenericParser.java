@@ -9,19 +9,33 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+
+/**
+ * This class parse the raw packet passed from the overlay to the routing layer.</br>
+ * This class is responsible for parsing every type of packet, and dropping </br>
+ * packets if they are not formatted correctly.
+ * @author spufflez
+ *
+ */
 public class GenericParser {
 
 	Gson gson = new Gson();
 	Parse2 parse = new Parse2();
 	PacketQueue2 packetQueue2;
 
+	/**
+	 * Constructor
+	 * @param packetQueue2
+	 */
 	public GenericParser(PacketQueue2 packetQueue2) {
 		this.packetQueue2 = packetQueue2;
-		// TODO Auto-generated constructor stub
-		//Implement runnable ... because this will be run in a thread 
-		// in the general queue thread pool 
+
 	}
 
+	/**
+	 * Parses a packet and adds it to either the update or routing queue
+	 * @param packetObj
+	 */
 	public void parsePacket(PacketObj packetObj){
 		String type;
 		JsonObject jsonObject = new JsonObject();
@@ -35,7 +49,6 @@ public class GenericParser {
 			type = "dropPacket";
 		}
 
-		//System.out.println("Inside parsePacket::type::" + type);
 
 		switch (type){
 
@@ -53,11 +66,15 @@ public class GenericParser {
 
 
 
+	/**
+	 * Parses a routing packet
+	 * @param jsonObject
+	 * @param packetObj
+	 */
 	public void parseRoutePacket(JsonObject jsonObject, PacketObj packetObj){
 		JsonElement jsonTypeElement = jsonObject.get("action");
 		String action = jsonTypeElement.getAsString();
-		//System.out.println("Routing action::" + action);
-		//GenericPacketObj genericPacketObj;
+
 		switch(action){
 
 		case "intrest" :
