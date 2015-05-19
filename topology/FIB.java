@@ -7,6 +7,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import orestes.bloomfilter.CountingBloomFilter;
 import orestes.bloomfilter.FilterBuilder;
 
+/**
+ * FIB is the forwarding table </br>
+ * THis class is responsible to mapping content to advertisers.</br>
+ * 
+ * 
+ * hmOfPrefixLengths: is a hash map of integers to hash maps.</br>
+ * the integer is the length of the prefix and the hash map</br> 
+ * stores all the content names of the specified length.</br>
+ * 
+ * hmOfBloomFilters: is a hash map of integer to bloom filters. The integer</br>
+ * is for the length of the content and the bloom filter stores the different </br>
+ * content names. This is set up for multi threading but current is NOT multi </br>
+ * threaded.</br>
+ * 
+ * longestPrefixLength: keeps track of the longest prefix length stored in the</br> 
+ * FIB.</br>
+ * 
+ * @author spufflez
+ *
+ */
 public class FIB{
 
 	//hash map mapping prefix a length to a hash map
@@ -27,6 +47,12 @@ public class FIB{
 	DirectlyConnectedNodes directlyConnectedNodes;
 
 
+	/**
+	 * Constructor
+	 * @param nodeRepo
+	 * @param pit
+	 * @param directlyConnectedNodes
+	 */
 	public FIB(NodeRepository nodeRepo, PIT pit, DirectlyConnectedNodes directlyConnectedNodes){
 		hmOfPrefixLengths = new ConcurrentHashMap<Integer, ConcurrentHashMap<String, ArrayList<String>>>();
 		hmOfBloomFilters = new ConcurrentHashMap<Integer, CountingBloomFilter<String>>();
@@ -36,6 +62,12 @@ public class FIB{
 		this.directlyConnectedNodes = directlyConnectedNodes;
 	}
 
+	/**
+	 * Adds a new length to the hash map </br>
+	 * key = length </br>
+	 * value = hash map of content to advertisers</br>
+	 * @param prefixLength
+	 */
 	public void addPrefixLengthHashMap(int prefixLength){
 		hmOfPrefixLengths.put(prefixLength, new ConcurrentHashMap<String, ArrayList<String>>());
 		setLongestPrefixLength(prefixLength);
@@ -56,6 +88,11 @@ public class FIB{
 		longestPrefixLength = tempLongestPrefixLength;
 	}
 
+
+	/**
+	 * Removes a length from the hash map and the associated hash map for the length</br>
+	 * @param prefixLength
+	 */
 	public void removePrefixLengthHashMap(int prefixLength){
 		hmOfPrefixLengths.remove(prefixLength);
 
@@ -72,6 +109,11 @@ public class FIB{
 
 	}
 
+	/**
+	 * Checks if the provided prefix length is in the hash map 
+	 * @param prefixLength
+	 * @return true if it exists and false if dne
+	 */
 	public boolean doesPrefixLengthHashMapExist(int prefixLength){
 		if(hmOfPrefixLengths.containsKey(prefixLength)){
 			return true;
@@ -80,18 +122,37 @@ public class FIB{
 		}
 	}
 
+	/**
+	 * Sets the longest prefix length
+	 * @param prefixLength
+	 */
 	public void setLongestPrefixLength(int prefixLength){
 		longestPrefixLength = prefixLength;
 	}
 
+	/**
+	 * Gets the size of lengths hash map
+	 * @return
+	 */
 	public int sizeOfPrefixLengthHashMap(){
 		return hmOfPrefixLengths.size();
 	}
 
+	/**
+	 * Gets the length of the longest content name currently seen
+	 * @return longest prefix seen 
+	 */
 	public int longestPrefixCurrentlySeen(){
 		return longestPrefixLength;
 	}
 
+	/**
+	 * Gets the best code node for a given content name 
+	 * @param prefixLength
+	 * @param prefix
+	 * @return the best cost node if available or empty if there are no 
+	 * advertisers for the content 
+	 */
 	public String getBestCostNode(int prefixLength, String prefix){
 		//call does an entry for the first element in the array exist
 		if(hmOfPrefixLengths.get(prefixLength).get(prefix).isEmpty() == false){			
@@ -101,27 +162,61 @@ public class FIB{
 		}
 	}
 
+	/**
+	 * Adds a content name to the hash map at the provided length
+	 * @param prefixLength
+	 * @param prefix
+	 */
 	public void addPrefixToHashMap(int prefixLength, String prefix){
 		hmOfPrefixLengths.get(prefixLength).put(prefix, new ArrayList<String>());
 	}
 
+	/**
+	 * Removes the content name from the hash map 
+	 * @param prefixLength
+	 * @param prefix
+	 */
 	public void removePrefixFromHashMap(int prefixLength, String prefix){
 		hmOfPrefixLengths.get(prefixLength).remove(prefix);
 	}
 
+	/**
+	 * Checks if the hash map contains the given content name
+	 * @param prefixLength
+	 * @param prefix
+	 * @return true if it exists and false if dne
+	 */
 	public boolean doesHashMapContainPrefix(int prefixLength, String prefix){
 		return hmOfPrefixLengths.get(prefixLength).containsKey(prefix);
 	}
 
+	/**
+	 * Sets the list of advertisersfor a content name
+	 * @param prefixLength
+	 * @param prefix
+	 * @param advertisers
+	 */
 	public void setAdvertisers(int prefixLength, String prefix, ArrayList<String> advertisers){
 		hmOfPrefixLengths.get(prefixLength).put(prefix, advertisers);
 	}
 
+	/**
+	 * Adds a single advertiser to the list of advertisers for a content name
+	 * @param prefixLength
+	 * @param prefix
+	 * @param advertiser
+	 */
 	public void addAdvertiserToHashMap(int prefixLength, String prefix, String advertiser){
 		hmOfPrefixLengths.get(prefixLength).get(prefix).add(advertiser);
 		//sort the list... to make sure the least cost node is first
 	}
 
+	/**
+	 * Removes an advertiser for a given content name 
+	 * @param prefixLength
+	 * @param prefix
+	 * @param advertiser
+	 */
 	public void removeAdvertiserFromHashMap(int prefixLength, String prefix, String advertiser){
 		int index = doesHashMapContainAdvertiser(prefixLength, prefix, advertiser);
 		if(index != -1){			
@@ -129,6 +224,13 @@ public class FIB{
 		}
 	}
 
+	/**
+	 * Checks if the advertiser is present in the list of advertisers for a given content
+	 * @param prefixLength
+	 * @param prefix
+	 * @param advertiser
+	 * @return true if present and false if dne
+	 */
 	public int doesHashMapContainAdvertiser(int prefixLength, String prefix, String advertiser){
 		for(int i = 0; i < hmOfPrefixLengths.get(prefixLength).get(prefix).size(); i++){
 
@@ -139,10 +241,25 @@ public class FIB{
 		return -1;
 	}
 
+	/**
+	 * Gets the size of the advertiser list for a given content name
+	 * @param prefixLength
+	 * @param prefix
+	 * @return size fo advertiser list 
+	 */
 	public int getSizeOfAdvertisersList(int prefixLength, String prefix){
 		return hmOfPrefixLengths.get(prefixLength).get(prefix).size();
 	}
 
+	/**
+	 * Gets the best cost advertiser out of the list of advertisers. 
+	 * The best cost advertiser is the first advertiser in the list.
+	 * This will perform checks if the advertiser exists and replace
+	 * the best cost advertise if it does not exist.
+	 * @param prefixLength
+	 * @param prefix
+	 * @return
+	 */
 	public String getBestCostAdvertiser(int prefixLength, String prefix){
 		//this returns error if the advertiser does not exist
 
@@ -237,12 +354,14 @@ public class FIB{
 
 	}
 
-	public void addDefualtRoute(int prefixLength, String defaultNode){
-		ArrayList<String> defaultRoute = new ArrayList<String>();
-		defaultRoute.add(defaultNode);
-		hmOfPrefixLengths.get(prefixLength).put("default", defaultRoute);
-	}
 
+	/**
+	 * Finds the best cost advertiser
+	 * The best cost advertiser is the first advertiser in the list.
+	 * This will perform checks if the advertiser exists and replace
+	 * the best cost advertise if it does not exist.
+	 * 
+	 */
 	public void findBestCostAdvertisers(){
 
 		/*
@@ -314,31 +433,75 @@ public class FIB{
 
 	}
 
+	/**
+	 * Adds a prefix length to the bloom filter hash map 
+	 * @param prefixLength
+	 */
 	public void addPrefixLengthBloomFilter(int prefixLength){
 		hmOfBloomFilters.putIfAbsent(prefixLength, new FilterBuilder(10000, 0.01).buildCountingBloomFilter());
 	}
+	/**
+	 * removes the longest prefix length from the bloom filter hash map 
+	 */
 	public void removeLastPrefixLengthBloomFilter(){
 		hmOfBloomFilters.remove(longestPrefixLength);
 	}
+	/**
+	 * removes the specified length from the bloom filter hash map
+	 * @param prefixLength
+	 */
 	public void removePrefixLengthBloomFilter(int prefixLength){
 		hmOfBloomFilters.remove(prefixLength);
 	}
+	/**
+	 * Checks if the length exists 
+	 * @param prefixLength
+	 * @return true if it exists and false if it dne
+	 */
 	public boolean doesPrefixLengthBloomFilterExist(int prefixLength){
 		return hmOfBloomFilters.containsKey(prefixLength);
 	}
+	/**
+	 * Gets the size of the bloom filter hash map 
+	 * @return size of the bloom filter hash map 
+	 */
 	public int sizeOfPrefixLengthBloomFilter(){
 		return hmOfBloomFilters.size();
 	}
+	/**
+	 * Adds a content name to the bloom filter
+	 * @param prefixLength
+	 * @param prefix
+	 */
 	public void addPrefixToBloomFilter(int prefixLength, String prefix){
 		hmOfBloomFilters.get(prefixLength).add(prefix);
 	}
+	/**
+	 * Removes a content name from the bloom filter
+	 * @param prefixLength
+	 * @param prefix
+	 */
 	public void removePrefixFromBloomFIlter(int prefixLength, String prefix){
 		hmOfBloomFilters.get(prefixLength).remove(prefix);
 	}
+	/**
+	 * Checks if the bloom filter contains the content name
+	 * @param prefixLength
+	 * @param prefix
+	 * @return true if it exists and false if dne
+	 */
 	public boolean doesBloomFilterConteinPrefix(int prefixLength, String prefix){
 		return hmOfBloomFilters.get(prefixLength).contains(prefix);
 	}
 
+	/**
+	 * Adds a content name to the FIB</br>
+	 * This will add the content name to the appropriate hash maps according to </br>
+	 * the content name's length.
+	 * @param prefix
+	 * @param advertiser
+	 * @return true if content name was added, false if it was not added
+	 */
 	public boolean addPrefixToFIB(String prefix, String advertiser){
 
 		boolean prefixAdded = false;
@@ -396,6 +559,12 @@ public class FIB{
 		return prefixAdded;
 	}
 
+	/**
+	 * Removes a prefix from the FIB
+	 * @param prefix
+	 * @param advertiser
+	 * @return true if the content name was removed and false if it was not removed
+	 */
 	public boolean removePrefixFromFIB(String prefix, String advertiser){
 
 		boolean prefixRemoved = false;
@@ -424,6 +593,12 @@ public class FIB{
 		return prefixRemoved;
 	}
 
+	/**
+	 * Searches the FIB for the best cost advertiser for the given content name </br>
+	 * and returns the next hop to get to that best cost advertiser.
+	 * @param contentName
+	 * @return next hop if available or broadcast if not available 
+	 */
 	public String searchFIB(String contentName){
 
 		//get the length of the prefix 
@@ -517,10 +692,19 @@ public class FIB{
 		return nextHop;
 	}
 
+	/**
+	 * Gets the length of the longest content name stored
+	 * @return length of the longest content name stored
+	 */
 	public int getLongestPrefixLength(){
 		return hmOfPrefixLengths.size();
 	}
 
+	/**
+	 * Gets all the content names for a given length
+	 * @param length
+	 * @return array list of content names for the given length
+	 */
 	public ArrayList<String> getPrefixesForLength(int length){
 		Set<String> keys = hmOfPrefixLengths.get(length).keySet();
 		ArrayList<String> prefixList = new ArrayList<String>(keys.size());
@@ -531,6 +715,11 @@ public class FIB{
 		return prefixList;
 	}
 
+	/**
+	 * Gets all the FIB entries in the entire table</br>
+	 * Use this when printing the entire FIB table.
+	 * @return array list of all the content names and advertisers in the FIB
+	 */
 	public ArrayList<String> getFIBEntries(){
 		Set<Integer> lengths = hmOfPrefixLengths.keySet();
 		ArrayList<String> entries = new ArrayList<String>();

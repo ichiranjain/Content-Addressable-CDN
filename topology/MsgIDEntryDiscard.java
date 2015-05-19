@@ -2,6 +2,14 @@ package topology;
 
 import java.util.ArrayList;
 
+/**
+ * this class discards old message ID entries</br>
+ * 
+ * sleep time: is the amount of time in milliseconds the thread should sleep</br>
+ * keepMsgTIme: is the amount of time in nano seconds the message entry should be kept </br> 
+ * @author spufflez
+ *
+ */
 public class MsgIDEntryDiscard implements Runnable{
 
 	UpdateMsgsSeen updateMsgsSeen;
@@ -11,6 +19,13 @@ public class MsgIDEntryDiscard implements Runnable{
 	int sleepTime;
 	long keepMsgTime;
 
+	/**
+	 * Constructor
+	 * @param updateMsgsSeen
+	 * @param sleepTime
+	 * @param keepMsgTime
+	 * @param keepRunning
+	 */
 	public MsgIDEntryDiscard(UpdateMsgsSeen updateMsgsSeen, int sleepTime, long keepMsgTime, boolean keepRunning){
 		this.updateMsgsSeen = updateMsgsSeen;
 		this.sleepTime = sleepTime;

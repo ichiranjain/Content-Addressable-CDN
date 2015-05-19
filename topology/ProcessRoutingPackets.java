@@ -1,14 +1,21 @@
 package topology;
 
-import caching.Content;
-import caching.ContentStore;
-import packetObjects.DataObj;
-import packetObjects.IntrestObj;
-import packetObjects.PITEntry;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
+import packetObjects.DataObj;
+import packetObjects.IntrestObj;
+import packetObjects.PITEntry;
+import caching.Content;
+import caching.ContentStore;
+
+/**
+ * This class is used to process interest and data packets.</br>
+ * Ping request are processed and sent from this class</br>
+ * 
+ * @author spufflez
+ *
+ */
 public class ProcessRoutingPackets {
 
 	//String packet;
@@ -20,6 +27,14 @@ public class ProcessRoutingPackets {
 	DirectlyConnectedNodes directlyConnectedNodes;
 	String recievedFromNode;
 
+	/**
+	 * Constructor
+	 * @param nodeRepo
+	 * @param fib
+	 * @param pit
+	 * @param directlyConnectedNodes
+	 * @param recievedFromNode
+	 */
 	public ProcessRoutingPackets( 
 			NodeRepository nodeRepo,
 			FIB fib,
@@ -38,44 +53,46 @@ public class ProcessRoutingPackets {
 
 	}
 
-    public void processIntrest(IntrestObj intrestObj, String receivedFromNode) throws IOException {
-        //check the cs
-		//		if( check cs == true ){
-		//			intrestObj.getContentName() need received from node
-		//if the content is in the cs.... send the data out and return 
-		//dataObj()
-		//sendPacket.createDataPacket();
-		//sendPacket.sendPacket (Received from node);
-		//		}
+	/**
+	 * Process Interest packets
+	 * If the packet is a directly connected client, it is processed</br>
+	 * 
+	 * slightly different
+	 * @param intrestObj
+	 * @param receivedFromNode
+	 * @throws IOException
+	 */
+	public void processIntrest(IntrestObj intrestObj, String receivedFromNode) throws IOException {
 
-        String contentName = null;
-        boolean copyFlag = false;
-        boolean deleteFlag = false;
+		//check the cache
+		String contentName = null;
+		boolean copyFlag = false;
+		boolean deleteFlag = false;
 
-        if (intrestObj != null) {
-            contentName = intrestObj.getContentName();
-            Content requestedContent = ContentStore.serveRequest(contentName);
-            if (requestedContent != null) {
-                try {
-                    ContentStore.updateScoreOnIterface(requestedContent, receivedFromNode);
-                    if (ContentStore.shouldCopy(requestedContent, receivedFromNode)) {
-                        copyFlag = true;
-                    }
-                    if (ContentStore.shouldDelete(requestedContent)) {
-                        deleteFlag = true;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                ContentStore.sendDataObj(requestedContent, intrestObj.getOriginRouterName(), receivedFromNode, copyFlag);
-                if (deleteFlag) {
-                    ContentStore.deleteContent(requestedContent);
-                }
-                return;
-            }
+		if (intrestObj != null) {
+			contentName = intrestObj.getContentName();
+			Content requestedContent = ContentStore.serveRequest(contentName);
+			if (requestedContent != null) {
+				try {
+					ContentStore.updateScoreOnIterface(requestedContent, receivedFromNode);
+					if (ContentStore.shouldCopy(requestedContent, receivedFromNode)) {
+						copyFlag = true;
+					}
+					if (ContentStore.shouldDelete(requestedContent)) {
+						deleteFlag = true;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				ContentStore.sendDataObj(requestedContent, intrestObj.getOriginRouterName(), receivedFromNode, copyFlag);
+				if (deleteFlag) {
+					ContentStore.deleteContent(requestedContent);
+				}
+				return;
+			}
 
-        }
-        System.out.println("Content name: " + contentName);
+		}
+		System.out.println("Content name: " + contentName);
 
 
 
@@ -86,7 +103,7 @@ public class ProcessRoutingPackets {
 
 				//if the pit entry exists 
 
-				//does the requester exist in the requesters list 
+				//does the client requester exist in the client requesters list 
 				if(pit.doesClientRequesterExist(intrestObj.getContentName(), recievedFromNode) == false){
 
 					//if the client requester does not exist, add to the client to the client requester list 
@@ -99,6 +116,8 @@ public class ProcessRoutingPackets {
 					return;				
 				}else{
 					pit.setTime(intrestObj.getContentName());
+					//since the packet was from a client ... add this machines ID 
+					//as the origin router
 					intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
 					sendPacket.createIntrestPacket(intrestObj);
 				}
@@ -113,7 +132,7 @@ public class ProcessRoutingPackets {
 
 			}
 		}else{
-			//this is from another router
+			//this is from another cache server
 			//this will add the pit entry if it does not exist
 			//if it doesn't exists the returned value will be null
 			//else it will return the value the hash map has for that key 
@@ -166,30 +185,34 @@ public class ProcessRoutingPackets {
 		}
 	}
 
+	/**
+	 * Process a data packet with the flag set to zero</br>
+	 * forward the data packet in accordance to the pit entry (normal routing)
+	 * @param dataObj
+	 */
 	public void processData0(DataObj dataObj){
-
-
 
 		//check the pit
 		if(pit.doesEntryExist(dataObj.getContentName()) ==  true){
 
-            //0
-            //check the cs flag
-            if (dataObj != null && dataObj.getCacheFlag() == 2) {
-                String content = dataObj.getData();
-                System.out.println(content);
-                ContentStore.incomingContent(content, recievedFromNode);
-                System.out.println("Content with name " + content + "is placed in cached");
-                dataObj.setCacheFlag((byte) 1);
-                sendPacket.createDataPacket(dataObj);
+			//0
+			//check the cs flag
+			if (dataObj != null && dataObj.getCacheFlag() == 2) {
+				String content = dataObj.getData();
+				System.out.println(content);
+				ContentStore.incomingContent(content, recievedFromNode);
+				System.out.println("Content with name " + content + "is placed in cached");
+				dataObj.setCacheFlag((byte) 1);
+				sendPacket.createDataPacket(dataObj);
 
-            }
+			}
 
 			//update the pit entry time
 			pit.setTime(dataObj.getContentName());
 
 			ArrayList<String> requesters = pit.getRequesters(dataObj.getContentName()).getRequesters();
 
+			// this can be added if needed but the pit removal thread works
 			//remove the pit entry if this was the last chunk packet 
 			//			if(dataObj.getLastChunk() == true){
 			//				pit.removeEntry(dataObj.getContentName());
@@ -202,7 +225,6 @@ public class ProcessRoutingPackets {
 				//does the requester (next hop node) exist 
 				//if requester is down ... set to 1 AND boolean is not set 
 				if((nodeRepo.HMdoesNodeExist(requesters.get(i)) == true)){
-					//	 || (directlyConnectedNodes.doesDirectlyConnectedClientExist(requesters.get(i)) == true) ){
 
 					//forward the packet to each of the requester
 					sendPacket.forwardPacket(dataObj.getOriginalPacket(), requesters.get(i));
@@ -223,15 +245,11 @@ public class ProcessRoutingPackets {
 			}
 
 			ArrayList<String> clientRequesters = pit.getClientRequesters(dataObj.getContentName()).getClientRequesters();
-			//System.out.println("clientRequesters: " + clientRequesters);
-			//System.out.println("size: " + clientRequesters.size());
 			for(int i = 0; i < clientRequesters.size(); i++){
 				System.out.println("in for loop");
 				if(directlyConnectedNodes.doesDirectlyConnectedClientExist(clientRequesters.get(i)) == true){
-					//System.out.println("client existed");
-					//System.out.println(dataObj.getOriginalPacket());
-					//System.out.println(clientRequesters.get(i));
-					//forward the packet to each of the requester
+
+					//forward the packet to each of the client requesters
 					sendPacket.forwardPacket(dataObj.getOriginalPacket(), clientRequesters.get(i));
 
 				}
@@ -242,6 +260,11 @@ public class ProcessRoutingPackets {
 		}
 	}
 
+	/**
+	 * Process a data packet with the flag set to 1. </br>
+	 * Route the data packet to the origin cache server</br>
+	 * @param dataObj
+	 */
 	public void processData1(DataObj dataObj){
 
 		/*
@@ -252,14 +275,6 @@ public class ProcessRoutingPackets {
 		//if the origin router is this machine ... call process data 2
 		//and send to all the pit requesters
 		if(nodeRepo.getThisMachinesName().equals(dataObj.getOriginRouterName()) == true){
-
-
-			//send to all the requesters
-			//ArrayList<String> requesters = pit.getRequesters(dataObj.getContentName()).getRequesters();
-
-			//			for(String req : requesters){
-			//				System.out.println("req: " + req);
-			//}
 
 			//set the flag to 2
 			byte b = 2;
@@ -272,11 +287,7 @@ public class ProcessRoutingPackets {
 			//			if(dataObj.getLastChunk() == true){
 			//				pit.removeEntry(dataObj.getContentName());
 			//			}
-			//
-			//			for(int i = 0; i < requesters.size(); i++){
-			//				sendPacket.createDataPacket(dataObj);
-			//				sendPacket.forwardPacket(dataObj.getOriginalPacket(), requesters.get(i));
-			//			}
+
 		}else{
 
 			//try to forward to the origin router
@@ -296,6 +307,11 @@ public class ProcessRoutingPackets {
 
 	}
 
+	/**
+	 * Process a data packet with the flag set to 2.</br>
+	 * Send the data packet towards the server
+	 * @param dataObj
+	 */
 	public void processData2(DataObj dataObj){
 		//2
 		//check if a pit entry exists 
@@ -313,6 +329,7 @@ public class ProcessRoutingPackets {
 			//			}
 
 
+			//send to the cache server requesters
 			for(int i = 0; i < requesters.size(); i++){
 				if(nodeRepo.HMdoesNodeExist(requesters.get(i)) == true){
 					dataObj.setFlag((byte)0);
@@ -321,6 +338,7 @@ public class ProcessRoutingPackets {
 				}
 			}
 
+			//send to the client requesters
 			for(int i = 0; i < clientRequesters.size(); i++){
 				if(directlyConnectedNodes.doesDirectlyConnectedClientExist(clientRequesters.get(i)) == true){
 					dataObj.setFlag((byte)0);
@@ -343,6 +361,12 @@ public class ProcessRoutingPackets {
 		}
 	}
 
+
+	/**
+	 * Process a ping interest packet
+	 * 
+	 * @param intrestObj
+	 */
 	public void preocessPingRequest(IntrestObj intrestObj){
 		byte b = 0;
 		String data = nodeRepo.getThisMachinesName() + "/ping";
@@ -353,6 +377,11 @@ public class ProcessRoutingPackets {
 		sendPacket.forwardPacket(dataObj.getOriginalPacket(), recievedFromNode);
 	}
 
+
+	/**
+	 * Process a ping data packet
+	 * @param dataObj
+	 */
 	public void processPingReply(DataObj dataObj){
 		//print data portion of data obj
 		System.out.println("ping response: " + dataObj.getData());

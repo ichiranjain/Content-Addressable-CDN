@@ -14,19 +14,31 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+/**
+ * This class parse the raw packet passed from the overlay to the routing layer.</br>
+ * This class is responsible for parsing every type of packet, and dropping </br>
+ * packets if they are not formatted correctly.
+ * @author spufflez
+ *
+ */
 public class GenericParser {
 
 	Gson gson = new Gson();
 	Parse2 parse = new Parse2();
 	PacketQueue2 packetQueue2;
 
+	/**
+	 * Constructor
+	 * @param packetQueue2
+	 */
 	public GenericParser(PacketQueue2 packetQueue2) {
 		this.packetQueue2 = packetQueue2;
-		// TODO Auto-generated constructor stub
-		//Implement runnable ... because this will be run in a thread 
-		// in the general queue thread pool 
 	}
 
+	/**
+	 * Parses a packet and adds it to either the update or routing queue
+	 * @param packetObj
+	 */
 	public void parsePacket(PacketObj packetObj){
 		String type;
 		JsonObject jsonObject = new JsonObject();
@@ -40,12 +52,9 @@ public class GenericParser {
 			type = "dropPacket";
 		}
 
-		//System.out.println("Inside parsePacket::type::" + type);
-
 		switch (type){
 
 		case "update" :
-			//System.out.println("parsing update packet");
 			parseUpdatePacket(jsonObject, packetObj);
 			break;
 		case "route" :
@@ -60,6 +69,11 @@ public class GenericParser {
 
 	}
 
+	/**
+	 * Parses an update packet 
+	 * @param jsonObject
+	 * @param packetObj
+	 */
 	public void parseUpdatePacket(JsonObject jsonObject, PacketObj packetObj){
 
 		JsonElement jsonActionElement;
@@ -68,7 +82,6 @@ public class GenericParser {
 
 			jsonActionElement = jsonObject.get("action");
 			action = jsonActionElement.getAsString();
-			//System.out.println("Update action: " + action);
 
 		}catch(Exception e){
 			action = "dropPacket";
@@ -77,10 +90,7 @@ public class GenericParser {
 		PrefixListObj prefixListObj;
 		PrefixObj prefixObj;
 		NeighborRequestObj neighborRequestObj;
-		//GenericPacketObj genericPacketObj;
 		ModifyNodeObj modifyNodeObj;
-
-		//System.out.println("Parsing update packet now::action::" + action);
 
 		switch(action){
 
@@ -88,15 +98,12 @@ public class GenericParser {
 
 			try{
 
-				//System.out.println("parsing addlink");
 				//parse the packet into a addLinkObj
 				linkObj = parse.parseAddLink(jsonObject);
 				//create the genericPacketObj
 				GenericPacketObj<LinkObj> gpoAddLink = new GenericPacketObj<LinkObj>(action, packetObj.getRecievedFromNode(), linkObj);
 				//add it to the Update Queue
-
 				packetQueue2.addToUpdateQueue(gpoAddLink);
-				//System.out.println("update added to update queue");
 
 			}catch(Exception e){
 
@@ -257,6 +264,11 @@ public class GenericParser {
 		}
 	}
 
+	/**
+	 * Parses a routing packet
+	 * @param jsonObject
+	 * @param packetObj
+	 */
 	public void parseRoutePacket(JsonObject jsonObject, PacketObj packetObj){
 		JsonElement jsonTypeElement = jsonObject.get("action");
 		String action = jsonTypeElement.getAsString();

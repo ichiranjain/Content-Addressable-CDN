@@ -6,13 +6,23 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 
+/**
+ * Runs Dijkstra's Algorithm to find the minimum cost to a node 
+ * @author spufflez
+ *
+ */
 public class Dijkstras {
 
 	public Dijkstras(){
 
 	}
 
-	//might want to take a NodeRepository vs a graph
+	/**
+	 * Runs Dijkstra's algorithm on the provided graph</br>
+	 * Nodes that have a cost of infinity will be removed
+	 * @param graph
+	 * @param origin
+	 */
 	public void runDijkstras(ConcurrentHashMap<String,Node> graph, String origin){	
 
 		//used to get the least cost node while running Dijkstra's algorithm

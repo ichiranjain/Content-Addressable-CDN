@@ -5,6 +5,12 @@ import java.util.concurrent.Executors;
 
 import packetObjects.GenericPacketObj;
 
+/**
+ * This class takes objects from the routing queue and pass them to a thread pool </br>
+ * where the objects are processed
+ * @author spufflez
+ *
+ */
 public class RoutingQueueHandler implements Runnable{
 
 	PacketQueue2 packetQueue2;
@@ -15,6 +21,15 @@ public class RoutingQueueHandler implements Runnable{
 	//Parse parse;
 	volatile boolean running;
 
+	/**
+	 * Constructor
+	 * @param packetQueue2
+	 * @param nodeRepo
+	 * @param fib
+	 * @param pit
+	 * @param directlyConnectedNodes
+	 * @param running
+	 */
 	public RoutingQueueHandler(PacketQueue2 packetQueue2, 
 			NodeRepository nodeRepo, 
 			FIB fib, 

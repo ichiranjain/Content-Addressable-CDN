@@ -13,6 +13,12 @@ import packetObjects.PrefixListObj;
 import packetObjects.PrefixObj;
 import packetObjects.RemoveNodeObj;
 
+/**
+ * This class processes all update packets and applies the updates to the graph</br>
+ * This is when the FIB is updated and DIjkstra's is run</br>
+ * @author spufflez
+ *
+ */
 public class ProcessUpdates {
 
 	NodeRepository nodeRepo;
@@ -22,6 +28,13 @@ public class ProcessUpdates {
 	DirectlyConnectedNodes directlyConnectedNodes;
 	Dijkstras dijkstras;
 
+	/**
+	 * Constructor
+	 * @param nodeRepo
+	 * @param upDatesSeen
+	 * @param fib
+	 * @param directlyConnectedNodes
+	 */
 	public ProcessUpdates(NodeRepository nodeRepo, UpdateMsgsSeen upDatesSeen, FIB fib, DirectlyConnectedNodes directlyConnectedNodes){
 		this.nodeRepo = nodeRepo;
 		this.upDatesSeen = upDatesSeen;
@@ -31,6 +44,12 @@ public class ProcessUpdates {
 		this.dijkstras = new Dijkstras();
 	}
 
+	/**
+	 * Add a new link to a cache server </br>
+	 * This will add a neighbor to this cache server</br>
+	 * @param linkObj
+	 * @throws IOException
+	 */
 	public void addLink(LinkObj linkObj) throws IOException {
 		//if the node does not exist .. add it to the graph 
 		if(nodeRepo.HMdoesNodeExist(linkObj.getNeighboringNode()) == false){
@@ -41,16 +60,8 @@ public class ProcessUpdates {
 			//add new node name to prefix hash map
 			fib.addPrefixToFIB(linkObj.getNeighboringNode(), linkObj.getNeighboringNode());
 
-			//			System.out.println("AddLink::current neighbors: "
-			//					+ nodeRepo.HMgetNode(nodeRepo.getThisMachinesName())
-			//					.getNeighbors());
-
 			//add the new node as a neighbor, the add neighbor does nothing if it already exists
 			nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).addNeighbor(linkObj.getNeighboringNode(), linkObj.getCost());
-
-			//			System.out.println("AddLink::new neighbors: "
-			//					+ nodeRepo.HMgetNode(nodeRepo.getThisMachinesName())
-			//					.getNeighbors());
 
 			//add the link to my directly connected list, if it already exists the method does nothing
 			directlyConnectedNodes.addDirectlyConnectedRouter(linkObj.getNeighboringNode());
@@ -59,21 +70,15 @@ public class ProcessUpdates {
 			dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
 
 			//sort FIB entries
+			//having this here may be inefficient, updating all the entries once the FIB gets large will not be efficient.
 			fib.findBestCostAdvertisers();
 
 			//send the packet asking for its neighbors
 			requestNeighbors(linkObj.getNeighboringNode());
 		}else{
-			//			System.out.println("AddLink::current neighbors: "
-			//					+ nodeRepo.HMgetNode(nodeRepo.getThisMachinesName())
-			//					.getNeighbors());
 
 			//the node exists already, just add as a neighbor, if the neighbor already exists, the method will do nothing
 			nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).addNeighbor(linkObj.getNeighboringNode(), linkObj.getCost());
-
-			//			System.out.println("AddLink::new neighbors: "
-			//					+ nodeRepo.HMgetNode(nodeRepo.getThisMachinesName())
-			//					.getNeighbors());
 
 			//add the link to my directly connected list, if it already exists the method does nothing
 			directlyConnectedNodes.addDirectlyConnectedRouter(linkObj.getNeighboringNode());
@@ -93,12 +98,18 @@ public class ProcessUpdates {
 		sendPacket.createModifyNodePacket(modifyNodeObj);
 
 		upDatesSeen.addMsgID(modifyNodeObj.getMsgID(), System.nanoTime());
+
 		//forward to all routers
 		sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket());
-		//sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
 
 	}
 
+	/**
+	 * Remove a directly connected cache server</br>
+	 * This will remove the cache server as a neighbor</br>
+	 * @param linkObj
+	 * @throws IOException
+	 */
 	public void removeLink(LinkObj linkObj) throws IOException {
 		if(nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).doesNeighborExist(linkObj.getNeighboringNode()) == true){
 			nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).removeNeighbor(linkObj.getNeighboringNode());
@@ -125,9 +136,15 @@ public class ProcessUpdates {
 
 		//forward to all routers
 		sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket());
-		//sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
 	}
 
+	/**
+	 * Add a client/server to the cache server.</br>
+	 * Clients and servers use this for connecting because they will not </br>
+	 * receive routing updates</br> 
+	 * @param linkObj
+	 * @throws IOException
+	 */
 	public void addClientLink(LinkObj linkObj) throws IOException {
 		if(directlyConnectedNodes.doesDirectlyConnectedClientExist(linkObj.getNeighboringNode()) == false){
 
@@ -151,10 +168,14 @@ public class ProcessUpdates {
 
 			//sendPacket
 			sendPacket.forwardToAllRouters(prefixObj.getOriginalPacket());
-			//sendPacket.forwardToAllRouters(prefixObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
 		}
 	}
 
+	/**
+	 * This will remove a directly connected client/server
+	 * @param linkObj
+	 * @throws IOException
+	 */
 	public void removeClientLink(LinkObj linkObj) throws IOException {
 
 		if(directlyConnectedNodes.doesDirectlyConnectedClientExist(linkObj.getNeighboringNode()) == true){
@@ -181,10 +202,15 @@ public class ProcessUpdates {
 
 			//sendPacket
 			sendPacket.forwardToAllRouters(prefixListObj.getOriginalPacket());
-			//sendPacket.forwardToAllRouters(prefixListObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
 		}
 	}
 
+	/**
+	 * If a links cost to a cache server changes, modify link will apply the </br>
+	 * cost change and update the graph
+	 * @param linkObj
+	 * @throws IOException
+	 */
 	public void modifyLink(LinkObj linkObj) throws IOException {
 
 		//does the neighbor exist
@@ -213,7 +239,6 @@ public class ProcessUpdates {
 
 			//sendPacket
 			sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket());
-			//sendPacket.forwardToAllRouters(modifyNodeObj.getOriginalPacket(), directlyConnectedNodes.getDirectlyConnectedRoutersList());
 
 		}//if the neighbor does no exist... this packet was sent by mistake
 
@@ -221,6 +246,12 @@ public class ProcessUpdates {
 
 	}
 
+	/**
+	 * This is called by the server to advertise a single content
+	 * @param prefixObj
+	 * @param doNotSendToNode
+	 * @throws IOException
+	 */
 	public void addCLientPrefix(PrefixObj prefixObj, String doNotSendToNode)
 			throws IOException {
 
@@ -241,6 +272,12 @@ public class ProcessUpdates {
 		sendPacket.forwardUpdate(prefixObj.getOriginalPacket(), doNotSendToNode);
 	}
 
+	/**
+	 * This is called by the server to advertise several content names
+	 * @param prefixListObj
+	 * @param doNotSendToNode
+	 * @throws IOException
+	 */
 	public void addClientPrefixList(PrefixListObj prefixListObj,
 			String doNotSendToNode) throws IOException {
 
@@ -259,9 +296,6 @@ public class ProcessUpdates {
 
 		}//end for loop	
 
-		//forward the prefixList update using this router name, because it was a client prefix 
-		//prefixListObj.setAdvertiser(nodeRepo.getThisMachinesName());
-
 		PrefixListObj sendPrefixListObj = new PrefixListObj(prefixList, nodeRepo.getThisMachinesName(),
 				prefixListObj.getAddRemoveFlag(), nodeRepo.getThisMachinesName() + System.nanoTime());
 		//send the packet update to the rest of the graph 
@@ -272,6 +306,12 @@ public class ProcessUpdates {
 		sendPacket.forwardUpdate(sendPrefixListObj.getOriginalPacket(), doNotSendToNode);
 	}
 
+	/**
+	 * Removes a content name when an advertiser sends remove content name
+	 * @param prefixObj
+	 * @param doNotSendToNode
+	 * @throws IOException
+	 */
 	public void removeClientPrefix(PrefixObj prefixObj, String doNotSendToNode)
 			throws IOException {
 
@@ -294,6 +334,12 @@ public class ProcessUpdates {
 
 	}
 
+	/**
+	 * Removes a list of content names when an advertiser sends remove the content 
+	 * @param prefixListObj
+	 * @param doNotSendToNode
+	 * @throws IOException
+	 */
 	public void removeClientPrefixList(PrefixListObj prefixListObj,
 			String doNotSendToNode) throws IOException {
 
@@ -321,6 +367,11 @@ public class ProcessUpdates {
 
 	}
 
+	/**
+	 * adds a node to the graph </br>
+	 * This would pertain to cache servers only
+	 * @param addNodeObj
+	 */
 	public void addNode(AddNodeObj addNodeObj){
 
 		if(nodeRepo.HMdoesNodeExist(addNodeObj.getName()) == false){			
@@ -330,6 +381,11 @@ public class ProcessUpdates {
 		}
 	}
 
+	/**
+	 * Removes a node from the graph </br>
+	 * This would pertain to cache servers only
+	 * @param removeNodeObj
+	 */
 	public void removeNode(RemoveNodeObj removeNodeObj){
 
 		if(nodeRepo.HMdoesNodeExist(removeNodeObj.getName()) == true){
@@ -342,26 +398,27 @@ public class ProcessUpdates {
 
 			//sort FIB entries
 			fib.findBestCostAdvertisers();
-
-			//TODO pass the name of the removed node to the thread removing prefixes. associated with this node
 		}
 	}
 
+	/**
+	 * This method is called with updates are received</br>
+	 * It will get the node in the modify packet and updates is neighbors</br>
+	 * and there costs, then call Dijkstra's to update the graph
+	 * @param modifyNodeObj
+	 * @param doNotSendToNode
+	 * @throws IOException
+	 */
 	public void modifyNode(ModifyNodeObj modifyNodeObj, String doNotSendToNode)
 			throws IOException {
 
-		//check the previous seen update msgs IDs to make sure it is a new update
+		//check the previous seen update messages IDs to make sure it is a new update
 		//if it was seen ... drop packet
-
-		//		System.out.println(upDatesSeen.getListOfMsgIDs());
-		//		System.out.println("MODIFY NODE MSG ID: " + modifyNodeObj.getMsgID());
 
 		if(upDatesSeen.doesMsgIDExist(modifyNodeObj.getMsgID()) == false){
 			upDatesSeen.addMsgID(modifyNodeObj.getMsgID(), System.nanoTime());
-			//			System.out.println("--The modify node message ID is not in the table--");
 
 			if(nodeRepo.HMdoesNodeExist(modifyNodeObj.getName()) == true){
-				//				System.out.println("--The modify node, node exists--");
 				ArrayList<String> neighborsToRequest = new ArrayList<String>();
 				ArrayList<String> neighbors = modifyNodeObj.getNeighborsNames();
 				for(int i = 0; i < neighbors.size(); i++){
@@ -382,20 +439,7 @@ public class ProcessUpdates {
 				}
 
 				//update the neighbors list for the given node
-				//				System.out.println("MODIFY_NODE::current neighbors: "
-				//						+ nodeRepo.HMgetNode(nodeRepo.getThisMachinesName())
-				//						.getNeighbors());
-
 				nodeRepo.HMsetNeighborList(modifyNodeObj.getName(), modifyNodeObj.getNeighbors());
-
-				//				for(NeighborAndCostStrings neighborCost : modifyNodeObj.getNeighbors()){
-				//					if(nodeRepo.HMgetNode(modifyNodeObj.getName()).doesNeighborExist(neighborCost.getNeighborName()) == false ){
-				//						nodeRepo.HMgetNode(modifyNodeObj.getName()).addNeighbor(neighborCost.getNeighborName(), neighborCost.getCost());
-				//					}
-				//				}
-
-				//				System.out.println("MODIFY_NODE::new neighbors: "
-				//						+ modifyNodeObj.getNeighbors());
 
 				//run Dijkstra
 				dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
@@ -411,85 +455,32 @@ public class ProcessUpdates {
 
 			}
 
-			//			ArrayList<Node> nodes = nodeRepo.getGraphList();
-			//			for (int i = 0; i < nodes.size(); i++) {
-			//				System.out.println("nodes in grph: " + nodes.get(i).getName()
-			//						+ " " + nodes.get(i).getOriginNextHop() + " "
-			//						+ nodes.get(i).getBestCost());
-			//			}
 			//send updates or forward updates
 			sendPacket.createModifyNodePacket(modifyNodeObj);
 			//upDatesSeen.addMsgID(modifyNodeObj.getMsgID(), System.nanoTime());
 			sendPacket.forwardUpdate(modifyNodeObj.getOriginalPacket(), doNotSendToNode);
 		}
 		else {
-			//			System.out.println("--The modify Node message was already seen--");
+			//The modify Node message was already seen
 		}
 
 	}
 
+	/**
+	 * This is called when a packet requesting neighbors and content names </br>
+	 * @param sendToNode
+	 */
 	public void requestNeighbors(String sendToNode){
-		//TODO
+
 		//send request for neighbors 
 		IntrestObj intrestObj = new IntrestObj(sendToNode + "/np", nodeRepo.getThisMachinesName(), 0);
 		sendPacket.createRequestNeighborsIntrestPacket(intrestObj);
-
-		//		//find a next hop to send the packet to 
-		//		String[] prefixSplit = intrestObj.getContentName().split("/");
-		//		String prefix = prefixSplit[0];
-		//		ArrayList<Integer> hashMapsToSearch = new ArrayList<Integer>();
-		//
-		//		//look up in the fib bloom filter, cant have a prefix of zero
-		//		//this can be searched in parallel
-		//		for(int i = 1; i < prefixSplit.length; i++){
-		//
-		//			if(fib.doesPrefixLengthBloomFilterExist(i) == true){				
-		//				if(fib.doesBloomFilterConteinPrefix(i, prefix) == true){
-		//					hashMapsToSearch.add(i);
-		//				}
-		//			}
-		//			prefixSplit[i] = prefix = prefix + "/" + prefixSplit[i];
-		//		}
-		//
-		//		//search the hash maps returned
-		//		//ArrayList<String> bestMatch = new ArrayList<String>();
-		//		String bestCostNode = "";
-		//		String nextHop = "";
-		//
-		//		//search through the longest matching prefix hash map first
-		//		for(int i = hashMapsToSearch.size(); i > 0; i--){
-		//
-		//			//does the hash map for "x" length exist
-		//			if(fib.doesPrefixLengthHashMapExist(hashMapsToSearch.get(i)) == true){
-		//
-		//				//does the prefix in this hash map exist
-		//				if(fib.doesHashMapContainPrefix(hashMapsToSearch.get(i), prefixSplit[hashMapsToSearch.get(i)]) == true){
-		//
-		//					//** if there are multiple advertisers 
-		//					//** if the packet can't get to one advertiser... do not use the other advertiser
-		//					//** this is just kept if the advertiser dies.. not used in routing?
-		//
-		//					//try the next advertiser in the list 
-		//					bestCostNode = fib.getBestCostAdvertiser(hashMapsToSearch.get(i), prefixSplit[hashMapsToSearch.get(i)]);
-		//
-		//					//if best cost == error the node does not exist 
-		//					if(bestCostNode.equals("error") == false){
-		//
-		//						// there was no error
-		//						nextHop = nodeRepo.HMgetNode(bestCostNode).getOriginNextHop();
-		//						break;
-		//					}
-		//				}//if the prefix is not in the hash map ... it might have been a false positive
-		//			}//the hash map did not exist
-		//		}//end for loop	
 
 		String nextHop = fib.searchFIB(intrestObj.getContentName());
 
 		if(nextHop.equals("broadcast") == false){
 			//a route exists
 			//set the sender name to this router
-
-			//fix parse ... add check for blank sender name
 			intrestObj.setOriginRouterName(nodeRepo.getThisMachinesName());
 
 			//modified the packet then forward it 
@@ -499,9 +490,15 @@ public class ProcessUpdates {
 		}
 	}
 
+
+	/**
+	 * This is called to process a request for neighbors</br>
+	 * once the data packet with the neighbors information is received</br>
+	 * this method is called to process the packet
+	 * @param modifyNodeObj
+	 */
 	public void processNeighborsResponse(ModifyNodeObj modifyNodeObj){
 
-		//TODO altered modify node function
 		//if(upDatesSeen.doesMsgIDExist(modifyNodeObj.getMsgID()) == false){
 		//	upDatesSeen.addMsgID(modifyNodeObj.getMsgID(), System.nanoTime());
 
@@ -509,58 +506,45 @@ public class ProcessUpdates {
 
 			ArrayList<String> neighborsToRequest = new ArrayList<String>();
 			ArrayList<String> neighbors = modifyNodeObj.getNeighborsNames();
-			//ArrayList<NeighborAndCostStrings> neighborz = modifyNodeObj.getNeighbors();
-			//			ArrayList<Node> graph = nodeRepo.getGraphList();
-			//			for (Node g : graph) {
-			//				System.out.println("NODES: " + g.getName());
-			//			}
-			for(int i = 0; i < neighbors.size(); i++){
 
-				//				System.out.println("PROCCESS NEIGHBORS RESPONSE: "
-				//						+ neighbors.get(i));
+			for(int i = 0; i < neighbors.size(); i++){
 
 				//check if the node exist for the neighbor
 				if(nodeRepo.HMdoesNodeExist(neighbors.get(i)) == false){
 
-					//					System.out.println("DOES NEIGHBOR EXIST: FALSE ADD NEIGHBOR: "
-					//							+ neighbors.get(i));
 					//if the neighboring node is not in the graph
 					//add the neighbor to the graph
 					addNode(new AddNodeObj(neighbors.get(i)));
 					fib.addPrefixToFIB(neighbors.get(i), neighbors.get(i));
 
-					//request the newly added nodes neighbors
-					// requestNeighbors(neighbors.get(i));
-
-					//nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).addNeighbor(neighborz.get(i).getNeighborName(), neighborz.get(i).getCost());
-
 					neighborsToRequest.add(neighbors.get(i));
 				}
 			}
 
-
-			//System.out.println("Neighbors Reponse::current neighbors: " + nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).getNeighbors());
-
 			//update the neighbors list for the given node
 			nodeRepo.HMsetNeighborList(modifyNodeObj.getName(), modifyNodeObj.getNeighbors());
 
-			//System.out.println("Neighbors Response::new neighbors: " + modifyNodeObj.getNeighbors());
 			//run Dijkstra
 			dijkstras.runDijkstras(nodeRepo.getGraph(), nodeRepo.getThisMachinesName());
 
 			// sort FIB entries
 			fib.findBestCostAdvertisers();
 
-			//System.out.println("SIZE OF LIST: " + neighborsToRequest.size());
 			if (neighborsToRequest.size() > 0) {
 				for (String request : neighborsToRequest) {
 					requestNeighbors(request);
 				}
 			}
 		}
-		//}
+
 	}
 
+	/**
+	 * This is called to process a request for content names</br>
+	 * once the data packet with the content names is received</br>
+	 * this method is called to process the packet
+	 * @param prefixListObj
+	 */
 	public void processPrefixListResponse(PrefixListObj prefixListObj){
 
 		//TODO altered prefix list function
@@ -577,6 +561,14 @@ public class ProcessUpdates {
 		//}
 	}
 
+	/**
+	 * This is called to process a request for neighbors and content names</br>
+	 * This will send out a data packet with the neighbors and </br>
+	 * a data packet with the content names</br>
+	 * Be careful if last packet is set on the first data packet sent, the </br>
+	 * second data packet will be dropped 
+	 * @param neighborRequestObj
+	 */
 	public void processIntrestRequestForNeighbors(NeighborRequestObj neighborRequestObj){
 		//get the neighbors 
 		ModifyNodeObj modifyNodeObj = getMyNeighbors();
@@ -594,15 +586,23 @@ public class ProcessUpdates {
 
 		sendPacket.createDataPacket(dataObj);
 		//send out 1 neighbors data packet
-		sendPacket.forwardPacket(dataObj.getOriginalPacket(), neighborRequestObj.getContentName());
+		sendPacket.forwardPacket(dataObj.getOriginalPacket(), neighborRequestObj.getNextHop());
 
 
 		dataObj.setData(prefixListObj.getOriginalPacket());
 		sendPacket.createDataPacket(dataObj);
 		//send out 1 prefix data packet 
-		sendPacket.forwardPacket(dataObj.getOriginalPacket(), neighborRequestObj.getContentName());
+		sendPacket.forwardPacket(dataObj.getOriginalPacket(), neighborRequestObj.getNextHop());
 	}
 
+	/**
+	 * This method is called an update from another cache server is received</br>
+	 * and a content name needs to be added to the FIB</br>
+	 * This method will also forward the packet after adding the content name.
+	 * @param prefixObj
+	 * @param doNotSendToNode
+	 * @throws IOException
+	 */
 	public void addPrefix(PrefixObj prefixObj, String doNotSendToNode)
 			throws IOException {
 
@@ -623,6 +623,14 @@ public class ProcessUpdates {
 
 	}
 
+	/**
+	 * This method is called an update from another cache server is received</br>
+	 * and a list of content names needs to be added to the FIB</br>
+	 * This method will also forward the packet after adding the content names.
+	 * @param prefixListObj
+	 * @param doNotSendToNode
+	 * @throws IOException
+	 */
 	public void addPrefixList(PrefixListObj prefixListObj,
 			String doNotSendToNode) throws IOException {
 
@@ -645,6 +653,14 @@ public class ProcessUpdates {
 		}
 	}
 
+	/**
+	 * This method is called an update from another cache server is received</br>
+	 * and a content name needs to be removed to the FIB</br>
+	 * This method will also forward the packet after removing the content name.
+	 * @param prefixObj
+	 * @param doNotSendToNode
+	 * @throws IOException
+	 */
 	public void removePrefix(PrefixObj prefixObj, String doNotSendToNode)
 			throws IOException {
 		//if the entry exists remove it 
@@ -666,6 +682,14 @@ public class ProcessUpdates {
 
 	}
 
+	/**
+	 * This method is called an update from another cache server is received</br>
+	 * and a list of content names needs to be removed to the FIB</br>
+	 * This method will also forward the packet after removing the content names.
+	 * @param prefixListObj
+	 * @param doNotSendToNode
+	 * @throws IOException
+	 */
 	public void removePrefixList(PrefixListObj prefixListObj,
 			String doNotSendToNode) throws IOException {
 
@@ -688,6 +712,11 @@ public class ProcessUpdates {
 
 	}
 
+	/**
+	 * Gets this cache servers neighbors, this is used when a request </br>
+	 * for neighbors is received
+	 * @return modify node object
+	 */
 	public ModifyNodeObj getMyNeighbors(){
 		ModifyNodeObj modifyNodeObj = new ModifyNodeObj(nodeRepo.getThisMachinesName(),
 				nodeRepo.HMgetNode(nodeRepo.getThisMachinesName()).getNeighbors(), 
@@ -696,6 +725,11 @@ public class ProcessUpdates {
 		return modifyNodeObj;
 	}
 
+	/**
+	 * Gets the content names for any directly connected clients/servers</br>
+	 * this is called when a request for content names is recieved.
+	 * @return prefix list object 
+	 */
 	public PrefixListObj getMyDirectlyConnectedPrefixes(){
 		ArrayList<String> prefixList = new ArrayList<String>();
 		String[] clientNeighbors = directlyConnectedNodes.getDirectlyConnectedClientsList();

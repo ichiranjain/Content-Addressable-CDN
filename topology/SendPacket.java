@@ -5,7 +5,6 @@ import java.io.IOException;
 import overlay.Message;
 import overlay.Peer;
 import packetObjects.DataObj;
-import packetObjects.HelloObj;
 import packetObjects.IntrestObj;
 import packetObjects.LinkObj;
 import packetObjects.ModifyNodeObj;
@@ -182,28 +181,28 @@ public class SendPacket {
 
 		dataObj.setOriginalPacket(packet.toString());
 	}
-	public void sendHelloPacket(HelloObj helloObj){
-		JsonObject packet = new JsonObject();
-
-		packet.addProperty("type", "update");
-		packet.addProperty("action", "hello");
-		packet.addProperty("fromName", helloObj.getFromName());
-		packet.addProperty("requestTable", helloObj.getRequestTable());
-
-		String pkt  = packet.toString();
-		helloObj.setOriginalPacket(pkt);
-	}
-	public void sendHeartBeatReponsePacket(HelloObj helloObj){
-		JsonObject packet = new JsonObject();
-
-		packet.addProperty("type", "update");
-		packet.addProperty("action", "response");
-		packet.addProperty("fromName", helloObj.getFromName());
-		packet.addProperty("requestTable", helloObj.getRequestTable());
-
-		String pkt  = packet.toString();
-		helloObj.setOriginalPacket(pkt);
-	}
+	//	public void sendHelloPacket(HelloObj helloObj){
+	//		JsonObject packet = new JsonObject();
+	//
+	//		packet.addProperty("type", "update");
+	//		packet.addProperty("action", "hello");
+	//		packet.addProperty("fromName", helloObj.getFromName());
+	//		packet.addProperty("requestTable", helloObj.getRequestTable());
+	//
+	//		String pkt  = packet.toString();
+	//		helloObj.setOriginalPacket(pkt);
+	//	}
+	//	public void sendHeartBeatReponsePacket(HelloObj helloObj){
+	//		JsonObject packet = new JsonObject();
+	//
+	//		packet.addProperty("type", "update");
+	//		packet.addProperty("action", "response");
+	//		packet.addProperty("fromName", helloObj.getFromName());
+	//		packet.addProperty("requestTable", helloObj.getRequestTable());
+	//
+	//		String pkt  = packet.toString();
+	//		helloObj.setOriginalPacket(pkt);
+	//	}
 
 	public void createIntrestPacket(IntrestObj intrestObj){
 
@@ -242,6 +241,7 @@ public class SendPacket {
 		packet.addProperty("action", "neighborRequest");
 		packet.addProperty("contentName", neighborRequestObj.getContentName());
 		packet.addProperty("originRouter", neighborRequestObj.getOriginRouter());
+		packet.addProperty("nextHop", neighborRequestObj.getNextHop());
 
 		String pkt  = packet.toString();
 		neighborRequestObj.setOriginalPacket(pkt);

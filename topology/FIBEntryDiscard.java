@@ -2,6 +2,14 @@ package topology;
 
 import java.util.ArrayList;
 
+/**
+ * This class removes FIB entries who's nodes have been removed from the graph.</br>
+ * sleep time: determines how long the thread should sleep for in milliseconds</br>
+ * keep running : is a boolean that is checked, this boolean if set to false </br>
+ * by the main will cause this thread to terminate
+ * @author spufflez
+ *
+ */
 public class FIBEntryDiscard implements Runnable{
 
 	FIB fib;
@@ -9,6 +17,13 @@ public class FIBEntryDiscard implements Runnable{
 	volatile boolean keepRunning;
 	NodeRepository nodeRepo;
 
+	/**
+	 * Constructor
+	 * @param fib
+	 * @param nodeRepo
+	 * @param sleepTime
+	 * @param keepRunning
+	 */
 	public FIBEntryDiscard(FIB fib, NodeRepository nodeRepo, int sleepTime, boolean keepRunning) {
 		this.fib = fib;
 		this.sleepTime = sleepTime;

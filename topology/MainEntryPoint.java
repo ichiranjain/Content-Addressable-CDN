@@ -10,6 +10,16 @@ import packetObjects.PrefixListObj;
 import packetObjects.PrefixObj;
 
 
+/**
+ * This class is the main thread to start initialize all the routing tables and</br>
+ * start all the routing threads.</br>
+ * It also contains all of the routing functions that are called from the </br>
+ * terminal while the cache server is running.
+ * 
+ * This machines name: is the ID of this machine</br>
+ * @author spufflez
+ *
+ */
 public class MainEntryPoint implements Runnable{
 
 	String thisMachinesName;
@@ -28,6 +38,15 @@ public class MainEntryPoint implements Runnable{
 	FIB fib;
 	Scanner scanner; 
 
+	/**
+	 * COnstructor
+	 * @param thisMachinesName
+	 * @param pitSleepTime
+	 * @param pitKeepMsgTime
+	 * @param msgIDSleepTime
+	 * @param msgIDKeepMsgTime
+	 * @param fibSleepTime
+	 */
 	public MainEntryPoint(String thisMachinesName, int pitSleepTime, long pitKeepMsgTime, int msgIDSleepTime, long msgIDKeepMsgTime, int fibSleepTime) {
 		//System.out.println("MainEntryPoint constructor called...");
 		this.thisMachinesName = thisMachinesName;
