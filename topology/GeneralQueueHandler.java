@@ -2,6 +2,14 @@ package topology;
 
 import packetObjects.PacketObj;
 
+/**
+ * This class removes packets from the queue that the overlay places packets in</br>
+ * and parses them into objects. The objects are then placed in the routing </br>
+ * or update queue.
+ * 
+ * @author spufflez
+ *
+ */
 public class GeneralQueueHandler implements Runnable{
 
 	//Parse parse;
@@ -9,6 +17,11 @@ public class GeneralQueueHandler implements Runnable{
 	volatile boolean running;
 	GenericParser genericParser;
 
+	/**
+	 * Constructor
+	 * @param packetQueue2
+	 * @param running
+	 */
 	public GeneralQueueHandler(PacketQueue2 packetQueue2, boolean running) {
 		//parse = new Parse();
 		this.packetQueue2 = packetQueue2;

@@ -13,7 +13,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
-
+/**
+ * This class parses raw packets into there corresponding object
+ * @author spufflez
+ *
+ */
 public class Parse2 {
 
 	Gson gson = new Gson();
@@ -24,7 +28,13 @@ public class Parse2 {
 
 
 
-
+	/**
+	 * Parses a prefix packet 
+	 * @param jsonObject
+	 * @param originalPacket
+	 * @return prefix object 
+	 * @throws Exception
+	 */
 	public PrefixObj parsePrefixJson(JsonObject jsonObject, String originalPacket) throws Exception{
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
@@ -44,6 +54,14 @@ public class Parse2 {
 		return prefixInfo;
 	}
 
+
+	/**
+	 * Parses an interest packet 
+	 * @param jsonObject
+	 * @param originalPacket
+	 * @return interest object 
+	 * @throws Exception
+	 */
 	public IntrestObj parseIntrestJson(JsonObject jsonObject, String originalPacket) throws Exception{
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
@@ -60,6 +78,13 @@ public class Parse2 {
 		return intrestInfo;
 	}
 
+	/**
+	 * Parses a data packet 
+	 * @param jsonObject
+	 * @param originalPacket
+	 * @return data object 
+	 * @throws Exception
+	 */
 	public DataObj parseDataJson(JsonObject jsonObject, String originalPacket) throws Exception{
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
@@ -85,6 +110,12 @@ public class Parse2 {
 		return dataInfo; 
 	}
 
+	/**
+	 * Parses a prefix list packet ( update containing multiple content names)
+	 * @param jsonObject
+	 * @return prefix list object
+	 * @throws Exception
+	 */
 	public PrefixListObj parsePrefixListJson(JsonObject jsonObject) throws Exception{
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
@@ -105,6 +136,12 @@ public class Parse2 {
 		return prefixListObj;
 	}
 
+	/**
+	 * Parses a add client packet 
+	 * @param jsonObject
+	 * @return link object
+	 * @throws Exception
+	 */
 	public LinkObj parseClientAddNodeJson(JsonObject jsonObject) throws Exception{
 
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
@@ -120,6 +157,12 @@ public class Parse2 {
 
 	}
 
+	/**
+	 * Parses a remove clinet packet 
+	 * @param jsonObject
+	 * @return link object 
+	 * @throws Exception
+	 */
 	public LinkObj parseClientRemoveNodeJson(JsonObject jsonObject) throws Exception{
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 		JsonElement jsonNameElement = jsonObject.get("nodeName");
@@ -133,6 +176,12 @@ public class Parse2 {
 		return linkObjInfo;
 	}
 
+	/**
+	 * Parses an add link packet 
+	 * @param jsonObject
+	 * @return link object
+	 * @throws Exception
+	 */
 	public LinkObj parseAddLink(JsonObject jsonObject) throws Exception{
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
@@ -145,6 +194,13 @@ public class Parse2 {
 		return new LinkObj(nodeName, cost);
 	}
 
+
+	/**
+	 * Parses a remove link packet 
+	 * @param jsonObject
+	 * @return link object 
+	 * @throws Exception
+	 */
 	public LinkObj parseRemoveLink(JsonObject jsonObject) throws Exception{
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 
@@ -157,6 +213,13 @@ public class Parse2 {
 		return new LinkObj(nodeName, cost);
 	}
 
+	/**
+	 * Parses a modify link packet 
+	 * @param jsonObject
+	 * @param originalPacket
+	 * @return link object 
+	 * @throws Exception
+	 */
 	public LinkObj parseModifyLink(JsonObject jsonObject, String originalPacket) throws Exception{
 		//JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
 

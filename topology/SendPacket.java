@@ -11,14 +11,29 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 
+/**
+ * This class is used to convert an object to json and add the </br>
+ * headers. The packet is saved as a json string and saved to </br>
+ * original packet in the object. 
+ * @author spufflez
+ *
+ */
 public class SendPacket {
 
 	Gson gson = new Gson();
 
+	/**
+	 * Constructor
+	 */
 	public SendPacket(){
 
 	}
 
+	/**
+	 * Creates a client prefix packet in json, this is used to send </br>
+	 * one content name to the cache server
+	 * @param prefixObj
+	 */
 	public void createClientPrefix(PrefixObj prefixObj){
 		JsonObject packet = new JsonObject();
 
@@ -31,6 +46,12 @@ public class SendPacket {
 
 		prefixObj.setOriginalPacket(packet.toString());
 	}
+
+	/**
+	 * Creates a client prefix list packet in json, this is used to send </br>
+	 * a list of content names to the cache server
+	 * @param prefixListObj
+	 */
 	public void createClientPrefixList(PrefixListObj prefixListObj){
 		JsonObject packet = new JsonObject();
 
@@ -45,6 +66,10 @@ public class SendPacket {
 		prefixListObj.setOriginalPacket(packet.toString());
 	}
 
+	/**
+	 * Creates an interest packet 
+	 * @param intrestObj
+	 */
 	public void createIntrestPacket(IntrestObj intrestObj){
 
 		JsonObject packet = new JsonObject();
@@ -59,6 +84,11 @@ public class SendPacket {
 		intrestObj.setOriginalPacket(packet.toString());
 
 	}
+
+	/**
+	 * Creates a Data packet
+	 * @param dataObj
+	 */
 	public void createDataPacket(DataObj dataObj){
 		JsonObject packet = new JsonObject();
 
@@ -71,15 +101,14 @@ public class SendPacket {
 		packet.addProperty("cacheFlag", dataObj.getCacheFlag());
 		packet.addProperty("lastChunk", dataObj.getLastChunk());
 
-		//String pkt  = packet.toString();
 		dataObj.setOriginalPacket(packet.toString());
 
 	}
 
-	/*
-	 * Depending on what I need to pass to gurav's function 
-	 * if it can be made generic, then use on generic 
-	 * forward function instead of separate forward functions
+
+	/**
+	 * Send a packet to the cache server
+	 * @param packet
 	 */
 	public void forwardPacket(String packet) {
 
