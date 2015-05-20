@@ -191,9 +191,10 @@ public class SendPacket {
 		// this will forward a packet to only the router specified
 		Message<String> packetMessage = new Message<String>(7, packet);
 		ServerLFS.sendMessage(nextHop, packetMessage);
+		System.out.println("-------------------------------------------");
 		System.out.println("    -Forward packet next hop provided-");
-		System.out.println("packet: " + packet);
-		System.out.println("nextHop: " + nextHop);
+		//System.out.println("packet: " + packet);
+		//System.out.println("nextHop: " + nextHop);
 		System.out.println("-------------------------------------------");
 		System.out.println("");
 	}
